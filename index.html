@@ -1514,6 +1514,7 @@ function abrirEditarPedido(id) {
     document.getElementById('ep-dia').value = p.dia||'Lunes';
     selPagoEditPedido(p.pago||'efectivo');
     selEstadoEditPedido(p.estado||'pagado');
+    console.log('Opening edit for pedido, estado:', p.estado);
     const fp = p.fechaPedido ? new Date(p.fechaPedido+'T12:00:00') : new Date(p.fecha);
     const fe = p.fechaEntrega ? new Date(p.fechaEntrega+'T12:00:00') : fp;
     fillDateSel('ep-fp', fp);
@@ -1552,6 +1553,7 @@ async function guardarEditarPedido() {
   data.pedidos[idx].total = total;
   data.pedidos[idx].dia = dia;
   data.pedidos[idx].pago = pagoEditPedidoSel;
+  data.pedidos[idx].estado = estadoEditPedidoSel;
   data.pedidos[idx].fechaPedido = fp;
   data.pedidos[idx].fechaEntrega = fe;
 
