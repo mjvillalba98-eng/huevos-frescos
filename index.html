@@ -498,6 +498,24 @@
     </div>
   </div>
 </div>
+
+<!-- MODAL HISTORIAL CLIENTE -->
+<div class="modal-bg" id="modal-historial">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h3 id="hist-nombre" style="margin:0;">—</h3>
+      <button onclick="document.getElementById('modal-historial').classList.remove('open')" style="background:var(--light);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;color:var(--brown);">✕ Cerrar</button>
+    </div>
+    <div id="hist-info" style="font-size:12px;color:var(--muted);margin-bottom:1rem;"></div>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem;">
+      <div class="stat"><div class="num" id="hist-total-pedidos" style="font-size:18px;">—</div><div class="lbl">Pedidos</div></div>
+      <div class="stat green"><div class="num" id="hist-cobrado" style="font-size:18px;">—</div><div class="lbl">Cobrado</div></div>
+      <div class="stat red"><div class="num" id="hist-pendiente" style="font-size:18px;">—</div><div class="lbl">Pendiente</div></div>
+    </div>
+    <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--brown);margin-bottom:8px;">Historial de pedidos</div>
+    <div id="hist-pedidos"></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -751,7 +769,7 @@ function renderClientes(busca='') {
     const cobrado=total-pendiente;
     const ultFecha=ps.length?formatDate(ps.reduce((a,b)=>new Date(a.fechaPedido||a.fecha)>new Date(b.fechaPedido||b.fecha)?a:b).fechaPedido||ps[0].fecha):'—';
     const freq = calcFrecuencia(c.id);
-    return `<div class="client-card">
+    return `<div class="client-card" onclick="abrirHistorial(${c.id})" style="cursor:pointer;">
       <div class="client-header">
         <div style="flex:1;min-width:0">
           <div class="client-name">${c.nombre}</div>
@@ -769,10 +787,10 @@ function renderClientes(busca='') {
       </div>
       ${freq?`<div class="frecuencia-bar"><div class="freq-title">Frecuencia de compra</div><div class="freq-info">Pide cada ~${freq} días</div>${freqNextInfo(c.id,freq)}</div>`:''}
       <div class="client-actions">
-        <button class="btn-sm add" onclick="abrirModal(${c.id})">+ Pedido</button>
-        <button class="btn-sm edit" onclick="abrirEditar(${c.id})">✏️ Editar</button>
-        ${c.tel?`<button class="btn-sm wa" onclick="enviarWhatsApp(${c.id})">📲 WA</button>`:''}
-        <button class="btn-sm del" onclick="eliminarCliente(${c.id})">Eliminar</button>
+        <button class="btn-sm add" onclick="event.stopPropagation();abrirModal(${c.id})">+ Pedido</button>
+        <button class="btn-sm edit" onclick="event.stopPropagation();abrirEditar(${c.id})">✏️ Editar</button>
+        ${c.tel?`<button class="btn-sm wa" onclick="event.stopPropagation();enviarWhatsApp(${c.id})">📲 WA</button>`:''}
+        <button class="btn-sm del" onclick="event.stopPropagation();eliminarCliente(${c.id})">Eliminar</button>
       </div>
     </div>`;
   }).join('');
