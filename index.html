@@ -692,6 +692,7 @@ async function agregarCliente() {
     if(document.getElementById('conf-estado')) document.getElementById('conf-estado').textContent = estadoConf==='Pendiente de pago'?'⏳ Pendiente de pago':'✅ Pagado';
     document.getElementById('conf-entrega').textContent = formatDate(ppFE)+' ('+ppDia+')';
     pendingPedido = {clienteId:nuevoId, bandejas:ppBandejas, precio:ppPrecio, total:ppTotal, dia:ppDia, pago:pagoSelPP, estado:estadoSelPP, fechaEntrega:ppFE};
+    confirmacionOrigen = 'nuevo';
     document.getElementById('modal-confirmar-pedido').classList.add('open');
   } else {
     toast('✓ Cliente añadido');
@@ -982,9 +983,20 @@ function updateStatsCompras() {
 
 
 
+var confirmacionOrigen = 'pedidos'; // 'pedidos' or 'nuevo'
+
 function editarConfirmacion() {
   document.getElementById('modal-confirmar-pedido').classList.remove('open');
-  // pendingPedido stays in memory so user can modify and resubmit
+  // Go back to where user came from
+  if(confirmacionOrigen === 'nuevo') {
+    // Reopen the nuevo cliente form
+    var form = document.getElementById('nuevo-cliente-form');
+    var icon = document.getElementById('btn-toggle-icon');
+    if(form) { form.style.display = 'block'; if(icon) icon.textContent = '−'; }
+  } else {
+    // Go back to pedidos tab
+    showTab('pedidos');
+  }
   pendingPedido = null;
 }
 
