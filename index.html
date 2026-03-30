@@ -980,22 +980,21 @@ function updateStatsCompras() {
 var confirmacionOrigen = 'pedidos'; // 'pedidos' or 'nuevo'
 
 function editarConfirmacion() {
+  // Clear pending data FIRST before anything else
+  var origen = confirmacionOrigen;
+  pendingPedido = null;
+  pendingCliente = null;
   document.getElementById('modal-confirmar-pedido').classList.remove('open');
-  if(confirmacionOrigen === 'nuevo') {
-    // Reopen the nuevo cliente form with data still there
+  if(origen === 'nuevo') {
     var form = document.getElementById('nuevo-cliente-form');
     var icon = document.getElementById('btn-toggle-icon');
     if(form) { form.style.display = 'block'; if(icon) icon.textContent = '−'; }
-    // Reopen primer pedido form too
     var ppForm = document.getElementById('primer-pedido-form');
     var ppIcon = document.getElementById('icon-primer-pedido');
     if(ppForm) { ppForm.style.display = 'block'; if(ppIcon) ppIcon.textContent = '−'; }
   } else {
     showTab('pedidos');
   }
-  // Keep pendingPedido and pendingCliente in memory so data is preserved
-  pendingPedido = null;
-  pendingCliente = null;
 }
 
 async function confirmarYEnviarWA() {
