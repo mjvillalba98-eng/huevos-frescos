@@ -222,13 +222,18 @@
       <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px;">
-      <button onclick="filtrarPedidos('todos')" id="fpb-todos" class="tab active" style="white-space:nowrap;font-size:12px;padding:6px 12px;">Todos</button>
-      <button onclick="filtrarPedidos('pendiente-entrega')" id="fpb-pendiente-entrega" class="tab" style="white-space:nowrap;font-size:12px;padding:6px 12px;">📦 Pendiente entrega</button>
-      <button onclick="filtrarPedidos('en-camino')" id="fpb-en-camino" class="tab" style="white-space:nowrap;font-size:12px;padding:6px 12px;">🚚 En camino</button>
-      <button onclick="filtrarPedidos('entregados')" id="fpb-entregados" class="tab" style="white-space:nowrap;font-size:12px;padding:6px 12px;">✅ Entregados</button>
+      <button onclick="filtrarPedidos('todos')" id="fpb-todos" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--brown);background:var(--brown);color:white;cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">Todos</button>
+      <button onclick="filtrarPedidos('pendiente-entrega')" id="fpb-pendiente-entrega" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:white;color:var(--brown);cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">📦 Pendiente</button>
+      <button onclick="filtrarPedidos('en-camino')" id="fpb-en-camino" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:white;color:var(--brown);cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">🚚 En camino</button>
+      <button onclick="filtrarPedidos('entregados')" id="fpb-entregados" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:white;color:var(--brown);cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">✅ Entregados</button>
     </div>
+    <div style="margin-bottom:1rem;">
+      <button onclick="toggleFormPedido()" id="btn-toggle-pedido" style="width:100%;background:var(--orange);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <span id="icon-toggle-pedido">+</span> Registrar nuevo pedido
+      </button>
+      <div id="form-pedido-container" style="display:none;margin-top:8px;">
     <div class="card">
-      <h2>Registrar pedido</h2>
+      <h2>Datos del pedido</h2>
       <div class="form-group" style="margin-bottom:8px"><label>Cliente</label><select id="p-cliente"></select></div>
       <div class="form-row">
         <div class="form-group"><label>Bandejas</label><input id="p-bandejas" type="number" min="1" value="1"/></div>
@@ -281,6 +286,8 @@
         </div>
       </div>
       <button class="btn" id="btn-guardar-pedido" onclick="agregarPedido()">Registrar pedido</button>
+    </div>
+      </div>
     </div>
     <div class="card"><h2>Últimos pedidos</h2><div id="lista-pedidos"></div></div>
   </div>
@@ -623,7 +630,22 @@ DATA_DOC.onSnapshot(function(snap) {
     if(!data.compras) data.compras = [];
     if(!data.clientes) data.clientes = [];
     if(!data.pedidos) data.pedidos = [];
-    renderClientes(); updateStats(); setSyncStatus('ok');
+    renderClientes();
+    updateStats();
+    // Refresh visible tabs
+    var pedidosTab = document.getElementById('tab-pedidos');
+    if(pedidosTab && !pedidosTab.classList.contains('section-hidden')) {
+      renderPedidos(); renderSelectClientes();
+    }
+    var comprasTab = document.getElementById('tab-compras');
+    if(comprasTab && !comprasTab.classList.contains('section-hidden')) {
+      renderCompras(); updateStatsCompras();
+    }
+    var segTab = document.getElementById('tab-seguimiento');
+    if(segTab && !segTab.classList.contains('section-hidden')) {
+      renderSeguimiento();
+    }
+    setSyncStatus('ok');
   }
 }, function(e) {
   console.error('Snapshot error:', e);
@@ -916,11 +938,40 @@ function marcarEnCamino(id) {
   guardarDatos(); renderPedidos(); toast('🚚 Marcado como en camino');
 }
 
+
+function toggleFormPedido() {
+  var form = document.getElementById('form-pedido-container');
+  var icon = document.getElementById('icon-toggle-pedido');
+  var btn = document.getElementById('btn-toggle-pedido');
+  if(form.style.display === 'none' || form.style.display === '') {
+    form.style.display = 'block';
+    icon.textContent = '−';
+    btn.innerHTML = '<span>−</span> Cerrar formulario';
+    var today = new Date();
+    fillDateSel('p-fp', today);
+    fillDateSel('p-fe', today);
+    renderSelectClientes();
+  } else {
+    form.style.display = 'none';
+    icon.textContent = '+';
+    btn.innerHTML = '<span>+</span> Registrar nuevo pedido';
+  }
+}
+
 function filtrarPedidos(filtro) {
   filtroActual = filtro;
   ['todos','pendiente-entrega','en-camino','entregados'].forEach(function(f) {
     var btn = document.getElementById('fpb-'+f);
-    if(btn) btn.classList.toggle('active', f===filtro);
+    if(!btn) return;
+    if(f===filtro) {
+      btn.style.background = 'var(--brown)';
+      btn.style.color = 'white';
+      btn.style.borderColor = 'var(--brown)';
+    } else {
+      btn.style.background = 'white';
+      btn.style.color = 'var(--brown)';
+      btn.style.borderColor = 'var(--border)';
+    }
   });
   renderPedidos();
 }
@@ -1441,7 +1492,7 @@ function selPagoEditPedido(tipo) {
 }
 
 function abrirEditarPedido(id) {
-  editPedidoId = parseInt(id);
+  editPedidoId = id;
   const p = (data.pedidos||[]).find(p=>p.id===id);
   if(!p) return;
   // Open modal first so elements are visible
@@ -1473,8 +1524,8 @@ async function guardarEditarPedido() {
   btn.textContent = 'Guardando...';
 
   let idx = -1;
-  for(let i=0; i<(data.pedidos||[]).length; i++) {
-    if(parseInt(data.pedidos[i].id) === parseInt(editPedidoId)) { idx = i; break; }
+  for(var i=0; i<(data.pedidos||[]).length; i++) {
+    if(String(data.pedidos[i].id) === String(editPedidoId)) { idx = i; break; }
   }
 
   if(idx === -1) { toast('Error: pedido no encontrado'); btn.disabled=false; btn.textContent='Guardar cambios'; return; }
