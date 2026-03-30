@@ -1087,8 +1087,7 @@ function enviarGracias(id) {
 
   const tel = c.tel.split(' ').join('').split('-').join('');
   const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
-  const url = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
-  window.open(url, '_blank');
+  window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
 }
 
 
@@ -1394,17 +1393,16 @@ function enviarWhatsApp(clienteId) {
   const freq = calcFrecuencia(clienteId);
   const diasDesde = ps.length ? Math.floor((Date.now()-Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000) : null;
 
-  let mensaje = `🐔🥚 ¡Hola ${c.nombre}!\n\nVemos que esta semana todavía no has pedido tus huevos... 😢\n\n¡Aquí seguimos con los huevos bien frescos esperando tu pedido! 😊✨\n\n🧺 Bandeja 30 huevos L — 8.50€\n📅 Repartos: viernes, sábado y domingo\n📞 689 273 452 / 676 075 510`;
+  let mensaje = '🥚 ¡Hola '+c.nombre+'!\n\nVemos que esta semana todavía no has pedido tus huevos... ¡Las gallinas te echan de menos! 🐔\n\n❤️ ¿Todo bien? ¿Cuántas bandejas quieres pedir esta semana? ¡Estamos pendientes de ti!\n\n🧺 Bandeja 30 huevos L — 8.50€\n📅 Repartos: viernes, sábado y domingo\n📞 689 273 452 / 676 075 510';
 
   if(pendiente > 0) {
-    mensaje += `\n\n⚠️ Por cierto, tienes pendiente de pagar ${pendiente.toFixed(2)}€ de tu último pedido 😊`;
+    mensaje += '\n\n⚠️ Por cierto, tienes pendiente de pagar '+pendiente.toFixed(2)+'€ de tu último pedido 😊';
   }
 
   // Clean phone number
   const tel = c.tel.split(' ').join('').split('-').join('');
   const telLimpio = (tel.charAt(0)==='+') ? tel : '34'+tel;
-  const url = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
-  window.open(url, '_blank');
+  window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
 }
 
 
