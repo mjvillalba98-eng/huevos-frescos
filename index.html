@@ -439,12 +439,22 @@
         <select id="ep-fe-ano"></select>
       </div>
     </div>
-    <div class="form-group" style="margin-bottom:10px">
-      <label>Día de entrega</label>
-      <select id="ep-dia">
-        <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
-        <option>Viernes</option><option>Sábado</option><option>Domingo</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Día de entrega</label>
+        <select id="ep-dia">
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+          <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Estado de entrega</label>
+        <select id="ep-estado-entrega">
+          <option value="pendiente-entrega">📦 Pendiente de entrega</option>
+          <option value="en-camino">🚚 En camino</option>
+          <option value="entregado">✅ Entregado</option>
+        </select>
+      </div>
     </div>
     <div class="form-group" style="margin-bottom:8px">
       <label>Método de pago</label>
@@ -1515,6 +1525,11 @@ function abrirEditarPedido(id) {
     selPagoEditPedido(p.pago||'efectivo');
     selEstadoEditPedido(p.estado||'pagado');
     console.log('Opening edit for pedido, estado:', p.estado);
+    var epEstadoEntrega = document.getElementById('ep-estado-entrega');
+    if(epEstadoEntrega) {
+      if(p.entregado) epEstadoEntrega.value = 'entregado';
+      else epEstadoEntrega.value = p.estadoEntrega || 'pendiente-entrega';
+    }
     const fp = p.fechaPedido ? new Date(p.fechaPedido+'T12:00:00') : new Date(p.fecha);
     const fe = p.fechaEntrega ? new Date(p.fechaEntrega+'T12:00:00') : fp;
     fillDateSel('ep-fp', fp);
@@ -1554,6 +1569,16 @@ async function guardarEditarPedido() {
   data.pedidos[idx].dia = dia;
   data.pedidos[idx].pago = pagoEditPedidoSel;
   data.pedidos[idx].estado = estadoEditPedidoSel;
+  var epEE = document.getElementById('ep-estado-entrega');
+  if(epEE) {
+    if(epEE.value === 'entregado') {
+      data.pedidos[idx].entregado = true;
+      data.pedidos[idx].estadoEntrega = 'entregado';
+    } else {
+      data.pedidos[idx].entregado = false;
+      data.pedidos[idx].estadoEntrega = epEE.value;
+    }
+  }
   data.pedidos[idx].fechaPedido = fp;
   data.pedidos[idx].fechaEntrega = fe;
 
