@@ -742,7 +742,7 @@ async function agregarPedido() {
   pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,pago:pagoSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
 
   // Show confirmation modal
-  const c = (data.clientes||[]).find(function(c){return c.id===clienteId;});
+  const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(clienteId);});
   document.getElementById('conf-cliente').textContent = c ? c.nombre : '—';
   document.getElementById('conf-bandejas').textContent = bandejas + ' bandeja' + (bandejas>1?'s':'');
   document.getElementById('conf-total').textContent = total.toFixed(2)+'€';
@@ -850,7 +850,7 @@ async function confirmarYEnviarWA() {
   renderPedidos();
 
   // Send WhatsApp
-  const c = (data.clientes||[]).find(function(c){return c.id===pendingPedido.clienteId;});
+  const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(pendingPedido.clienteId);});
   if(c && c.tel) {
     const pagoTexto = pendingPedido.pago==='efectivo'?'Efectivo':pendingPedido.pago==='bizum'?'Bizum':'Pendiente de pago';
     const mensaje = '🥚 ¡Hola '+c.nombre+'!\n\n✅ Confirmamos tu pedido:\n\n'
@@ -861,7 +861,13 @@ async function confirmarYEnviarWA() {
       + '¡Gracias por tu compra! 🙏';
     const tel = c.tel.split(' ').join('').split('-').join('');
     const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
-    window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+    var waUrl = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+    var a = document.createElement('a');
+    a.href = waUrl;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
   pendingPedido = null;
   toast('✓ Pedido guardado');
