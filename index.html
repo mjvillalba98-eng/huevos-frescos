@@ -120,10 +120,45 @@
 
     <div id="nuevo-cliente-section" style="margin-bottom:1rem;">
       <button onclick="toggleNuevoCliente()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;" id="btn-toggle-nuevo">
-        <span>+</span> Añadir nuevo cliente
+        <span id="btn-toggle-icon">+</span> Añadir nuevo cliente
       </button>
-      <div id="nuevo-cliente-form" style="display:none;margin-top:8px;">
-
+      <div id="nuevo-cliente-form" style="display:none;margin-top:8px;background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);">
+        <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:600;margin-bottom:.9rem;color:var(--brown);">Nuevo cliente</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;color:var(--muted);font-weight:500;">Nombre *</label>
+            <input id="nc-nombre" placeholder="María García" autocomplete="off" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+              <label style="font-size:12px;color:var(--muted);font-weight:500;">Teléfono</label>
+              <input id="nc-tel" placeholder="689 000 000" type="tel" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+              <label style="font-size:12px;color:var(--muted);font-weight:500;">Dirección</label>
+              <input id="nc-dir" placeholder="Calle Mayor 4" autocomplete="off" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+              <label style="font-size:12px;color:var(--muted);font-weight:500;">Nacionalidad</label>
+              <input id="nc-nac" placeholder="Española" autocomplete="off" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+              <label style="font-size:12px;color:var(--muted);font-weight:500;">Día de reparto</label>
+              <select id="nc-dia" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;">
+                <option value="">Sin preferencia</option>
+                <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+                <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--light);border-radius:10px;margin-top:4px;">
+            <input type="checkbox" id="nc-crear-pedido" style="width:18px;height:18px;cursor:pointer;"/>
+            <label for="nc-crear-pedido" style="font-size:13px;color:var(--brown);font-weight:500;cursor:pointer;">Crear primer pedido al guardar</label>
+          </div>
+        </div>
+        <button onclick="agregarCliente()" style="background:var(--orange);color:white;border:none;border-radius:10px;padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;width:100%;margin-top:8px;" id="btn-guardar-cliente">Guardar cliente</button>
       </div>
     </div>
     <input class="search" placeholder="🔍 Buscar cliente..." oninput="renderClientes(this.value)" id="buscador">
@@ -898,13 +933,13 @@ function enviarGracias(id) {
 
 function toggleNuevoCliente() {
   var form = document.getElementById('nuevo-cliente-form');
-  var btn = document.getElementById('btn-toggle-nuevo');
-  if(form.style.display === 'none') {
+  var icon = document.getElementById('btn-toggle-icon');
+  if(form.style.display === 'none' || form.style.display === '') {
     form.style.display = 'block';
-    btn.innerHTML = '<span>−</span> Cerrar';
+    icon.textContent = '−';
   } else {
     form.style.display = 'none';
-    btn.innerHTML = '<span>+</span> Añadir nuevo cliente';
+    icon.textContent = '+';
   }
 }
 
