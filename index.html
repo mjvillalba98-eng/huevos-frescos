@@ -1009,8 +1009,9 @@ window.guardarEditarPedido = async function() {
   renderClientes();
   toast('Pedido actualizado');
 }
-['modal-pedido','modal-editar','modal-editar-pedido'].forEach(id => {
-  document.getElementById(id).addEventListener('click', function(e){
+['modal-pedido','modal-editar','modal-editar-pedido'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if(el) el.addEventListener('click', function(e){
     if(e.target===this){window.cerrarModal();window.cerrarEditar();window.cerrarEditarPedido();}
   });
 });
