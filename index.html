@@ -64,7 +64,7 @@
   .pedido-right{text-align:right;display:flex;align-items:center;gap:8px;}
   .pedido-amount{font-weight:700;color:var(--orange);font-size:15px;}
   .pago-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block;margin-top:3px;}
-  .pago-efectivo{background:#D6F0E2;color:var(--green);}.pago-bizum{background:#E8E0FF;color:var(--purple);}.pago-pendiente{background:#FFE8E8;color:var(--red);}
+  .pago-efectivo{background:#D6F0E2;color:var(--green);}.pago-bizum{background:#E8E0FF;color:var(--purple);}.pago-pendiente{background:#FFE8E8;color:var(--red);}.pago-pagado{background:#D6F0E2;color:var(--green);}.estado-pagado{border-color:var(--green);background:#D6F0E2;color:var(--green);}.estado-pendiente{border-color:var(--red);background:#FFE8E8;color:var(--red);}
   .empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);}
   .empty .icon{font-size:40px;margin-bottom:10px;}.empty p{font-size:14px;line-height:1.6;}
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(59,26,0,0.5);z-index:100;align-items:flex-end;justify-content:center;}
@@ -192,12 +192,18 @@
                   <option>Viernes</option><option>Sábado</option><option>Domingo</option>
                 </select>
               </div>
-              <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
                 <label style="font-size:12px;color:var(--muted);font-weight:500;">Método de pago</label>
                 <div style="display:flex;gap:6px;">
                   <button type="button" class="pago-btn sel-efectivo" id="ppb-efectivo" onclick="selPagoPP('efectivo')">💵 Efectivo</button>
                   <button type="button" class="pago-btn" id="ppb-bizum" onclick="selPagoPP('bizum')">📱 Bizum</button>
-                  <button type="button" class="pago-btn" id="ppb-pendiente" onclick="selPagoPP('pendiente')">⏳ Pendiente</button>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <label style="font-size:12px;color:var(--muted);font-weight:500;">Estado del pago</label>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="pago-btn sel-efectivo" id="ppb-pagado" onclick="selEstadoPP('pagado')">✅ Pagado</button>
+                  <button type="button" class="pago-btn" id="ppb-pendientepago" onclick="selEstadoPP('pendiente')">⏳ Pendiente de pago</button>
                 </div>
               </div>
             </div>
@@ -265,7 +271,13 @@
         <div class="pago-selector">
           <button class="pago-btn" id="pb-efectivo" onclick="selPago('efectivo')">💵 Efectivo</button>
           <button class="pago-btn" id="pb-bizum" onclick="selPago('bizum')">📱 Bizum</button>
-          <button class="pago-btn" id="pb-pendiente" onclick="selPago('pendiente')">⏳ Pendiente</button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Estado del pago</label>
+        <div class="pago-selector">
+          <button class="pago-btn sel-efectivo" id="pb-pagado" onclick="selEstado('pagado')">✅ Pagado</button>
+          <button class="pago-btn" id="pb-pendientepago" onclick="selEstado('pendiente')">⏳ Pendiente de pago</button>
         </div>
       </div>
       <button class="btn" id="btn-guardar-pedido" onclick="agregarPedido()">Registrar pedido</button>
@@ -350,12 +362,18 @@
         <option>Viernes</option><option>Sábado</option><option>Domingo</option>
       </select>
     </div>
-    <div class="form-group" style="margin-bottom:16px">
+    <div class="form-group" style="margin-bottom:8px">
       <label>Método de pago</label>
       <div class="pago-selector">
         <button class="pago-btn" id="mpb-efectivo" onclick="selPagoModal('efectivo')">💵 Efectivo</button>
         <button class="pago-btn" id="mpb-bizum" onclick="selPagoModal('bizum')">📱 Bizum</button>
-        <button class="pago-btn" id="mpb-pendiente" onclick="selPagoModal('pendiente')">⏳ Pendiente</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Estado del pago</label>
+      <div class="pago-selector">
+        <button class="pago-btn sel-efectivo" id="mpb-pagado" onclick="selEstadoModal('pagado')">✅ Pagado</button>
+        <button class="pago-btn" id="mpb-pendientepago" onclick="selEstadoModal('pendiente')">⏳ Pendiente de pago</button>
       </div>
     </div>
     <div style="display:flex;gap:8px">
@@ -421,12 +439,18 @@
         <option>Viernes</option><option>Sábado</option><option>Domingo</option>
       </select>
     </div>
-    <div class="form-group" style="margin-bottom:16px">
+    <div class="form-group" style="margin-bottom:8px">
       <label>Método de pago</label>
       <div class="pago-selector">
         <button class="pago-btn" id="eppb-efectivo" onclick="selPagoEditPedido('efectivo')">💵 Efectivo</button>
         <button class="pago-btn" id="eppb-bizum" onclick="selPagoEditPedido('bizum')">📱 Bizum</button>
-        <button class="pago-btn" id="eppb-pendiente" onclick="selPagoEditPedido('pendiente')">⏳ Pendiente</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Estado del pago</label>
+      <div class="pago-selector">
+        <button class="pago-btn sel-efectivo" id="eppb-pagado" onclick="selEstadoEditPedido('pagado')">✅ Pagado</button>
+        <button class="pago-btn" id="eppb-pendientepago" onclick="selEstadoEditPedido('pendiente')">⏳ Pendiente de pago</button>
       </div>
     </div>
     <div style="display:flex;gap:8px">
@@ -653,10 +677,10 @@ function badge(clienteId) {
   return '<span class="badge cold">Inactivo</span>';
 }
 
-function pagoBadge(pago) {
-  if(pago==='bizum') return '<span class="pago-badge pago-bizum">📱 Bizum</span>';
-  if(pago==='pendiente') return '<span class="pago-badge pago-pendiente">⏳ Pendiente</span>';
-  return '<span class="pago-badge pago-efectivo">💵 Efectivo</span>';
+function pagoBadge(pago, estado) {
+  var metodoBadge = pago==='bizum' ? '<span class="pago-badge pago-bizum">📱 Bizum</span>' : '<span class="pago-badge pago-efectivo">💵 Efectivo</span>';
+  var estadoBadge = (estado==='pendiente') ? '<span class="pago-badge pago-pendiente">⏳ Pendiente</span>' : '<span class="pago-badge pago-pagado">✅ Pagado</span>';
+  return metodoBadge + ' ' + estadoBadge;
 }
 
 function freqNextInfo(clienteId, freq) {
@@ -683,7 +707,7 @@ function renderClientes(busca='') {
   lista.innerHTML=filtro.map(c=>{
     const ps=(data.pedidos||[]).filter(p=>p.clienteId===c.id);
     const total=ps.reduce((s,p)=>s+p.total,0);
-    const pendiente=ps.filter(p=>p.pago==='pendiente').reduce((s,p)=>s+p.total,0);
+    const pendiente=ps.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
     const cobrado=total-pendiente;
     const ultFecha=ps.length?formatDate(ps.reduce((a,b)=>new Date(a.fechaPedido||a.fecha)>new Date(b.fechaPedido||b.fecha)?a:b).fechaPedido||ps[0].fecha):'—';
     const freq = calcFrecuencia(c.id);
@@ -779,7 +803,7 @@ async function guardarModalPedido() {
   const btn=document.getElementById('btn-modal-guardar');
   btn.disabled=true; btn.textContent='Guardando...';
   if(!data.pedidos) data.pedidos=[];
-  data.pedidos.unshift({id:Date.now(),clienteId:modalClienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,pago:pagoModalSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
+  data.pedidos.unshift({id:Date.now(),clienteId:modalClienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,pago:pagoModalSel,estado:estadoModalSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
   await guardarDatos();
   btn.disabled=false; btn.textContent='Guardar';
   window.cerrarModal(); renderClientes(); toast('✓ Pedido registrado');
@@ -810,14 +834,14 @@ async function agregarPedido() {
   const total=+(bandejas*precio).toFixed(2);
 
   // Store pending pedido
-  pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,pago:pagoSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
+  pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,pago:pagoSel,estado:estadoSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
 
   // Show confirmation modal
   const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(clienteId);});
   document.getElementById('conf-cliente').textContent = c ? c.nombre : '—';
   document.getElementById('conf-bandejas').textContent = bandejas + ' bandeja' + (bandejas>1?'s':'');
   document.getElementById('conf-total').textContent = total.toFixed(2)+'€';
-  const pagoTexto = pagoSel==='efectivo'?'💵 Efectivo':pagoSel==='bizum'?'📱 Bizum':'⏳ Pendiente';
+  const pagoTexto = (pagoSel==='efectivo'?'💵 Efectivo':'📱 Bizum') + ' · ' + (estadoSel==='pagado'?'✅ Pagado':'⏳ Pendiente de pago');
   document.getElementById('conf-pago').textContent = pagoTexto;
   document.getElementById('conf-entrega').textContent = formatDate(fechaEntrega) + ' · ' + dia;
   document.getElementById('modal-confirmar-pedido').classList.add('open');
@@ -831,7 +855,7 @@ function renderPedidos() {
     const c=(data.clientes||[]).find(function(c){return c.id===p.clienteId;});
     const fp = formatDate(p.fechaPedido||p.fecha);
     const fe = formatDate(p.fechaEntrega);
-    const cobrarBtn = p.pago==='pendiente' ? '<button onclick="marcarPagado('+p.id+')" style="background:#D6F0E2;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;color:#2D7A4F;flex-shrink:0;font-weight:600">Cobrar</button>' : '';
+    const cobrarBtn = p.estado==='pendiente' ? '<button onclick="marcarPagado('+p.id+')" style="background:#D6F0E2;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;color:#2D7A4F;flex-shrink:0;font-weight:600">Cobrar</button>' : '';
     const entregarBtn = !p.entregado ? '<button onclick="marcarEntregado('+p.id+')" style="background:#FFF0D6;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;color:#B87A00;flex-shrink:0;font-weight:600">Entregar</button>' : '<span style="font-size:11px;color:#2D7A4F;font-weight:600;padding:4px">Entregado</span>';
     return '<div class="pedido-row">'
       + '<div style="flex:1">'
@@ -895,7 +919,7 @@ function renderCompras() {
 
 function updateStatsCompras() {
   const totalComprado = (data.compras||[]).reduce((s,c)=>s+c.total,0);
-  const totalVendido = (data.pedidos||[]).filter(p=>p.pago!=='pendiente').reduce((s,p)=>s+p.total,0);
+  const totalVendido = (data.pedidos||[]).filter(function(p){return p.estado!=='pendiente';}).reduce(function(s,p){return s+p.total;},0);
   const ganancia = totalVendido - totalComprado;
   const bandejaCompradas = (data.compras||[]).reduce((s,c)=>s+c.bandejas,0);
   const bandejaVendidas = (data.pedidos||[]).reduce((s,p)=>s+p.bandejas,0);
@@ -923,7 +947,9 @@ async function confirmarYEnviarWA() {
   // Send WhatsApp
   const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(pendingPedido.clienteId);});
   if(c && c.tel) {
-    const pagoTexto = pendingPedido.pago==='efectivo'?'Efectivo':pendingPedido.pago==='bizum'?'Bizum':'Pendiente de pago';
+    const metodo = pendingPedido.pago==='bizum'?'Bizum':'Efectivo';
+    const estadoTexto = pendingPedido.estado==='pendiente'?'Pendiente de pago':'Pagado';
+    const pagoTexto = metodo+' · '+estadoTexto;
     const mensaje = '🥚 ¡Hola '+c.nombre+'!\n\n✅ Confirmamos tu pedido:\n\n'
       + '🥚 '+pendingPedido.bandejas+' bandeja'+(pendingPedido.bandejas>1?'s':'')+' de 30 huevos L\n'
       + '💰 Total: '+pendingPedido.total.toFixed(2)+'€\n'
@@ -978,6 +1004,44 @@ function enviarGracias(id) {
 
 
 var pagoSelPP = 'efectivo';
+
+var estadoSel = 'pagado';
+var estadoModalSel = 'pagado';
+var estadoEditPedidoSel = 'pagado';
+var estadoSelPP = 'pagado';
+
+function selEstado(tipo) {
+  estadoSel = tipo;
+  ['pagado','pendientepago'].forEach(function(t) {
+    var b = document.getElementById('pb-'+t);
+    if(b) b.className = 'pago-btn'+(tipo==='pagado'&&t==='pagado'?' sel-efectivo':tipo==='pendiente'&&t==='pendientepago'?' sel-pendiente':'');
+  });
+}
+
+function selEstadoModal(tipo) {
+  estadoModalSel = tipo;
+  ['pagado','pendientepago'].forEach(function(t) {
+    var b = document.getElementById('mpb-'+t);
+    if(b) b.className = 'pago-btn'+(tipo==='pagado'&&t==='pagado'?' sel-efectivo':tipo==='pendiente'&&t==='pendientepago'?' sel-pendiente':'');
+  });
+}
+
+function selEstadoEditPedido(tipo) {
+  estadoEditPedidoSel = tipo;
+  ['pagado','pendientepago'].forEach(function(t) {
+    var b = document.getElementById('eppb-'+t);
+    if(b) b.className = 'pago-btn'+(tipo==='pagado'&&t==='pagado'?' sel-efectivo':tipo==='pendiente'&&t==='pendientepago'?' sel-pendiente':'');
+  });
+}
+
+function selEstadoPP(tipo) {
+  estadoSelPP = tipo;
+  ['pagado','pendientepago'].forEach(function(t) {
+    var b = document.getElementById('ppb-'+t);
+    if(b) b.className = 'pago-btn'+(tipo==='pagado'&&t==='pagado'?' sel-efectivo':tipo==='pendiente'&&t==='pendientepago'?' sel-pendiente':'');
+  });
+}
+
 
 function selPagoPP(tipo) {
   pagoSelPP = tipo;
@@ -1040,7 +1104,7 @@ function renderProximos() {
     const fp = formatDate(p.fechaPedido||p.fecha);
     const fe = formatDate(p.fechaEntrega);
     const pagoColor = p.pago==='pendiente' ? 'var(--red)' : 'var(--green)';
-    const cobrarBtn = p.pago==='pendiente' ? '<button onclick="marcarPagado('+p.id+')" style="background:#D6F0E2;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:#2D7A4F;font-weight:600">💰 Cobrar</button>' : '';
+    const cobrarBtn = p.estado==='pendiente' ? '<button onclick="marcarPagado('+p.id+')" style="background:#D6F0E2;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:#2D7A4F;font-weight:600">💰 Cobrar</button>' : '';
     return '<div class="client-card">'
       + '<div class="client-header">'
       + '<div style="flex:1">'
@@ -1079,8 +1143,8 @@ async function marcarEntregadoProximo(id) {
 function updateStats() {
   const clientes = data.clientes||[];
   const pedidos = data.pedidos||[];
-  const cobrado = pedidos.filter(p=>p.pago!=='pendiente').reduce((s,p)=>s+p.total,0);
-  const pendiente = pedidos.filter(p=>p.pago==='pendiente').reduce((s,p)=>s+p.total,0);
+  const cobrado = pedidos.filter(function(p){return p.estado!=='pendiente';}).reduce(function(s,p){return s+p.total;},0);
+  const pendiente = pedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
   document.getElementById('stat-total').textContent = clientes.length;
   document.getElementById('stat-cobrado').textContent = cobrado.toFixed(2)+'€';
   document.getElementById('stat-pendiente').textContent = pendiente.toFixed(2)+'€';
@@ -1123,7 +1187,7 @@ function renderSeguimiento() {
 
 async function marcarPagado(id) {
   const idx = (data.pedidos||[]).findIndex(p=>p.id===id);
-  if(idx>=0) data.pedidos[idx].pago = 'efectivo';
+  if(idx>=0) data.pedidos[idx].estado = 'pagado';
   await guardarDatos(); renderPedidos(); renderClientes(); toast('✓ Marcado como pagado');
 }
 
@@ -1176,7 +1240,8 @@ function abrirEditarPedido(id) {
     document.getElementById('ep-bandejas').value = p.bandejas;
     document.getElementById('ep-precio').value = p.precio;
     document.getElementById('ep-dia').value = p.dia||'Lunes';
-    window.selPagoEditPedido(p.pago||'efectivo');
+    selPagoEditPedido(p.pago||'efectivo');
+    selEstadoEditPedido(p.estado||'pagado');
     const fp = p.fechaPedido ? new Date(p.fechaPedido+'T12:00:00') : new Date(p.fecha);
     const fe = p.fechaEntrega ? new Date(p.fechaEntrega+'T12:00:00') : fp;
     fillDateSel('ep-fp', fp);
