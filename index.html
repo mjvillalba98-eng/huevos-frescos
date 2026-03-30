@@ -364,6 +364,40 @@
     </div>
   </div>
 </div>
+
+<!-- MODAL CONFIRMACION PEDIDO -->
+<div class="modal-bg" id="modal-confirmar-pedido">
+  <div class="modal">
+    <h3>✅ Confirmar pedido</h3>
+    <div style="background:var(--bg);border-radius:12px;padding:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;color:var(--muted);">👤 Cliente</span>
+        <span style="font-size:14px;font-weight:600;" id="conf-cliente">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;color:var(--muted);">🥚 Bandejas</span>
+        <span style="font-size:14px;font-weight:600;" id="conf-bandejas">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;color:var(--muted);">💰 Valor total</span>
+        <span style="font-size:16px;font-weight:700;color:var(--orange);" id="conf-total">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;color:var(--muted);">💳 Método de pago</span>
+        <span style="font-size:14px;font-weight:600;" id="conf-pago">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+        <span style="font-size:13px;color:var(--muted);">📅 Fecha de entrega</span>
+        <span style="font-size:14px;font-weight:600;" id="conf-entrega">—</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn" onclick="confirmarYEnviarWA()">📲 Confirmar y enviar WhatsApp</button>
+      <button class="btn secondary" onclick="confirmarSoloGuardar()">✅ Solo guardar</button>
+      <button class="btn secondary" onclick="cancelarConfirmacion()" style="background:none;color:var(--muted);border:none;margin-top:0;">Cancelar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -390,6 +424,7 @@ let pagoSel = 'efectivo';
 let pagoModalSel = 'efectivo';
 let editPedidoId = null;
 let pagoEditPedidoSel = 'efectivo';
+let pendingPedido = null;
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -701,13 +736,20 @@ async function agregarPedido() {
   const dia=document.getElementById('p-dia').value;
   const fechaPedido=getDateFromSel('p-fp');
   const fechaEntrega=getDateFromSel('p-fe');
-  const btn=document.getElementById('btn-guardar-pedido');
-  btn.disabled=true; btn.textContent='Guardando...';
-  if(!data.pedidos) data.pedidos=[];
-  data.pedidos.unshift({id:Date.now(),clienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,pago:pagoSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
-  await guardarDatos();
-  btn.disabled=false; btn.textContent='Registrar pedido';
-  renderPedidos(); toast('✓ Pedido guardado');
+  const total=+(bandejas*precio).toFixed(2);
+
+  // Store pending pedido
+  pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,pago:pagoSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
+
+  // Show confirmation modal
+  const c = (data.clientes||[]).find(function(c){return c.id===clienteId;});
+  document.getElementById('conf-cliente').textContent = c ? c.nombre : '—';
+  document.getElementById('conf-bandejas').textContent = bandejas + ' bandeja' + (bandejas>1?'s':'');
+  document.getElementById('conf-total').textContent = total.toFixed(2)+'€';
+  const pagoTexto = pagoSel==='efectivo'?'💵 Efectivo':pagoSel==='bizum'?'📱 Bizum':'⏳ Pendiente';
+  document.getElementById('conf-pago').textContent = pagoTexto;
+  document.getElementById('conf-entrega').textContent = formatDate(fechaEntrega) + ' · ' + dia;
+  document.getElementById('modal-confirmar-pedido').classList.add('open');
 }
 
 function renderPedidos() {
@@ -796,6 +838,65 @@ function updateStatsCompras() {
   }
 }
 
+
+
+
+async function confirmarYEnviarWA() {
+  if(!pendingPedido) return;
+  if(!data.pedidos) data.pedidos=[];
+  data.pedidos.unshift(pendingPedido);
+  await guardarDatos();
+  document.getElementById('modal-confirmar-pedido').classList.remove('open');
+  renderPedidos();
+
+  // Send WhatsApp
+  const c = (data.clientes||[]).find(function(c){return c.id===pendingPedido.clienteId;});
+  if(c && c.tel) {
+    const pagoTexto = pendingPedido.pago==='efectivo'?'Efectivo':pendingPedido.pago==='bizum'?'Bizum':'Pendiente de pago';
+    const mensaje = '🥚 ¡Hola '+c.nombre+'!\n\n✅ Confirmamos tu pedido:\n\n'
+      + '🥚 '+pendingPedido.bandejas+' bandeja'+(pendingPedido.bandejas>1?'s':'')+' de 30 huevos L\n'
+      + '💰 Total: '+pendingPedido.total.toFixed(2)+'€\n'
+      + '💳 Pago: '+pagoTexto+'\n'
+      + '📅 Entrega: '+formatDate(pendingPedido.fechaEntrega)+' ('+pendingPedido.dia+')\n\n'
+      + '¡Gracias por tu compra! 🙏';
+    const tel = c.tel.split(' ').join('').split('-').join('');
+    const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
+    window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+  }
+  pendingPedido = null;
+  toast('✓ Pedido guardado');
+}
+
+async function confirmarSoloGuardar() {
+  if(!pendingPedido) return;
+  if(!data.pedidos) data.pedidos=[];
+  data.pedidos.unshift(pendingPedido);
+  await guardarDatos();
+  document.getElementById('modal-confirmar-pedido').classList.remove('open');
+  pendingPedido = null;
+  renderPedidos();
+  toast('✓ Pedido guardado');
+}
+
+function cancelarConfirmacion() {
+  document.getElementById('modal-confirmar-pedido').classList.remove('open');
+  pendingPedido = null;
+}
+
+function enviarGracias(id) {
+  const p = (data.pedidos||[]).find(function(p){ return p.id===parseInt(id); });
+  if(!p) return toast('Pedido no encontrado');
+  const c = (data.clientes||[]).find(function(c){ return c.id===p.clienteId; });
+  if(!c) return toast('Cliente no encontrado');
+  if(!c.tel) return toast('Este cliente no tiene teléfono');
+
+  const mensaje = '🥚 ¡Hola '+c.nombre+'! Gracias por tu compra, esperamos que disfrutes los huevos 😊\n\n¡Aquí seguimos para cuando los necesites! 🐔\n\n689 273 452 / 676 075 510';
+
+  const tel = c.tel.split(' ').join('').split('-').join('');
+  const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
+  const url = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+  window.open(url, '_blank');
+}
 
 function renderProximos() {
   const lista = document.getElementById('lista-proximos');
