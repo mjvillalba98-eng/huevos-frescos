@@ -366,9 +366,9 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
 
 const firebaseConfig = {
   apiKey: "AIzaSyAffqaSSb_rvCuxsj0QVwT9LU-vqskV1pQ",
@@ -379,9 +379,9 @@ const firebaseConfig = {
   appId: "1:381092462236:web:be6fda410f38b204937759"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const DATA_DOC = doc(db, "app", "datos");
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const DATA_DOC = db.collection("app").doc("datos");
 
 let data = { clientes: [], pedidos: [], compras: [] };
 let modalClienteId = null;
@@ -437,7 +437,7 @@ function setSyncStatus(status, msg) {
 async function guardarDatos() {
   setSyncStatus('loading');
   try {
-    await setDoc(DATA_DOC, JSON.parse(JSON.stringify(data)));
+    await DATA_DOC.set(JSON.parse(JSON.stringify(data)));
     setSyncStatus('ok');
   } catch(e) {
     console.error('Error guardando:', e);
@@ -449,8 +449,8 @@ async function guardarDatos() {
 window.cargarDatos = async function() {
   setSyncStatus('loading','Conectando...');
   try {
-    const snap = await getDoc(DATA_DOC);
-    if(snap.exists()) {
+    const snap = await DATA_DOC.get();
+    if(snap.exists) {
       data = snap.data();
     }
     if(!data.compras) data.compras = [];
@@ -464,15 +464,15 @@ window.cargarDatos = async function() {
   }
 }
 
-onSnapshot(DATA_DOC, (snap) => {
-  if(snap.exists()) {
+DATA_DOC.onSnapshot(function(snap) {
+  if(snap.exists) {
     data = snap.data();
     if(!data.compras) data.compras = [];
     if(!data.clientes) data.clientes = [];
     if(!data.pedidos) data.pedidos = [];
     renderClientes(); updateStats(); setSyncStatus('ok');
   }
-}, (e) => {
+}, function(e) {
   console.error('Snapshot error:', e);
   setSyncStatus('error','Sin conexión');
 });
