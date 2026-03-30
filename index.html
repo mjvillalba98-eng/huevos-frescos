@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Huevos Frescos</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#FDF6ED;--card:#FFFFFF;--orange:#E8651A;--brown:#3B1A00;--amber:#F5A623;--light:#FFF0D6;--muted:#9B7A50;--border:#EDD9B8;--green:#2D7A4F;--red:#B83232;--purple:#5533CC;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);min-height:100vh;max-width:480px;margin:0 auto;}
+  header{background:var(--brown);padding:1rem 1.2rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
+  header .logo{font-size:26px;}
+  header h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:#FFF0D6;}
+  header p{font-size:11px;color:var(--amber);}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:#aaa;margin-left:auto;flex-shrink:0;}
+  .sync-dot.ok{background:#4CAF50;}.sync-dot.loading{background:var(--amber);animation:pulse 1s infinite;}.sync-dot.error{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  .refresh-btn{background:rgba(255,255,255,0.15);border:none;color:#FFF0D6;border-radius:8px;padding:5px 10px;font-size:16px;cursor:pointer;}
+  .tabs{display:flex;background:var(--brown);padding:0 .8rem 1rem;gap:5px;overflow-x:auto;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{padding:7px 11px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:rgba(255,255,255,0.1);color:#FFF0D6;transition:all 0.2s;font-family:'Sora',sans-serif;white-space:nowrap;flex-shrink:0;}
+  .tab.active{background:var(--amber);color:var(--brown);}
+  .content{padding:1rem;}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
+  .stat{background:var(--card);border-radius:14px;padding:12px 8px;border:1px solid var(--border);text-align:center;}
+  .stat .num{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--orange);}
+  .stat .lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+  .stat.green .num{color:var(--green);}
+  .stat.red .num{color:var(--red);}
+  .card{background:var(--card);border-radius:14px;padding:1.1rem;border:1px solid var(--border);margin-bottom:1rem;}
+  .card h2{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;margin-bottom:.9rem;color:var(--brown);}
+  .form-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:110px;margin-bottom:0;}
+  label{font-size:12px;color:var(--muted);font-weight:500;}
+  input,select{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;}
+  input:focus,select:focus{border-color:var(--orange);background:#fff;}
+  .btn{background:var(--orange);color:white;border:none;border-radius:10px;padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s;width:100%;margin-top:8px;}
+  .btn:active{transform:scale(0.97);}.btn.secondary{background:var(--light);color:var(--brown);}.btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .client-card{background:var(--card);border-radius:14px;padding:1rem;border:1px solid var(--border);margin-bottom:10px;}
+  .client-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .client-name{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;}
+  .client-info{font-size:12px;color:var(--muted);margin-top:3px;}
+  .badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+  .badge.active{background:#D6F0E2;color:var(--green);}.badge.warn{background:#FFF0D6;color:#B87A00;}.badge.cold{background:#FFE8E8;color:var(--red);}.badge.none{background:#F1EFE8;color:#888;}
+  .client-stats{display:flex;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;}
+  .client-stat{font-size:11px;color:var(--muted);}
+  .client-stat span{font-weight:700;color:var(--brown);display:block;font-size:13px;}
+  .pending-amount{color:var(--red)!important;}
+  .frecuencia-bar{margin-top:10px;padding:8px 10px;background:var(--bg);border-radius:10px;border:1px solid var(--border);}
+  .frecuencia-bar .freq-title{font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .frecuencia-bar .freq-info{font-size:12px;font-weight:600;color:var(--brown);}
+  .frecuencia-bar .freq-next{font-size:11px;color:var(--green);margin-top:2px;}
+  .frecuencia-bar .freq-alerta{font-size:11px;color:var(--red);margin-top:2px;font-weight:600;}
+  .client-actions{display:flex;gap:6px;margin-top:10px;}
+  .btn-sm{flex:1;padding:8px 4px;font-size:12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;transition:all 0.2s;}
+  .btn-sm:active{transform:scale(0.96);}
+  .btn-sm.add{background:var(--orange);color:white;}
+  .btn-sm.edit{background:#E8E0FF;color:var(--purple);}
+  .btn-sm.del{background:var(--light);color:var(--brown);}.btn-sm.wa{background:#D6F0E2;color:#2D7A4F;}
+  .pedido-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+  .pedido-row:last-child{border-bottom:none;}
+  .pedido-date{color:var(--muted);font-size:11px;margin-top:2px;}
+  .pedido-right{text-align:right;display:flex;align-items:center;gap:8px;}
+  .pedido-amount{font-weight:700;color:var(--orange);font-size:15px;}
+  .pago-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block;margin-top:3px;}
+  .pago-efectivo{background:#D6F0E2;color:var(--green);}.pago-bizum{background:#E8E0FF;color:var(--purple);}.pago-pendiente{background:#FFE8E8;color:var(--red);}
+  .empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);}
+  .empty .icon{font-size:40px;margin-bottom:10px;}.empty p{font-size:14px;line-height:1.6;}
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(59,26,0,0.5);z-index:100;align-items:flex-end;justify-content:center;}
+  .modal-bg.open{display:flex;}
+  .modal{background:var(--card);border-radius:20px 20px 0 0;padding:1.5rem;width:100%;max-width:480px;animation:slideUp 0.25s ease;max-height:90vh;overflow-y:auto;}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal h3{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;margin-bottom:1.2rem;color:var(--brown);}
+  .search{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:15px;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--brown);outline:none;margin-bottom:1rem;}
+  .search:focus{border-color:var(--orange);}
+  .section-hidden{display:none;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--brown);color:#FFF0D6;padding:10px 22px;border-radius:24px;font-size:13px;z-index:200;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+  .toast.show{opacity:1;}
+  .pago-selector{display:flex;gap:8px;}
+  .pago-btn{flex:1;padding:10px 6px;border-radius:10px;border:2px solid var(--border);background:var(--bg);cursor:pointer;font-size:12px;font-weight:600;font-family:'Sora',sans-serif;color:var(--muted);transition:all 0.2s;text-align:center;}
+  .pago-btn.sel-efectivo{border-color:var(--green);background:#D6F0E2;color:var(--green);}
+  .pago-btn.sel-bizum{border-color:var(--purple);background:#E8E0FF;color:var(--purple);}
+  .pago-btn.sel-pendiente{border-color:var(--red);background:#FFE8E8;color:var(--red);}
+  .seguimiento-card{background:var(--card);border-radius:14px;padding:1rem;border:1px solid var(--border);margin-bottom:10px;}
+  .seg-name{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;}
+  .seg-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+  .seg-info{font-size:12px;color:var(--muted);}
+  .seg-val{font-size:13px;font-weight:600;color:var(--brown);}
+  .progress-bar{background:var(--border);border-radius:10px;height:6px;margin-top:8px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:10px;transition:width 0.3s;}
+  .compra-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+  .compra-row:last-child{border-bottom:none;}
+  .resumen-box{border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid var(--border);}
+  .date-sel{display:flex;gap:5px;}
+  .date-sel select{flex:1;padding:8px 6px;font-size:13px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🥚</div>
+  <div><h1>Huevos Frescos</h1><p id="sync-label">Conectando...</p></div>
+  <button class="refresh-btn" onclick="cargarDatos()">↻</button>
+  <div class="sync-dot loading" id="sync-dot"></div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('clientes')">Clientes</button>
+  <button class="tab" onclick="showTab('proximos')">🚚 Próximos</button>
+  <button class="tab" onclick="showTab('pedidos')">Pedidos</button>
+  <button class="tab" onclick="showTab('compras')">Compras</button>
+  <button class="tab" onclick="showTab('seguimiento')">Seguimiento</button>
+  <button class="tab" onclick="showTab('nuevo')">+ Nuevo</button>
+</div>
+<div class="content">
+
+  <!-- CLIENTES -->
+  <div id="tab-clientes">
+    <div class="stats">
+      <div class="stat"><div class="num" id="stat-total">—</div><div class="lbl">Clientes</div></div>
+      <div class="stat green"><div class="num" id="stat-cobrado">—</div><div class="lbl">Cobrado</div></div>
+      <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
+    </div>
+    <input class="search" placeholder="🔍 Buscar cliente..." oninput="renderClientes(this.value)" id="buscador">
+    <div id="lista-clientes"><div class="empty"><div class="icon">🥚</div><p>Conectando...</p></div></div>
+  </div>
+
+
+  <!-- PRÓXIMOS PEDIDOS -->
+  <div id="tab-proximos" class="section-hidden">
+    <div class="card" style="background:var(--light);border-color:var(--amber);">
+      <div style="font-size:13px;color:var(--brown);line-height:1.6;">
+        🚚 Pedidos agendados pendientes de entregar. Cuando entregues pulsa <strong>✅ Entregar</strong> y pasará a Pedidos.
+      </div>
+    </div>
+    <div class="stats" style="grid-template-columns:repeat(2,1fr);">
+      <div class="stat"><div class="num" id="stat-proximos-count">—</div><div class="lbl">Pedidos pendientes</div></div>
+      <div class="stat"><div class="num" id="stat-proximos-bandejas">—</div><div class="lbl">Bandejas a entregar</div></div>
+    </div>
+    <div id="lista-proximos"><div class="empty"><div class="icon">🚚</div><p>No hay pedidos pendientes de entregar</p></div></div>
+  </div>
+  <!-- PEDIDOS -->
+  <div id="tab-pedidos" class="section-hidden">
+    <div class="card">
+      <h2>Registrar pedido</h2>
+      <div class="form-group" style="margin-bottom:8px"><label>Cliente</label><select id="p-cliente"></select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Bandejas</label><input id="p-bandejas" type="number" min="1" value="1"/></div>
+        <div class="form-group"><label>Precio venta (€)</label><input id="p-precio" type="number" value="8.50" step="0.01"/></div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Fecha del pedido</label>
+        <div class="date-sel">
+          <select id="p-fp-dia"></select>
+          <select id="p-fp-mes"></select>
+          <select id="p-fp-ano"></select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Fecha de entrega</label>
+        <div class="date-sel">
+          <select id="p-fe-dia"></select>
+          <select id="p-fe-mes"></select>
+          <select id="p-fe-ano"></select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Día de entrega</label>
+        <select id="p-dia">
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+          <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Método de pago</label>
+        <div class="pago-selector">
+          <button class="pago-btn" id="pb-efectivo" onclick="selPago('efectivo')">💵 Efectivo</button>
+          <button class="pago-btn" id="pb-bizum" onclick="selPago('bizum')">📱 Bizum</button>
+          <button class="pago-btn" id="pb-pendiente" onclick="selPago('pendiente')">⏳ Pendiente</button>
+        </div>
+      </div>
+      <button class="btn" id="btn-guardar-pedido" onclick="agregarPedido()">Registrar pedido</button>
+    </div>
+    <div class="card"><h2>Últimos pedidos</h2><div id="lista-pedidos"></div></div>
+  </div>
+
+  <!-- COMPRAS -->
+  <div id="tab-compras" class="section-hidden">
+    <div class="card" style="background:var(--light);border-color:var(--amber);">
+      <div style="font-size:13px;color:var(--brown);line-height:1.6;">
+        🛒 Aquí registras lo que compras al proveedor. Así la app calcula automáticamente tu ganancia.
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num" id="stat-comprado">—</div><div class="lbl">Total comprado</div></div>
+      <div class="stat green"><div class="num" id="stat-ganancia">—</div><div class="lbl">Ganancia neta</div></div>
+      <div class="stat"><div class="num" id="stat-stock">—</div><div class="lbl">Stock disponible</div></div>
+    </div>
+    <div class="card">
+      <h2>Registrar compra</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Bandejas compradas</label><input id="c-bandejas" type="number" min="1" value="1"/></div>
+        <div class="form-group"><label>Precio compra/bandeja (€)</label><input id="c-precio" type="number" value="7.00" step="0.01"/></div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Fecha de compra</label>
+        <div class="date-sel">
+          <select id="c-fd-dia"></select>
+          <select id="c-fd-mes"></select>
+          <select id="c-fd-ano"></select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px"><label>Notas (opcional)</label><input id="c-notas" placeholder="Ej: proveedor habitual"/></div>
+      <button class="btn" id="btn-guardar-compra" onclick="agregarCompra()">Registrar compra</button>
+    </div>
+    <div class="card"><h2>Historial de compras</h2><div id="lista-compras"></div></div>
+  </div>
+
+  <!-- SEGUIMIENTO -->
+  <div id="tab-seguimiento" class="section-hidden">
+    <div class="card" style="background:var(--light);border-color:var(--amber);">
+      <div style="font-size:13px;color:var(--brown);line-height:1.6;">
+        📊 Clientes ordenados por urgencia. En rojo los que toca recordar.
+      </div>
+    </div>
+    <div id="lista-seguimiento"><div class="empty"><div class="icon">📊</div><p>Cargando...</p></div></div>
+  </div>
+
+  <!-- NUEVO CLIENTE -->
+  <div id="tab-nuevo" class="section-hidden">
+    <div class="card">
+      <h2>Nuevo cliente</h2>
+      <div class="form-group" style="margin-bottom:8px"><label>Nombre *</label><input id="nc-nombre" placeholder="María García" autocomplete="off"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Teléfono</label><input id="nc-tel" placeholder="689 000 000" type="tel"/></div>
+        <div class="form-group"><label>Dirección</label><input id="nc-dir" placeholder="Calle Mayor 4" autocomplete="off"/></div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Día de reparto preferido</label>
+        <select id="nc-dia">
+          <option value="">Sin preferencia</option>
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+          <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+        </select>
+      </div>
+      <button class="btn" id="btn-guardar-cliente" onclick="agregarCliente()">Guardar cliente</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL PEDIDO RÁPIDO -->
+<div class="modal-bg" id="modal-pedido">
+  <div class="modal">
+    <h3>Pedido — <span id="modal-nombre"></span></h3>
+    <div class="form-row">
+      <div class="form-group"><label>Bandejas</label><input id="m-bandejas" type="number" min="1" value="1"/></div>
+      <div class="form-group"><label>Precio venta (€)</label><input id="m-precio" type="number" value="8.50" step="0.01"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Fecha del pedido</label>
+      <div class="date-sel">
+        <select id="m-fp-dia"></select>
+        <select id="m-fp-mes"></select>
+        <select id="m-fp-ano"></select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Fecha de entrega</label>
+      <div class="date-sel">
+        <select id="m-fe-dia"></select>
+        <select id="m-fe-mes"></select>
+        <select id="m-fe-ano"></select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px">
+      <label>Día de entrega</label>
+      <select id="m-dia">
+        <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+        <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Método de pago</label>
+      <div class="pago-selector">
+        <button class="pago-btn" id="mpb-efectivo" onclick="selPagoModal('efectivo')">💵 Efectivo</button>
+        <button class="pago-btn" id="mpb-bizum" onclick="selPagoModal('bizum')">📱 Bizum</button>
+        <button class="pago-btn" id="mpb-pendiente" onclick="selPagoModal('pendiente')">⏳ Pendiente</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn" id="btn-modal-guardar" onclick="guardarModalPedido()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div class="modal-bg" id="modal-editar">
+  <div class="modal">
+    <h3>✏️ Editar cliente</h3>
+    <div class="form-group" style="margin-bottom:8px"><label>Nombre *</label><input id="e-nombre" placeholder="María García" autocomplete="off"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Teléfono</label><input id="e-tel" placeholder="689 000 000" type="tel"/></div>
+      <div class="form-group"><label>Dirección</label><input id="e-dir" placeholder="Calle Mayor 4" autocomplete="off"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Día de reparto preferido</label>
+      <select id="e-dia">
+        <option value="">Sin preferencia</option>
+        <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+        <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="cerrarEditar()">Cancelar</button>
+      <button class="btn" id="btn-guardar-editar" onclick="guardarEditar()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL EDITAR PEDIDO -->
+<div class="modal-bg" id="modal-editar-pedido">
+  <div class="modal">
+    <h3>✏️ Editar pedido</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Bandejas</label><input id="ep-bandejas" type="number" min="1" value="1"/></div>
+      <div class="form-group"><label>Precio venta (€)</label><input id="ep-precio" type="number" value="8.50" step="0.01"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Fecha del pedido</label>
+      <div class="date-sel">
+        <select id="ep-fp-dia"></select>
+        <select id="ep-fp-mes"></select>
+        <select id="ep-fp-ano"></select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Fecha de entrega</label>
+      <div class="date-sel">
+        <select id="ep-fe-dia"></select>
+        <select id="ep-fe-mes"></select>
+        <select id="ep-fe-ano"></select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px">
+      <label>Día de entrega</label>
+      <select id="ep-dia">
+        <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+        <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Método de pago</label>
+      <div class="pago-selector">
+        <button class="pago-btn" id="eppb-efectivo" onclick="selPagoEditPedido('efectivo')">💵 Efectivo</button>
+        <button class="pago-btn" id="eppb-bizum" onclick="selPagoEditPedido('bizum')">📱 Bizum</button>
+        <button class="pago-btn" id="eppb-pendiente" onclick="selPagoEditPedido('pendiente')">⏳ Pendiente</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn secondary" onclick="cerrarEditarPedido()">Cancelar</button>
+      <button class="btn" id="btn-guardar-editar-pedido" onclick="guardarEditarPedido()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAffqaSSb_rvCuxsj0QVwT9LU-vqskV1pQ",
+  authDomain: "huevos-frescos.firebaseapp.com",
+  projectId: "huevos-frescos",
+  storageBucket: "huevos-frescos.firebasestorage.app",
+  messagingSenderId: "381092462236",
+  appId: "1:381092462236:web:be6fda410f38b204937759"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const DATA_DOC = doc(db, "app", "datos");
+
+let data = { clientes: [], pedidos: [], compras: [] };
+let modalClienteId = null;
+let editClienteId = null;
+let pagoSel = 'efectivo';
+let pagoModalSel = 'efectivo';
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function fillDateSel(prefix, date) {
+  const d = date || new Date();
+  const dia = d.getDate(), mes = d.getMonth(), ano = d.getFullYear();
+  const sd = document.getElementById(prefix+'-dia');
+  const sm = document.getElementById(prefix+'-mes');
+  const sa = document.getElementById(prefix+'-ano');
+  if(!sd) return;
+  sd.innerHTML = Array.from({length:31},(_,i)=>`<option value="${i+1}"${i+1===dia?' selected':''}>${i+1}</option>`).join('');
+  sm.innerHTML = MESES.map((m,i)=>`<option value="${i}"${i===mes?' selected':''}>${m}</option>`).join('');
+  sa.innerHTML = [ano-1,ano,ano+1].map(y=>`<option value="${y}"${y===ano?' selected':''}>${y}</option>`).join('');
+}
+
+function getDateFromSel(prefix) {
+  const dia = parseInt(document.getElementById(prefix+'-dia').value);
+  const mes = parseInt(document.getElementById(prefix+'-mes').value);
+  const ano = parseInt(document.getElementById(prefix+'-ano').value);
+  // Fix timezone: use local date string to avoid UTC offset issues
+  const mm = String(mes+1).padStart(2,'0');
+  const dd = String(dia).padStart(2,'0');
+  return `${ano}-${mm}-${dd}`;
+}
+
+function formatDate(dateStr) {
+  if(!dateStr) return '—';
+  // Parse as local date to avoid timezone shift
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m-1, d);
+  return date.toLocaleDateString('es-ES');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function setSyncStatus(status, msg) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + status;
+  document.getElementById('sync-label').textContent = msg || (status==='ok'?'Sincronizado ✓':status==='loading'?'Guardando...':'Sin conexión');
+}
+
+async function guardarDatos() {
+  setSyncStatus('loading');
+  try {
+    await setDoc(DATA_DOC, JSON.parse(JSON.stringify(data)));
+    setSyncStatus('ok');
+  } catch(e) {
+    console.error('Error guardando:', e);
+    setSyncStatus('error','Error al guardar');
+    toast('⚠️ Error: ' + e.message);
+  }
+}
+
+window.cargarDatos = async function() {
+  setSyncStatus('loading','Conectando...');
+  try {
+    const snap = await getDoc(DATA_DOC);
+    if(snap.exists()) {
+      data = snap.data();
+    }
+    if(!data.compras) data.compras = [];
+    if(!data.clientes) data.clientes = [];
+    if(!data.pedidos) data.pedidos = [];
+    setSyncStatus('ok'); renderClientes(); updateStats();
+  } catch(e) {
+    console.error('Error cargando:', e);
+    setSyncStatus('error','Sin conexión');
+    toast('⚠️ Error de conexión: ' + e.code);
+  }
+}
+
+onSnapshot(DATA_DOC, (snap) => {
+  if(snap.exists()) {
+    data = snap.data();
+    if(!data.compras) data.compras = [];
+    if(!data.clientes) data.clientes = [];
+    if(!data.pedidos) data.pedidos = [];
+    renderClientes(); updateStats(); setSyncStatus('ok');
+  }
+}, (e) => {
+  console.error('Snapshot error:', e);
+  setSyncStatus('error','Sin conexión');
+});
+
+window.selPago = function(tipo) {
+  pagoSel = tipo;
+  ['efectivo','bizum','pendiente'].forEach(t => {
+    const b = document.getElementById('pb-'+t);
+    if(b) b.className = 'pago-btn'+(t===tipo?' sel-'+t:'');
+  });
+}
+
+window.selPagoModal = function(tipo) {
+  pagoModalSel = tipo;
+  ['efectivo','bizum','pendiente'].forEach(t => {
+    const b = document.getElementById('mpb-'+t);
+    if(b) b.className = 'pago-btn'+(t===tipo?' sel-'+t:'');
+  });
+}
+
+window.showTab = function(t) {
+  ['clientes','proximos','pedidos','compras','seguimiento','nuevo'].forEach(id =>
+    document.getElementById('tab-'+id).classList.toggle('section-hidden', id!==t));
+  document.querySelectorAll('.tab').forEach((el,i) =>
+    el.classList.toggle('active', ['clientes','proximos','pedidos','compras','seguimiento','nuevo'][i]===t));
+  const today = new Date();
+  if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
+  if(t==='proximos'){renderProximos();}
+  if(t==='pedidos'){renderSelectClientes();renderPedidos();fillDateSel('p-fp',today);fillDateSel('p-fe',today);}
+  if(t==='compras'){renderCompras();updateStatsCompras();fillDateSel('c-fd',today);}
+  if(t==='seguimiento'){renderSeguimiento();}
+}
+
+window.agregarCliente = async function() {
+  const nombre = document.getElementById('nc-nombre').value.trim();
+  const tel = document.getElementById('nc-tel').value.trim();
+  const dir = document.getElementById('nc-dir').value.trim();
+  const dia = document.getElementById('nc-dia').value;
+  if(!nombre) return toast('⚠️ Escribe el nombre');
+  const btn = document.getElementById('btn-guardar-cliente');
+  btn.disabled=true; btn.textContent='Guardando...';
+  if(!data.clientes) data.clientes=[];
+  data.clientes.push({id:Date.now(), nombre, tel, dir, dia, creado:new Date().toLocaleDateString('es-ES')});
+  await guardarDatos();
+  ['nc-nombre','nc-tel','nc-dir'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nc-dia').value='';
+  btn.disabled=false; btn.textContent='Guardar cliente';
+  toast('✓ Cliente añadido'); window.showTab('clientes');
+}
+
+function calcFrecuencia(clienteId) {
+  const ps = (data.pedidos||[]).filter(p=>p.clienteId===clienteId)
+    .sort((a,b)=>new Date(a.fechaPedido||a.fecha)-new Date(b.fechaPedido||b.fecha));
+  if(ps.length < 2) return null;
+  let diffs = [];
+  for(let i=1;i<ps.length;i++){
+    const d1 = new Date(ps[i-1].fechaPedido||ps[i-1].fecha);
+    const d2 = new Date(ps[i].fechaPedido||ps[i].fecha);
+    diffs.push(Math.round((d2-d1)/86400000));
+  }
+  return Math.round(diffs.reduce((a,b)=>a+b,0)/diffs.length);
+}
+
+function badge(clienteId) {
+  const ps = (data.pedidos||[]).filter(p=>p.clienteId===clienteId);
+  if(!ps.length) return '<span class="badge none">Sin pedidos</span>';
+  const dias = Math.floor((Date.now()-Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000);
+  const freq = calcFrecuencia(clienteId);
+  if(freq && dias > freq) return '<span class="badge cold">⚠️ Toca recordar</span>';
+  if(dias<=7) return '<span class="badge active">Activo</span>';
+  if(dias<=14) return '<span class="badge warn">'+dias+'d sin pedir</span>';
+  return '<span class="badge cold">Inactivo</span>';
+}
+
+function pagoBadge(pago) {
+  if(pago==='bizum') return '<span class="pago-badge pago-bizum">📱 Bizum</span>';
+  if(pago==='pendiente') return '<span class="pago-badge pago-pendiente">⏳ Pendiente</span>';
+  return '<span class="pago-badge pago-efectivo">💵 Efectivo</span>';
+}
+
+function freqNextInfo(clienteId, freq) {
+  const ps = (data.pedidos||[]).filter(p=>p.clienteId===clienteId);
+  if(!ps.length) return '';
+  const ultimo = Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime()));
+  const diasDesde = Math.floor((Date.now()-ultimo)/86400000);
+  const diasFaltan = freq - diasDesde;
+  if(diasFaltan <= 0) return `<div class="freq-alerta">⚠️ Lleva ${diasDesde}d sin pedir — toca recordarle</div>`;
+  const proxFecha = new Date(ultimo + freq*86400000).toLocaleDateString('es-ES');
+  return `<div class="freq-next">📅 Próximo estimado: ${proxFecha} (en ${diasFaltan}d)</div>`;
+}
+
+function renderClientes(busca='') {
+  updateStats();
+  const lista = document.getElementById('lista-clientes');
+  const clientes = data.clientes||[];
+  const filtro = clientes.filter(c=>
+    c.nombre.toLowerCase().includes((busca||'').toLowerCase())||(c.tel||'').includes(busca||''));
+  if(!filtro.length) {
+    lista.innerHTML='<div class="empty"><div class="icon">🥚</div><p>No hay clientes aún.<br>Pulsa "+ Nuevo" para añadir el primero.</p></div>';
+    return;
+  }
+  lista.innerHTML=filtro.map(c=>{
+    const ps=(data.pedidos||[]).filter(p=>p.clienteId===c.id);
+    const total=ps.reduce((s,p)=>s+p.total,0);
+    const pendiente=ps.filter(p=>p.pago==='pendiente').reduce((s,p)=>s+p.total,0);
+    const cobrado=total-pendiente;
+    const ultFecha=ps.length?formatDate(ps.reduce((a,b)=>new Date(a.fechaPedido||a.fecha)>new Date(b.fechaPedido||b.fecha)?a:b).fechaPedido||ps[0].fecha):'—';
+    const freq = calcFrecuencia(c.id);
+    return `<div class="client-card">
+      <div class="client-header">
+        <div style="flex:1;min-width:0">
+          <div class="client-name">${c.nombre}</div>
+          ${c.tel?`<div class="client-info">📞 ${c.tel}</div>`:''}
+          ${c.dir?`<div class="client-info">📍 ${c.dir}</div>`:''}
+          ${c.dia?`<div class="client-info">📅 ${c.dia}</div>`:''}
+        </div>
+        ${badge(c.id)}
+      </div>
+      <div class="client-stats">
+        <div class="client-stat"><span>${ps.length}</span>Pedidos</div>
+        <div class="client-stat"><span style="color:var(--green)">${cobrado.toFixed(2)}€</span>Cobrado</div>
+        ${pendiente>0?`<div class="client-stat"><span class="pending-amount">${pendiente.toFixed(2)}€</span>Debe</div>`:''}
+        <div class="client-stat"><span>${ultFecha}</span>Último</div>
+      </div>
+      ${freq?`<div class="frecuencia-bar"><div class="freq-title">Frecuencia de compra</div><div class="freq-info">Pide cada ~${freq} días</div>${freqNextInfo(c.id,freq)}</div>`:''}
+      <div class="client-actions">
+        <button class="btn-sm add" onclick="abrirModal(${c.id})">+ Pedido</button>
+        <button class="btn-sm edit" onclick="abrirEditar(${c.id})">✏️ Editar</button>
+        ${c.tel?`<button class="btn-sm wa" onclick="enviarWhatsApp(${c.id})">📲 WA</button>`:''}
+        <button class="btn-sm del" onclick="eliminarCliente(${c.id})">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.eliminarCliente = async function(id) {
+  if(!confirm('¿Eliminar este cliente y todos sus pedidos?')) return;
+  data.clientes=(data.clientes||[]).filter(c=>c.id!==id);
+  data.pedidos=(data.pedidos||[]).filter(p=>p.clienteId!==id);
+  await guardarDatos(); renderClientes(); toast('Cliente eliminado');
+}
+
+window.abrirEditar = function(id) {
+  editClienteId = id;
+  const c = (data.clientes||[]).find(c=>c.id===id);
+  document.getElementById('e-nombre').value = c.nombre||'';
+  document.getElementById('e-tel').value = c.tel||'';
+  document.getElementById('e-dir').value = c.dir||'';
+  document.getElementById('e-dia').value = c.dia||'';
+  document.getElementById('modal-editar').classList.add('open');
+}
+
+window.cerrarEditar = function() {
+  document.getElementById('modal-editar').classList.remove('open');
+  editClienteId = null;
+}
+
+window.guardarEditar = async function() {
+  const nombre = document.getElementById('e-nombre').value.trim();
+  if(!nombre) return toast('⚠️ Escribe el nombre');
+  const btn = document.getElementById('btn-guardar-editar');
+  btn.disabled=true; btn.textContent='Guardando...';
+  const idx = (data.clientes||[]).findIndex(c=>c.id===editClienteId);
+  if(idx>=0) {
+    data.clientes[idx].nombre = nombre;
+    data.clientes[idx].tel = document.getElementById('e-tel').value.trim();
+    data.clientes[idx].dir = document.getElementById('e-dir').value.trim();
+    data.clientes[idx].dia = document.getElementById('e-dia').value;
+  }
+  await guardarDatos();
+  btn.disabled=false; btn.textContent='Guardar cambios';
+  window.cerrarEditar(); renderClientes(); toast('✓ Cliente actualizado');
+}
+
+window.abrirModal = function(clienteId) {
+  modalClienteId=clienteId;
+  const c=(data.clientes||[]).find(c=>c.id===clienteId);
+  document.getElementById('modal-nombre').textContent=c.nombre;
+  document.getElementById('m-bandejas').value=1;
+  document.getElementById('m-precio').value='8.50';
+  window.selPagoModal('efectivo');
+  const today = new Date();
+  fillDateSel('m-fp',today); fillDateSel('m-fe',today);
+  document.getElementById('modal-pedido').classList.add('open');
+}
+
+window.cerrarModal = function() {
+  document.getElementById('modal-pedido').classList.remove('open');
+  modalClienteId=null;
+}
+
+window.guardarModalPedido = async function() {
+  const bandejas=parseInt(document.getElementById('m-bandejas').value)||1;
+  const precio=parseFloat(document.getElementById('m-precio').value)||8.5;
+  const dia=document.getElementById('m-dia').value;
+  const fechaPedido=getDateFromSel('m-fp');
+  const fechaEntrega=getDateFromSel('m-fe');
+  const btn=document.getElementById('btn-modal-guardar');
+  btn.disabled=true; btn.textContent='Guardando...';
+  if(!data.pedidos) data.pedidos=[];
+  data.pedidos.unshift({id:Date.now(),clienteId:modalClienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,pago:pagoModalSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
+  await guardarDatos();
+  btn.disabled=false; btn.textContent='Guardar';
+  window.cerrarModal(); renderClientes(); toast('✓ Pedido registrado');
+}
+
+function renderSelectClientes() {
+  const sel=document.getElementById('p-cliente');
+  const clientes=data.clientes||[];
+  sel.innerHTML=clientes.length
+    ?clientes.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('')
+    :'<option>— Añade clientes primero —</option>';
+}
+
+window.eliminarPedido = async function(id) {
+  if(!confirm('¿Eliminar este pedido?')) return;
+  data.pedidos=(data.pedidos||[]).filter(p=>p.id!==id);
+  await guardarDatos(); renderPedidos(); renderClientes(); toast('Pedido eliminado');
+}
+
+window.agregarPedido = async function() {
+  const clienteId=parseInt(document.getElementById('p-cliente').value);
+  if(!clienteId) return toast('Selecciona un cliente');
+  const bandejas=parseInt(document.getElementById('p-bandejas').value)||1;
+  const precio=parseFloat(document.getElementById('p-precio').value)||8.5;
+  const dia=document.getElementById('p-dia').value;
+  const fechaPedido=getDateFromSel('p-fp');
+  const fechaEntrega=getDateFromSel('p-fe');
+  const btn=document.getElementById('btn-guardar-pedido');
+  btn.disabled=true; btn.textContent='Guardando...';
+  if(!data.pedidos) data.pedidos=[];
+  data.pedidos.unshift({id:Date.now(),clienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,pago:pagoSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
+  await guardarDatos();
+  btn.disabled=false; btn.textContent='Registrar pedido';
+  renderPedidos(); toast('✓ Pedido guardado');
+}
+
+function renderPedidos() {
+  const lista=document.getElementById('lista-pedidos');
+  const pedidos=data.pedidos||[];
+  if(!pedidos.length){lista.innerHTML='<div class="empty"><p>No hay pedidos aún</p></div>';return;}
+  lista.innerHTML=pedidos.slice(0,30).map(function(p){
+    const c=(data.clientes||[]).find(function(c){return c.id===p.clienteId;});
+    const fp = formatDate(p.fechaPedido||p.fecha);
+    const fe = formatDate(p.fechaEntrega);
+    const cobrarBtn = p.pago==='pendiente' ? '<button onclick="marcarPagado('+p.id+')" style="background:#D6F0E2;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;color:#2D7A4F;flex-shrink:0;font-weight:600">Cobrar</button>' : '';
+    const entregarBtn = !p.entregado ? '<button onclick="marcarEntregado('+p.id+')" style="background:#FFF0D6;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;color:#B87A00;flex-shrink:0;font-weight:600">Entregar</button>' : '<span style="font-size:11px;color:#2D7A4F;font-weight:600;padding:4px">Entregado</span>';
+    return '<div class="pedido-row">'
+      + '<div style="flex:1">'
+      + '<div style="font-weight:600;font-size:14px">'+(c?c.nombre:'—')+'</div>'
+      + '<div class="pedido-date">Pedido: '+fp+' Entrega: '+fe+'</div>'
+      + '<div class="pedido-date">'+p.dia+' · '+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+'</div>'
+      + '</div>'
+      + '<div class="pedido-right">'
+      + '<div>'
+      + '<div class="pedido-amount">'+p.total.toFixed(2)+'€</div>'
+      + pagoBadge(p.pago)
+      + '</div>'
+      + '<button onclick="abrirEditarPedido('+p.id+')" style="background:#E8E0FF;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:14px;color:#5533CC;flex-shrink:0">✏️</button>'
+      + '<button onclick="eliminarPedido('+p.id+')" style="background:#FFE8E8;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:14px;color:#B83232;flex-shrink:0">🗑</button>'
+      + cobrarBtn
+      + entregarBtn
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── COMPRAS ──────────────────────────────────────────────
+window.agregarCompra = async function() {
+  const bandejas = parseInt(document.getElementById('c-bandejas').value)||1;
+  const precio = parseFloat(document.getElementById('c-precio').value)||7;
+  const fecha = getDateFromSel('c-fd');
+  const notas = document.getElementById('c-notas').value.trim();
+  const btn = document.getElementById('btn-guardar-compra');
+  btn.disabled=true; btn.textContent='Guardando...';
+  if(!data.compras) data.compras=[];
+  data.compras.unshift({id:Date.now(), bandejas, precio, total:+(bandejas*precio).toFixed(2), fecha, notas});
+  await guardarDatos();
+  document.getElementById('c-bandejas').value=1;
+  document.getElementById('c-notas').value='';
+  btn.disabled=false; btn.textContent='Registrar compra';
+  renderCompras(); updateStatsCompras(); toast('✓ Compra registrada');
+}
+
+window.eliminarCompra = async function(id) {
+  if(!confirm('¿Eliminar esta compra?')) return;
+  data.compras=(data.compras||[]).filter(c=>c.id!==id);
+  await guardarDatos(); renderCompras(); updateStatsCompras(); toast('Compra eliminada');
+}
+
+function renderCompras() {
+  const lista = document.getElementById('lista-compras');
+  const compras = data.compras||[];
+  if(!compras.length){lista.innerHTML='<div class="empty"><p>No hay compras registradas</p></div>';return;}
+  lista.innerHTML = compras.slice(0,30).map(c=>`
+    <div class="compra-row">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${c.bandejas} bandejas × ${c.precio.toFixed(2)}€</div>
+        <div class="pedido-date">📅 ${formatDate(c.fecha)} ${c.notas?'· '+c.notas:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-weight:700;color:var(--red);font-size:15px">-${c.total.toFixed(2)}€</div>
+        <button onclick="eliminarCompra(${c.id})" style="background:#FFE8E8;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:14px;color:#B83232">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function updateStatsCompras() {
+  const totalComprado = (data.compras||[]).reduce((s,c)=>s+c.total,0);
+  const totalVendido = (data.pedidos||[]).filter(p=>p.pago!=='pendiente').reduce((s,p)=>s+p.total,0);
+  const ganancia = totalVendido - totalComprado;
+  const bandejaCompradas = (data.compras||[]).reduce((s,c)=>s+c.bandejas,0);
+  const bandejaVendidas = (data.pedidos||[]).reduce((s,p)=>s+p.bandejas,0);
+  const stock = bandejaCompradas - bandejaVendidas;
+  document.getElementById('stat-comprado').textContent = totalComprado.toFixed(2)+'€';
+  document.getElementById('stat-ganancia').textContent = ganancia.toFixed(2)+'€';
+  const stockEl = document.getElementById('stat-stock');
+  if(stockEl) {
+    stockEl.textContent = stock > 0 ? stock+' 🥚' : '0 🥚';
+    stockEl.style.color = stock <= 5 ? 'var(--red)' : stock <= 10 ? 'var(--amber)' : 'var(--green)';
+  }
+}
+
+
+function renderProximos() {
+  const lista = document.getElementById('lista-proximos');
+  const pedidos = (data.pedidos||[]).filter(function(p){ return !p.entregado; });
+  
+  // Sort by fecha entrega
+  pedidos.sort(function(a,b){
+    return new Date(a.fechaEntrega||a.fechaPedido||a.fecha) - new Date(b.fechaEntrega||b.fechaPedido||b.fecha);
+  });
+
+  const totalBandejas = pedidos.reduce(function(s,p){ return s+p.bandejas; }, 0);
+  const countEl = document.getElementById('stat-proximos-count');
+  const bandejasEl = document.getElementById('stat-proximos-bandejas');
+  if(countEl) countEl.textContent = pedidos.length;
+  if(bandejasEl) bandejasEl.textContent = totalBandejas + ' 🥚';
+
+  if(!pedidos.length) {
+    lista.innerHTML = '<div class="empty"><div class="icon">🚚</div><p>No hay pedidos pendientes de entregar</p></div>';
+    return;
+  }
+
+  lista.innerHTML = pedidos.map(function(p) {
+    const c = (data.clientes||[]).find(function(c){ return c.id===p.clienteId; });
+    const fp = formatDate(p.fechaPedido||p.fecha);
+    const fe = formatDate(p.fechaEntrega);
+    const pagoColor = p.pago==='pendiente' ? 'var(--red)' : 'var(--green)';
+    const cobrarBtn = p.pago==='pendiente' ? '<button onclick="marcarPagado('+p.id+')" style="background:#D6F0E2;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:#2D7A4F;font-weight:600">💰 Cobrar</button>' : '';
+    return '<div class="client-card">'
+      + '<div class="client-header">'
+      + '<div style="flex:1">'
+      + '<div class="client-name">'+(c?c.nombre:'—')+'</div>'
+      + (c&&c.dir?'<div class="client-info">📍 '+c.dir+'</div>':'')
+      + (c&&c.tel?'<div class="client-info">📞 '+c.tel+'</div>':'')
+      + '</div>'
+      + '<span class="badge warn">⏳ Pendiente</span>'
+      + '</div>'
+      + '<div class="client-stats">'
+      + '<div class="client-stat"><span>'+p.bandejas+'</span>Bandejas</div>'
+      + '<div class="client-stat"><span>'+p.total.toFixed(2)+'€</span>Total</div>'
+      + '<div class="client-stat"><span>'+fp+'</span>Pedido</div>'
+      + '<div class="client-stat"><span>'+fe+'</span>Entrega</div>'
+      + '</div>'
+      + '<div style="margin-top:8px;padding:6px 10px;background:var(--bg);border-radius:8px;font-size:12px;">'
+      + p.dia+' · '+pagoBadge(p.pago)
+      + '</div>'
+      + '<div class="client-actions" style="margin-top:10px">'
+      + cobrarBtn
+      + '<button onclick="marcarEntregadoProximo('+p.id+')" style="background:var(--orange);border:none;border-radius:10px;padding:10px;cursor:pointer;font-size:13px;color:white;font-weight:600;flex:1;font-family:Sora,sans-serif">✅ Marcar como entregado</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+window.marcarEntregadoProximo = async function(id) {
+  const idx = (data.pedidos||[]).findIndex(function(p){ return p.id===id; });
+  if(idx>=0) data.pedidos[idx].entregado = true;
+  await guardarDatos();
+  renderProximos();
+  renderClientes();
+  toast('✅ Pedido entregado');
+}
+
+function updateStats() {
+  const clientes = data.clientes||[];
+  const pedidos = data.pedidos||[];
+  const cobrado = pedidos.filter(p=>p.pago!=='pendiente').reduce((s,p)=>s+p.total,0);
+  const pendiente = pedidos.filter(p=>p.pago==='pendiente').reduce((s,p)=>s+p.total,0);
+  document.getElementById('stat-total').textContent = clientes.length;
+  document.getElementById('stat-cobrado').textContent = cobrado.toFixed(2)+'€';
+  document.getElementById('stat-pendiente').textContent = pendiente.toFixed(2)+'€';
+}
+
+function renderSeguimiento() {
+  const lista = document.getElementById('lista-seguimiento');
+  const clientes = data.clientes||[];
+  if(!clientes.length){lista.innerHTML='<div class="empty"><div class="icon">📊</div><p>No hay clientes aún</p></div>';return;}
+  const sorted = [...clientes].sort((a,b) => {
+    const psA = (data.pedidos||[]).filter(p=>p.clienteId===a.id);
+    const psB = (data.pedidos||[]).filter(p=>p.clienteId===b.id);
+    const diasA = psA.length?Math.floor((Date.now()-Math.max(...psA.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000):999;
+    const diasB = psB.length?Math.floor((Date.now()-Math.max(...psB.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000):999;
+    return diasB-diasA;
+  });
+  lista.innerHTML=sorted.map(c=>{
+    const ps=(data.pedidos||[]).filter(p=>p.clienteId===c.id);
+    const freq=calcFrecuencia(c.id);
+    const diasDesde=ps.length?Math.floor((Date.now()-Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000):null;
+    const progreso=freq&&diasDesde!==null?Math.min(100,Math.round((diasDesde/freq)*100)):null;
+    const color=progreso===null?'#aaa':progreso>=100?'#B83232':progreso>=75?'#F5A623':'#2D7A4F';
+    return `<div class="seguimiento-card">
+      <div class="seg-name">${c.nombre}</div>
+      ${c.tel?`<div class="seg-info" style="margin-top:2px">📞 ${c.tel}</div>`:''}
+      <div class="seg-row"><span class="seg-info">Pedidos totales</span><span class="seg-val">${ps.length}</span></div>
+      <div class="seg-row"><span class="seg-info">Días desde último pedido</span><span class="seg-val">${diasDesde!==null?diasDesde+'d':'—'}</span></div>
+      <div class="seg-row"><span class="seg-info">Frecuencia habitual</span><span class="seg-val">${freq?'Cada '+freq+'d':'Sin datos aún'}</span></div>
+      ${freq&&diasDesde!==null?`
+      <div class="progress-bar"><div class="progress-fill" style="width:${progreso}%;background:${color}"></div></div>
+      <div style="font-size:11px;color:${color};margin-top:4px;font-weight:600">
+        ${progreso>=100?'⚠️ Toca recordarle — lleva '+diasDesde+'d sin pedir':'Faltan ~'+(freq-diasDesde)+'d para su próximo pedido'}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+
+
+
+window.marcarPagado = async function(id) {
+  const idx = (data.pedidos||[]).findIndex(p=>p.id===id);
+  if(idx>=0) data.pedidos[idx].pago = 'efectivo';
+  await guardarDatos(); renderPedidos(); renderClientes(); toast('✓ Marcado como pagado');
+}
+
+window.marcarEntregado = async function(id) {
+  const idx = (data.pedidos||[]).findIndex(function(p){return p.id===id;});
+  if(idx>=0) data.pedidos[idx].entregado = true;
+  await guardarDatos(); renderPedidos(); renderClientes(); toast('✅ Pedido entregado');
+}
+
+window.enviarWhatsApp = function(clienteId) {
+  const c = (data.clientes||[]).find(c=>c.id===clienteId);
+  if(!c || !c.tel) return toast('⚠️ Este cliente no tiene teléfono');
+
+  const ps = (data.pedidos||[]).filter(p=>p.clienteId===clienteId);
+  const pendiente = ps.filter(p=>p.pago==='pendiente').reduce((s,p)=>s+p.total,0);
+  const freq = calcFrecuencia(clienteId);
+  const diasDesde = ps.length ? Math.floor((Date.now()-Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000) : null;
+
+  let mensaje = `🐔🥚 ¡Hola ${c.nombre}!\n\nVemos que esta semana todavía no has pedido tus huevos... 😢\n\n¡Aquí seguimos con los huevos bien frescos esperando tu pedido! 😊✨\n\n🧺 Bandeja 30 huevos L — 8.50€\n📅 Repartos: viernes, sábado y domingo\n📞 689 273 452 / 676 075 510`;
+
+  if(pendiente > 0) {
+    mensaje += `\n\n⚠️ Por cierto, tienes pendiente de pagar ${pendiente.toFixed(2)}€ de tu último pedido 😊`;
+  }
+
+  // Clean phone number
+  const tel = c.tel.split(' ').join('').split('-').join('');
+  const telLimpio = (tel.charAt(0)==='+') ? tel : '34'+tel;
+  const url = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+  window.open(url, '_blank');
+}
+
+let editPedidoId = null;
+let pagoEditPedidoSel = 'efectivo';
+
+window.selPagoEditPedido = function(tipo) {
+  pagoEditPedidoSel = tipo;
+  ['efectivo','bizum','pendiente'].forEach(t => {
+    const b = document.getElementById('eppb-'+t);
+    if(b) b.className = 'pago-btn'+(t===tipo?' sel-'+t:'');
+  });
+}
+
+window.abrirEditarPedido = function(id) {
+  editPedidoId = parseInt(id);
+  const p = (data.pedidos||[]).find(p=>p.id===id);
+  if(!p) return;
+  // Open modal first so elements are visible
+  document.getElementById('modal-editar-pedido').classList.add('open');
+  // Then fill fields
+  setTimeout(() => {
+    document.getElementById('ep-bandejas').value = p.bandejas;
+    document.getElementById('ep-precio').value = p.precio;
+    document.getElementById('ep-dia').value = p.dia||'Lunes';
+    window.selPagoEditPedido(p.pago||'efectivo');
+    const fp = p.fechaPedido ? new Date(p.fechaPedido+'T12:00:00') : new Date(p.fecha);
+    const fe = p.fechaEntrega ? new Date(p.fechaEntrega+'T12:00:00') : fp;
+    fillDateSel('ep-fp', fp);
+    fillDateSel('ep-fe', fe);
+  }, 50);
+}
+
+window.cerrarEditarPedido = function() {
+  document.getElementById('modal-editar-pedido').classList.remove('open');
+  editPedidoId = null;
+}
+
+window.guardarEditarPedido = async function() {
+  if(!editPedidoId) { toast('Error: no hay pedido seleccionado'); return; }
+  const btn = document.getElementById('btn-guardar-editar-pedido');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  let idx = -1;
+  for(let i=0; i<(data.pedidos||[]).length; i++) {
+    if(parseInt(data.pedidos[i].id) === parseInt(editPedidoId)) { idx = i; break; }
+  }
+
+  if(idx === -1) { toast('Error: pedido no encontrado'); btn.disabled=false; btn.textContent='Guardar cambios'; return; }
+
+  const bandejas = parseInt(document.getElementById('ep-bandejas').value) || 1;
+  const precio = parseFloat(document.getElementById('ep-precio').value) || 8.5;
+  const total = Math.round(bandejas * precio * 100) / 100;
+  const dia = document.getElementById('ep-dia').value;
+  const fp = getDateFromSel('ep-fp');
+  const fe = getDateFromSel('ep-fe');
+
+  data.pedidos[idx].bandejas = bandejas;
+  data.pedidos[idx].precio = precio;
+  data.pedidos[idx].total = total;
+  data.pedidos[idx].dia = dia;
+  data.pedidos[idx].pago = pagoEditPedidoSel;
+  data.pedidos[idx].fechaPedido = fp;
+  data.pedidos[idx].fechaEntrega = fe;
+
+  await guardarDatos();
+  btn.disabled = false;
+  btn.textContent = 'Guardar cambios';
+  document.getElementById('modal-editar-pedido').classList.remove('open');
+  editPedidoId = null;
+  renderPedidos();
+  renderClientes();
+  toast('Pedido actualizado');
+}
+['modal-pedido','modal-editar','modal-editar-pedido'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e){
+    if(e.target===this){window.cerrarModal();window.cerrarEditar();window.cerrarEditarPedido();}
+  });
+});
+
+selPago('efectivo');
+selPagoModal('efectivo');
+cargarDatos();
+</script>
+</body>
+</html>
