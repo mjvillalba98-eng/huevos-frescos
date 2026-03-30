@@ -446,7 +446,7 @@ async function guardarDatos() {
   }
 }
 
-window.cargarDatos = async function() {
+async function cargarDatos() {
   setSyncStatus('loading','Conectando...');
   try {
     const snap = await DATA_DOC.get();
@@ -477,7 +477,7 @@ DATA_DOC.onSnapshot(function(snap) {
   setSyncStatus('error','Sin conexión');
 });
 
-window.selPago = function(tipo) {
+function selPago(tipo) {
   pagoSel = tipo;
   ['efectivo','bizum','pendiente'].forEach(t => {
     const b = document.getElementById('pb-'+t);
@@ -485,7 +485,7 @@ window.selPago = function(tipo) {
   });
 }
 
-window.selPagoModal = function(tipo) {
+function selPagoModal(tipo) {
   pagoModalSel = tipo;
   ['efectivo','bizum','pendiente'].forEach(t => {
     const b = document.getElementById('mpb-'+t);
@@ -493,7 +493,7 @@ window.selPagoModal = function(tipo) {
   });
 }
 
-window.showTab = function(t) {
+function showTab(t) {
   ['clientes','proximos','pedidos','compras','seguimiento','nuevo'].forEach(id =>
     document.getElementById('tab-'+id).classList.toggle('section-hidden', id!==t));
   document.querySelectorAll('.tab').forEach((el,i) =>
@@ -506,7 +506,7 @@ window.showTab = function(t) {
   if(t==='seguimiento'){renderSeguimiento();}
 }
 
-window.agregarCliente = async function() {
+async function agregarCliente() {
   const nombre = document.getElementById('nc-nombre').value.trim();
   const tel = document.getElementById('nc-tel').value.trim();
   const dir = document.getElementById('nc-dir').value.trim();
@@ -608,14 +608,14 @@ function renderClientes(busca='') {
   }).join('');
 }
 
-window.eliminarCliente = async function(id) {
+async function eliminarCliente(id) {
   if(!confirm('¿Eliminar este cliente y todos sus pedidos?')) return;
   data.clientes=(data.clientes||[]).filter(c=>c.id!==id);
   data.pedidos=(data.pedidos||[]).filter(p=>p.clienteId!==id);
   await guardarDatos(); renderClientes(); toast('Cliente eliminado');
 }
 
-window.abrirEditar = function(id) {
+function abrirEditar(id) {
   editClienteId = id;
   const c = (data.clientes||[]).find(c=>c.id===id);
   document.getElementById('e-nombre').value = c.nombre||'';
@@ -625,12 +625,12 @@ window.abrirEditar = function(id) {
   document.getElementById('modal-editar').classList.add('open');
 }
 
-window.cerrarEditar = function() {
+function cerrarEditar() {
   document.getElementById('modal-editar').classList.remove('open');
   editClienteId = null;
 }
 
-window.guardarEditar = async function() {
+async function guardarEditar() {
   const nombre = document.getElementById('e-nombre').value.trim();
   if(!nombre) return toast('⚠️ Escribe el nombre');
   const btn = document.getElementById('btn-guardar-editar');
@@ -647,7 +647,7 @@ window.guardarEditar = async function() {
   window.cerrarEditar(); renderClientes(); toast('✓ Cliente actualizado');
 }
 
-window.abrirModal = function(clienteId) {
+function abrirModal(clienteId) {
   modalClienteId=clienteId;
   const c=(data.clientes||[]).find(c=>c.id===clienteId);
   document.getElementById('modal-nombre').textContent=c.nombre;
@@ -659,12 +659,12 @@ window.abrirModal = function(clienteId) {
   document.getElementById('modal-pedido').classList.add('open');
 }
 
-window.cerrarModal = function() {
+function cerrarModal() {
   document.getElementById('modal-pedido').classList.remove('open');
   modalClienteId=null;
 }
 
-window.guardarModalPedido = async function() {
+async function guardarModalPedido() {
   const bandejas=parseInt(document.getElementById('m-bandejas').value)||1;
   const precio=parseFloat(document.getElementById('m-precio').value)||8.5;
   const dia=document.getElementById('m-dia').value;
@@ -687,13 +687,13 @@ function renderSelectClientes() {
     :'<option>— Añade clientes primero —</option>';
 }
 
-window.eliminarPedido = async function(id) {
+async function eliminarPedido(id) {
   if(!confirm('¿Eliminar este pedido?')) return;
   data.pedidos=(data.pedidos||[]).filter(p=>p.id!==id);
   await guardarDatos(); renderPedidos(); renderClientes(); toast('Pedido eliminado');
 }
 
-window.agregarPedido = async function() {
+async function agregarPedido() {
   const clienteId=parseInt(document.getElementById('p-cliente').value);
   if(!clienteId) return toast('Selecciona un cliente');
   const bandejas=parseInt(document.getElementById('p-bandejas').value)||1;
@@ -741,7 +741,7 @@ function renderPedidos() {
 }
 
 // ── COMPRAS ──────────────────────────────────────────────
-window.agregarCompra = async function() {
+async function agregarCompra() {
   const bandejas = parseInt(document.getElementById('c-bandejas').value)||1;
   const precio = parseFloat(document.getElementById('c-precio').value)||7;
   const fecha = getDateFromSel('c-fd');
@@ -757,7 +757,7 @@ window.agregarCompra = async function() {
   renderCompras(); updateStatsCompras(); toast('✓ Compra registrada');
 }
 
-window.eliminarCompra = async function(id) {
+async function eliminarCompra(id) {
   if(!confirm('¿Eliminar esta compra?')) return;
   data.compras=(data.compras||[]).filter(c=>c.id!==id);
   await guardarDatos(); renderCompras(); updateStatsCompras(); toast('Compra eliminada');
@@ -849,7 +849,7 @@ function renderProximos() {
   }).join('');
 }
 
-window.marcarEntregadoProximo = async function(id) {
+async function marcarEntregadoProximo(id) {
   const idx = (data.pedidos||[]).findIndex(function(p){ return p.id===id; });
   if(idx>=0) data.pedidos[idx].entregado = true;
   await guardarDatos();
@@ -903,19 +903,19 @@ function renderSeguimiento() {
 
 
 
-window.marcarPagado = async function(id) {
+async function marcarPagado(id) {
   const idx = (data.pedidos||[]).findIndex(p=>p.id===id);
   if(idx>=0) data.pedidos[idx].pago = 'efectivo';
   await guardarDatos(); renderPedidos(); renderClientes(); toast('✓ Marcado como pagado');
 }
 
-window.marcarEntregado = async function(id) {
+async function marcarEntregado(id) {
   const idx = (data.pedidos||[]).findIndex(function(p){return p.id===id;});
   if(idx>=0) data.pedidos[idx].entregado = true;
   await guardarDatos(); renderPedidos(); renderClientes(); toast('✅ Pedido entregado');
 }
 
-window.enviarWhatsApp = function(clienteId) {
+function enviarWhatsApp(clienteId) {
   const c = (data.clientes||[]).find(c=>c.id===clienteId);
   if(!c || !c.tel) return toast('⚠️ Este cliente no tiene teléfono');
 
@@ -939,7 +939,7 @@ window.enviarWhatsApp = function(clienteId) {
 
 
 
-window.selPagoEditPedido = function(tipo) {
+function selPagoEditPedido(tipo) {
   pagoEditPedidoSel = tipo;
   ['efectivo','bizum','pendiente'].forEach(t => {
     const b = document.getElementById('eppb-'+t);
@@ -947,7 +947,7 @@ window.selPagoEditPedido = function(tipo) {
   });
 }
 
-window.abrirEditarPedido = function(id) {
+function abrirEditarPedido(id) {
   editPedidoId = parseInt(id);
   const p = (data.pedidos||[]).find(p=>p.id===id);
   if(!p) return;
@@ -966,12 +966,12 @@ window.abrirEditarPedido = function(id) {
   }, 50);
 }
 
-window.cerrarEditarPedido = function() {
+function cerrarEditarPedido() {
   document.getElementById('modal-editar-pedido').classList.remove('open');
   editPedidoId = null;
 }
 
-window.guardarEditarPedido = async function() {
+async function guardarEditarPedido() {
   console.log('guardarEditarPedido called, editPedidoId:', editPedidoId);
   if(!editPedidoId) { toast('Error: no hay pedido seleccionado'); return; }
   const btn = document.getElementById('btn-guardar-editar-pedido');
