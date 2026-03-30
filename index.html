@@ -987,26 +987,38 @@ var confirmacionOrigen = 'pedidos'; // 'pedidos' or 'nuevo'
 
 function editarConfirmacion() {
   document.getElementById('modal-confirmar-pedido').classList.remove('open');
-  // Go back to where user came from
   if(confirmacionOrigen === 'nuevo') {
-    // Reopen the nuevo cliente form
+    // Reopen the nuevo cliente form with data still there
     var form = document.getElementById('nuevo-cliente-form');
     var icon = document.getElementById('btn-toggle-icon');
     if(form) { form.style.display = 'block'; if(icon) icon.textContent = '−'; }
+    // Reopen primer pedido form too
+    var ppForm = document.getElementById('primer-pedido-form');
+    var ppIcon = document.getElementById('icon-primer-pedido');
+    if(ppForm) { ppForm.style.display = 'block'; if(ppIcon) ppIcon.textContent = '−'; }
   } else {
-    // Go back to pedidos tab
     showTab('pedidos');
   }
+  // Keep pendingPedido and pendingCliente in memory so data is preserved
   pendingPedido = null;
+  pendingCliente = null;
 }
 
 async function confirmarYEnviarWA() {
   if(!pendingPedido) return;
+  // Save pending client if exists
+  if(pendingCliente) {
+    if(!data.clientes) data.clientes=[];
+    data.clientes.push(pendingCliente);
+    pendingCliente = null;
+    resetNuevoClienteForm();
+  }
   if(!data.pedidos) data.pedidos=[];
   data.pedidos.unshift(pendingPedido);
   await guardarDatos();
   document.getElementById('modal-confirmar-pedido').classList.remove('open');
   renderPedidos();
+  renderClientes();
 
   // Send WhatsApp
   const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(pendingPedido.clienteId);});
@@ -1031,13 +1043,21 @@ async function confirmarYEnviarWA() {
 
 async function confirmarSoloGuardar() {
   if(!pendingPedido) return;
+  // Save pending client if exists
+  if(pendingCliente) {
+    if(!data.clientes) data.clientes=[];
+    data.clientes.push(pendingCliente);
+    pendingCliente = null;
+    resetNuevoClienteForm();
+  }
   if(!data.pedidos) data.pedidos=[];
   data.pedidos.unshift(pendingPedido);
   await guardarDatos();
   document.getElementById('modal-confirmar-pedido').classList.remove('open');
   pendingPedido = null;
   renderPedidos();
-  toast('✓ Pedido guardado');
+  renderClientes();
+  toast('✓ Cliente y pedido guardados');
 }
 
 function cancelarConfirmacion() {
