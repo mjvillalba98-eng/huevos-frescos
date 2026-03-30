@@ -109,16 +109,22 @@
   <button class="tab" onclick="showTab('pedidos')">Pedidos</button>
   <button class="tab" onclick="showTab('compras')">Compras</button>
   <button class="tab" onclick="showTab('seguimiento')">Seguimiento</button>
-  <button class="tab" onclick="showTab('nuevo')">+ Nuevo</button>
 </div>
 <div class="content">
 
   <!-- CLIENTES -->
   <div id="tab-clientes">
-    <div class="stats">
-      <div class="stat"><div class="num" id="stat-total">—</div><div class="lbl">Clientes</div></div>
-      <div class="stat green"><div class="num" id="stat-cobrado">—</div><div class="lbl">Cobrado</div></div>
-      <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
+    <div class="stats" style="grid-template-columns:1fr;">
+      <div class="stat"><div class="num" id="stat-total">—</div><div class="lbl">Total clientes</div></div>
+    </div>
+
+    <div id="nuevo-cliente-section" style="margin-bottom:1rem;">
+      <button onclick="toggleNuevoCliente()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;" id="btn-toggle-nuevo">
+        <span>+</span> Añadir nuevo cliente
+      </button>
+      <div id="nuevo-cliente-form" style="display:none;margin-top:8px;">
+
+      </div>
     </div>
     <input class="search" placeholder="🔍 Buscar cliente..." oninput="renderClientes(this.value)" id="buscador">
     <div id="lista-clientes"><div class="empty"><div class="icon">🥚</div><p>Conectando...</p></div></div>
@@ -140,6 +146,10 @@
   </div>
   <!-- PEDIDOS -->
   <div id="tab-pedidos" class="section-hidden">
+    <div class="stats">
+      <div class="stat green"><div class="num" id="stat-cobrado">—</div><div class="lbl">Cobrado</div></div>
+      <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
+    </div>
     <div class="card">
       <h2>Registrar pedido</h2>
       <div class="form-group" style="margin-bottom:8px"><label>Cliente</label><select id="p-cliente"></select></div>
@@ -225,26 +235,7 @@
     <div id="lista-seguimiento"><div class="empty"><div class="icon">📊</div><p>Cargando...</p></div></div>
   </div>
 
-  <!-- NUEVO CLIENTE -->
-  <div id="tab-nuevo" class="section-hidden">
-    <div class="card">
-      <h2>Nuevo cliente</h2>
-      <div class="form-group" style="margin-bottom:8px"><label>Nombre *</label><input id="nc-nombre" placeholder="María García" autocomplete="off"/></div>
-      <div class="form-row">
-        <div class="form-group"><label>Teléfono</label><input id="nc-tel" placeholder="689 000 000" type="tel"/></div>
-        <div class="form-group"><label>Dirección</label><input id="nc-dir" placeholder="Calle Mayor 4" autocomplete="off"/></div>
-      </div>
-      <div class="form-group" style="margin-bottom:8px">
-        <label>Día de reparto preferido</label>
-        <select id="nc-dia">
-          <option value="">Sin preferencia</option>
-          <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
-          <option>Viernes</option><option>Sábado</option><option>Domingo</option>
-        </select>
-      </div>
-      <button class="btn" id="btn-guardar-cliente" onclick="agregarCliente()">Guardar cliente</button>
-    </div>
-  </div>
+>
 
 </div>
 
@@ -529,10 +520,10 @@ function selPagoModal(tipo) {
 }
 
 function showTab(t) {
-  ['clientes','proximos','pedidos','compras','seguimiento','nuevo'].forEach(id =>
+  ['clientes','proximos','pedidos','compras','seguimiento'].forEach(id =>
     document.getElementById('tab-'+id).classList.toggle('section-hidden', id!==t));
   document.querySelectorAll('.tab').forEach((el,i) =>
-    el.classList.toggle('active', ['clientes','proximos','pedidos','compras','seguimiento','nuevo'][i]===t));
+    el.classList.toggle('active', ['clientes','proximos','pedidos','compras','seguimiento'][i]===t));
   const today = new Date();
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
   if(t==='proximos'){renderProximos();}
@@ -902,6 +893,19 @@ function enviarGracias(id) {
   const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
   const url = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
   window.open(url, '_blank');
+}
+
+
+function toggleNuevoCliente() {
+  var form = document.getElementById('nuevo-cliente-form');
+  var btn = document.getElementById('btn-toggle-nuevo');
+  if(form.style.display === 'none') {
+    form.style.display = 'block';
+    btn.innerHTML = '<span>−</span> Cerrar';
+  } else {
+    form.style.display = 'none';
+    btn.innerHTML = '<span>+</span> Añadir nuevo cliente';
+  }
 }
 
 function renderProximos() {
