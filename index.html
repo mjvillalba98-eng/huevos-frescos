@@ -1180,6 +1180,65 @@ function actualizarDiaModal() {
   } catch(e) {}
 }
 
+
+function abrirHistorial(clienteId) {
+  var c = (data.clientes||[]).find(function(c){ return parseInt(c.id)===parseInt(clienteId); });
+  if(!c) return;
+  var ps = (data.pedidos||[]).filter(function(p){ return parseInt(p.clienteId)===parseInt(clienteId); });
+  ps.sort(function(a,b){ return new Date(b.fechaPedido||b.fecha) - new Date(a.fechaPedido||a.fecha); });
+
+  var total = ps.reduce(function(s,p){ return s+p.total; }, 0);
+  var pendiente = ps.filter(function(p){ return p.estado==='pendiente'; }).reduce(function(s,p){ return s+p.total; }, 0);
+  var cobrado = total - pendiente;
+
+  document.getElementById('hist-nombre').textContent = c.nombre;
+
+  var info = '';
+  if(c.tel) info += '📞 '+c.tel+'  ';
+  if(c.dir) info += '📍 '+c.dir+'  ';
+  if(c.nac) info += '🌍 '+c.nac;
+  document.getElementById('hist-info').textContent = info;
+
+  document.getElementById('hist-total-pedidos').textContent = ps.length;
+  document.getElementById('hist-cobrado').textContent = cobrado.toFixed(2)+'€';
+  document.getElementById('hist-pendiente').textContent = pendiente.toFixed(2)+'€';
+
+  var lista = document.getElementById('hist-pedidos');
+  if(!ps.length) {
+    lista.innerHTML = '<div class="empty"><p>No hay pedidos aún</p></div>';
+  } else {
+    lista.innerHTML = ps.map(function(p) {
+      var fp = formatDate(p.fechaPedido||p.fecha);
+      var fe = formatDate(p.fechaEntrega);
+      var metodo = p.pago==='bizum'?'📱 Bizum':'💵 Efectivo';
+      var estado = p.estado==='pendiente'?'<span class="pago-badge pago-pendiente">⏳ Pendiente</span>':'<span class="pago-badge pago-pagado">✅ Pagado</span>';
+      var entregado = p.entregado?'<span class="pago-badge" style="background:#D6F0E2;color:#2D7A4F;">✅ Entregado</span>':'<span class="pago-badge" style="background:#FFF0D6;color:#B87A00;">⏳ Por entregar</span>';
+      return '<div class="pedido-row">'
+        + '<div style="flex:1">'
+        + '<div style="font-weight:600;font-size:14px;">'+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+' · '+p.total.toFixed(2)+'€</div>'
+        + '<div class="pedido-date">📋 '+fp+' · 🚚 '+fe+'</div>'
+        + '<div class="pedido-date">'+metodo+' · '+p.dia+'</div>'
+        + '</div>'
+        + '<div style="text-align:right;display:flex;flex-direction:column;gap:4px;align-items:flex-end;">'
+        + estado
+        + entregado
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  document.getElementById('modal-historial').classList.add('open');
+}
+
+function resetNuevoClienteForm() {
+  ['nc-nombre','nc-tel','nc-dir','nc-nac'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var diaSel = document.getElementById('nc-dia'); if(diaSel) diaSel.value='';
+  document.getElementById('nuevo-cliente-form').style.display='none';
+  document.getElementById('btn-toggle-icon').textContent='+';
+  var ppForm = document.getElementById('primer-pedido-form');
+  if(ppForm){ ppForm.style.display='none'; var ic=document.getElementById('icon-primer-pedido'); if(ic)ic.textContent='+'; }
+}
+
 function togglePrimerPedido() {
   var form = document.getElementById('primer-pedido-form');
   var icon = document.getElementById('icon-primer-pedido');
