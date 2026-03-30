@@ -180,9 +180,9 @@
               <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
                 <label style="font-size:12px;color:var(--muted);font-weight:500;">Fecha de entrega</label>
                 <div style="display:flex;gap:5px;">
-                  <select id="pp-fe-dia" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);"></select>
-                  <select id="pp-fe-mes" style="flex:1.2;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);"></select>
-                  <select id="pp-fe-ano" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);"></select>
+                  <select id="pp-fe-dia" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);" onchange="actualizarDiaPP()"></select>
+                  <select id="pp-fe-mes" style="flex:1.2;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);" onchange="actualizarDiaPP()"></select>
+                  <select id="pp-fe-ano" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);" onchange="actualizarDiaPP()"></select>
                 </div>
               </div>
               <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
@@ -254,9 +254,9 @@
       <div class="form-group" style="margin-bottom:8px">
         <label>Fecha de entrega</label>
         <div class="date-sel">
-          <select id="p-fe-dia"></select>
-          <select id="p-fe-mes"></select>
-          <select id="p-fe-ano"></select>
+          <select id="p-fe-dia" onchange="actualizarDiaPedido()"></select>
+          <select id="p-fe-mes" onchange="actualizarDiaPedido()"></select>
+          <select id="p-fe-ano" onchange="actualizarDiaPedido()"></select>
         </div>
       </div>
       <div class="form-group" style="margin-bottom:8px">
@@ -350,9 +350,9 @@
     <div class="form-group" style="margin-bottom:8px">
       <label>Fecha de entrega</label>
       <div class="date-sel">
-        <select id="m-fe-dia"></select>
-        <select id="m-fe-mes"></select>
-        <select id="m-fe-ano"></select>
+        <select id="m-fe-dia" onchange="actualizarDiaModal()"></select>
+        <select id="m-fe-mes" onchange="actualizarDiaModal()"></select>
+        <select id="m-fe-ano" onchange="actualizarDiaModal()"></select>
       </div>
     </div>
     <div class="form-group" style="margin-bottom:10px">
@@ -997,13 +997,8 @@ async function confirmarYEnviarWA() {
       + '¡Gracias por tu compra! 🙏';
     const tel = c.tel.split(' ').join('').split('-').join('');
     const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
-    var waUrl = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
-    var a = document.createElement('a');
-    a.href = waUrl;
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    var waUrl = 'https://api.whatsapp.com/send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
+    window.open(waUrl, '_blank');
   }
   pendingPedido = null;
   toast('✓ Pedido guardado');
@@ -1088,6 +1083,36 @@ function selPagoPP(tipo) {
     var b = document.getElementById('ppb-'+t);
     if(b) b.className = 'pago-btn'+(t===tipo?' sel-'+t:'');
   });
+}
+
+
+var DIAS_SEMANA = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+function actualizarDiaPP() {
+  var fecha = getDateFromSel('pp-fe');
+  if(!fecha) return;
+  var d = new Date(fecha+'T12:00:00');
+  var diaSemana = DIAS_SEMANA[d.getDay()];
+  var sel = document.getElementById('pp-dia');
+  if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+}
+
+function actualizarDiaPedido() {
+  var fecha = getDateFromSel('p-fe');
+  if(!fecha) return;
+  var d = new Date(fecha+'T12:00:00');
+  var diaSemana = DIAS_SEMANA[d.getDay()];
+  var sel = document.getElementById('p-dia');
+  if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+}
+
+function actualizarDiaModal() {
+  var fecha = getDateFromSel('m-fe');
+  if(!fecha) return;
+  var d = new Date(fecha+'T12:00:00');
+  var diaSemana = DIAS_SEMANA[d.getDay()];
+  var sel = document.getElementById('m-dia');
+  if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
 }
 
 function togglePrimerPedido() {
