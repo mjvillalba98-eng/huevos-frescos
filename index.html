@@ -1034,13 +1034,13 @@ async function confirmarYEnviarWA() {
   // Send WhatsApp
   const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(pendingPedido.clienteId);});
   if(c && c.tel) {
-    const metodo = pendingPedido.pago==='bizum'?'Bizum':'Efectivo';
-    const estadoTexto = pendingPedido.estado==='pendiente'?'Pendiente de pago':'Pagado';
-    const pagoTexto = metodo+' · '+estadoTexto;
+    const metodo = pendingPedido.pago==='bizum'?'📱 Bizum':'💵 Efectivo';
+    const estadoTexto = pendingPedido.estado==='pendiente'?'⏳ Pendiente de pago':'✅ Pagado';
     const mensaje = '🥚 ¡Hola '+c.nombre+'!\n\n✅ Confirmamos tu pedido:\n\n'
       + '🥚 '+pendingPedido.bandejas+' bandeja'+(pendingPedido.bandejas>1?'s':'')+' de 30 huevos L\n'
       + '💰 Total: '+pendingPedido.total.toFixed(2)+'€\n'
-      + '💳 Pago: '+pagoTexto+'\n'
+      + '💳 Método de pago: '+metodo+'\n'
+      + '📋 Estado del pago: '+estadoTexto+'\n'
       + '📅 Entrega: '+formatDate(pendingPedido.fechaEntrega)+' ('+pendingPedido.dia+')\n\n'
       + '¡Gracias por tu compra! 🙏';
     const tel = c.tel.split(' ').join('').split('-').join('');
