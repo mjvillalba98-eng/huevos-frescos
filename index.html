@@ -493,6 +493,7 @@
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button class="btn" onclick="confirmarYEnviarWA()">📲 Confirmar y enviar WhatsApp</button>
       <button class="btn secondary" onclick="confirmarSoloGuardar()">✅ Solo guardar</button>
+      <button class="btn secondary" onclick="editarConfirmacion()" style="background:#E8E0FF;color:#5533CC;border:none;">✏️ Editar pedido</button>
       <button class="btn secondary" onclick="cancelarConfirmacion()" style="background:none;color:var(--muted);border:none;margin-top:0;">Cancelar</button>
     </div>
   </div>
@@ -980,6 +981,13 @@ function updateStatsCompras() {
 
 
 
+
+function editarConfirmacion() {
+  document.getElementById('modal-confirmar-pedido').classList.remove('open');
+  // pendingPedido stays in memory so user can modify and resubmit
+  pendingPedido = null;
+}
+
 async function confirmarYEnviarWA() {
   if(!pendingPedido) return;
   if(!data.pedidos) data.pedidos=[];
@@ -1002,8 +1010,8 @@ async function confirmarYEnviarWA() {
       + '¡Gracias por tu compra! 🙏';
     const tel = c.tel.split(' ').join('').split('-').join('');
     const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
-    var waUrl = 'https://api.whatsapp.com/send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
-    window.open(waUrl, '_blank');
+    var waUrl = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
+    window.location.href = waUrl;
   }
   pendingPedido = null;
   toast('✓ Pedido guardado');
