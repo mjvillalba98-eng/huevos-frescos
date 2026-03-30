@@ -105,7 +105,6 @@
 </header>
 <div class="tabs">
   <button class="tab active" onclick="showTab('clientes')">Clientes</button>
-  <button class="tab" onclick="showTab('proximos')">🚚 Próximos</button>
   <button class="tab" onclick="showTab('pedidos')">Pedidos</button>
   <button class="tab" onclick="showTab('compras')">Compras</button>
   <button class="tab" onclick="showTab('seguimiento')">Seguimiento</button>
@@ -216,25 +215,17 @@
     <div id="lista-clientes"><div class="empty"><div class="icon">🥚</div><p>Conectando...</p></div></div>
   </div>
 
-
-  <!-- PRÓXIMOS PEDIDOS -->
-  <div id="tab-proximos" class="section-hidden">
-    <div class="card" style="background:var(--light);border-color:var(--amber);">
-      <div style="font-size:13px;color:var(--brown);line-height:1.6;">
-        🚚 Pedidos agendados pendientes de entregar. Cuando entregues pulsa <strong>✅ Entregar</strong> y pasará a Pedidos.
-      </div>
-    </div>
-    <div class="stats" style="grid-template-columns:repeat(2,1fr);">
-      <div class="stat"><div class="num" id="stat-proximos-count">—</div><div class="lbl">Pedidos pendientes</div></div>
-      <div class="stat"><div class="num" id="stat-proximos-bandejas">—</div><div class="lbl">Bandejas a entregar</div></div>
-    </div>
-    <div id="lista-proximos"><div class="empty"><div class="icon">🚚</div><p>No hay pedidos pendientes de entregar</p></div></div>
-  </div>
   <!-- PEDIDOS -->
   <div id="tab-pedidos" class="section-hidden">
     <div class="stats">
       <div class="stat green"><div class="num" id="stat-cobrado">—</div><div class="lbl">Cobrado</div></div>
       <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px;">
+      <button onclick="filtrarPedidos('todos')" id="fpb-todos" class="tab active" style="white-space:nowrap;font-size:12px;padding:6px 12px;">Todos</button>
+      <button onclick="filtrarPedidos('pendiente-entrega')" id="fpb-pendiente-entrega" class="tab" style="white-space:nowrap;font-size:12px;padding:6px 12px;">📦 Pendiente entrega</button>
+      <button onclick="filtrarPedidos('en-camino')" id="fpb-en-camino" class="tab" style="white-space:nowrap;font-size:12px;padding:6px 12px;">🚚 En camino</button>
+      <button onclick="filtrarPedidos('entregados')" id="fpb-entregados" class="tab" style="white-space:nowrap;font-size:12px;padding:6px 12px;">✅ Entregados</button>
     </div>
     <div class="card">
       <h2>Registrar pedido</h2>
@@ -259,12 +250,21 @@
           <select id="p-fe-ano" onchange="actualizarDiaPedido()"></select>
         </div>
       </div>
-      <div class="form-group" style="margin-bottom:8px">
-        <label>Día de entrega</label>
-        <select id="p-dia">
-          <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
-          <option>Viernes</option><option>Sábado</option><option>Domingo</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Día de entrega</label>
+          <select id="p-dia">
+            <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+            <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado de entrega</label>
+          <select id="p-estado-entrega">
+            <option value="pendiente-entrega">📦 Pendiente de entrega</option>
+            <option value="en-camino">🚚 En camino</option>
+          </select>
+        </div>
       </div>
       <div class="form-group" style="margin-bottom:8px">
         <label>Método de pago</label>
@@ -647,13 +647,13 @@ function selPagoModal(tipo) {
 }
 
 function showTab(t) {
-  ['clientes','proximos','pedidos','compras','seguimiento'].forEach(id =>
+  ['clientes','pedidos','compras','seguimiento'].forEach(id =>
     document.getElementById('tab-'+id).classList.toggle('section-hidden', id!==t));
   document.querySelectorAll('.tab').forEach((el,i) =>
-    el.classList.toggle('active', ['clientes','proximos','pedidos','compras','seguimiento'][i]===t));
+    el.classList.toggle('active', ['clientes','pedidos','compras','seguimiento'][i]===t));
   const today = new Date();
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
-  if(t==='proximos'){renderProximos();}
+
   if(t==='pedidos'){renderSelectClientes();renderPedidos();fillDateSel('p-fp',today);fillDateSel('p-fe',today);}
   if(t==='compras'){renderCompras();updateStatsCompras();fillDateSel('c-fd',today);}
   if(t==='seguimiento'){renderSeguimiento();}
@@ -892,7 +892,8 @@ async function agregarPedido() {
   const total=+(bandejas*precio).toFixed(2);
 
   // Store pending pedido
-  pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,pago:pagoSel,estado:estadoSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
+  var estadoEntrega = document.getElementById('p-estado-entrega') ? document.getElementById('p-estado-entrega').value : 'pendiente-entrega';
+  pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,pago:pagoSel,estado:estadoSel,estadoEntrega:estadoEntrega,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
 
   // Show confirmation modal
   const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(clienteId);});
@@ -905,11 +906,35 @@ async function agregarPedido() {
   document.getElementById('modal-confirmar-pedido').classList.add('open');
 }
 
+
+var filtroActual = 'todos';
+
+
+function marcarEnCamino(id) {
+  var idx = (data.pedidos||[]).findIndex(function(p){return parseInt(p.id)===parseInt(id);});
+  if(idx>=0) data.pedidos[idx].estadoEntrega = 'en-camino';
+  guardarDatos(); renderPedidos(); toast('🚚 Marcado como en camino');
+}
+
+function filtrarPedidos(filtro) {
+  filtroActual = filtro;
+  ['todos','pendiente-entrega','en-camino','entregados'].forEach(function(f) {
+    var btn = document.getElementById('fpb-'+f);
+    if(btn) btn.classList.toggle('active', f===filtro);
+  });
+  renderPedidos();
+}
+
 function renderPedidos() {
   const lista=document.getElementById('lista-pedidos');
-  const pedidos=data.pedidos||[];
-  if(!pedidos.length){lista.innerHTML='<div class="empty"><p>No hay pedidos aún</p></div>';return;}
-  lista.innerHTML=pedidos.slice(0,30).map(function(p){
+  var todosLos=data.pedidos||[];
+  var pedidos;
+  if(filtroActual==='pendiente-entrega') pedidos=todosLos.filter(function(p){return !p.entregado && p.estadoEntrega!=='en-camino';});
+  else if(filtroActual==='en-camino') pedidos=todosLos.filter(function(p){return !p.entregado && p.estadoEntrega==='en-camino';});
+  else if(filtroActual==='entregados') pedidos=todosLos.filter(function(p){return p.entregado;});
+  else pedidos=todosLos;
+  if(!pedidos.length){lista.innerHTML='<div class="empty"><div class="icon">📦</div><p>No hay pedidos en esta categoría</p></div>';return;}
+  lista.innerHTML=pedidos.slice(0,50).map(function(p){
     const c=(data.clientes||[]).find(function(c){return c.id===p.clienteId;});
     const fp = formatDate(p.fechaPedido||p.fecha);
     const fe = formatDate(p.fechaEntrega);
