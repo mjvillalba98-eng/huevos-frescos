@@ -388,6 +388,8 @@ let modalClienteId = null;
 let editClienteId = null;
 let pagoSel = 'efectivo';
 let pagoModalSel = 'efectivo';
+let editPedidoId = null;
+let pagoEditPedidoSel = 'efectivo';
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -935,8 +937,7 @@ window.enviarWhatsApp = function(clienteId) {
   window.open(url, '_blank');
 }
 
-let editPedidoId = null;
-let pagoEditPedidoSel = 'efectivo';
+
 
 window.selPagoEditPedido = function(tipo) {
   pagoEditPedidoSel = tipo;
@@ -971,6 +972,7 @@ window.cerrarEditarPedido = function() {
 }
 
 window.guardarEditarPedido = async function() {
+  console.log('guardarEditarPedido called, editPedidoId:', editPedidoId);
   if(!editPedidoId) { toast('Error: no hay pedido seleccionado'); return; }
   const btn = document.getElementById('btn-guardar-editar-pedido');
   btn.disabled = true;
