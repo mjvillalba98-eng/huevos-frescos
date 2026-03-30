@@ -650,51 +650,45 @@ async function agregarCliente() {
   if(!nombre) return toast('⚠️ Escribe el nombre');
   const btn = document.getElementById('btn-guardar-cliente');
   btn.disabled=true; btn.textContent='Guardando...';
-  if(!data.clientes) data.clientes=[];
   const nuevoId = Date.now();
-  data.clientes.push({id:nuevoId, nombre, tel, dir, dia, nac, creado:new Date().toLocaleDateString('es-ES')});
+  // Store in memory only - don't save yet
+  pendingCliente = {id:nuevoId, nombre, tel, dir, dia, nac, creado:new Date().toLocaleDateString('es-ES')};
 
-  // Check if primer pedido form is open and save it
   var primerPedidoForm = document.getElementById('primer-pedido-form');
   var tienePrimerPedido = primerPedidoForm && primerPedidoForm.style.display === 'block';
-  var ppBandejas, ppPrecio, ppTotal, ppDia, ppFP, ppFE;
+
+  btn.disabled=false; btn.textContent='Guardar cliente';
 
   if(tienePrimerPedido) {
-    ppBandejas = parseInt(document.getElementById('pp-bandejas').value)||1;
-    ppPrecio = parseFloat(document.getElementById('pp-precio').value)||8.5;
-    ppTotal = +(ppBandejas*ppPrecio).toFixed(2);
-    ppDia = document.getElementById('pp-dia').value;
-    ppFP = getDateFromSel('pp-fp');
-    ppFE = getDateFromSel('pp-fe');
-    if(!data.pedidos) data.pedidos=[];
-    data.pedidos.unshift({id:nuevoId+1, clienteId:nuevoId, bandejas:ppBandejas, precio:ppPrecio, total:ppTotal, dia:ppDia, pago:pagoSelPP, estado:estadoSelPP, fechaPedido:ppFP, fechaEntrega:ppFE, fecha:new Date().toISOString()});
-  }
+    var ppBandejas = parseInt(document.getElementById('pp-bandejas').value)||1;
+    var ppPrecio = parseFloat(document.getElementById('pp-precio').value)||8.5;
+    var ppTotal = +(ppBandejas*ppPrecio).toFixed(2);
+    var ppDia = document.getElementById('pp-dia').value;
+    var ppFP = getDateFromSel('pp-fp');
+    var ppFE = getDateFromSel('pp-fe');
 
-  await guardarDatos();
+    // Store pedido in memory only - don't save yet
+    pendingPedido = {id:nuevoId+1, clienteId:nuevoId, bandejas:ppBandejas, precio:ppPrecio, total:ppTotal, dia:ppDia, pago:pagoSelPP, estado:estadoSelPP, fechaPedido:ppFP, fechaEntrega:ppFE, fecha:new Date().toISOString()};
 
-  // Reset form
-  ['nc-nombre','nc-tel','nc-dir','nc-nac'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('nc-dia').value='';
-  btn.disabled=false; btn.textContent='Guardar cliente';
-  document.getElementById('nuevo-cliente-form').style.display='none';
-  document.getElementById('btn-toggle-icon').textContent='+';
-  if(primerPedidoForm){ primerPedidoForm.style.display='none'; document.getElementById('icon-primer-pedido').textContent='+'; }
-  renderClientes();
-
-  // Show confirmation modal if first order was added
-  if(tienePrimerPedido && tel) {
+    // Show confirmation modal WITHOUT saving anything
     document.getElementById('conf-cliente').textContent = nombre;
     document.getElementById('conf-bandejas').textContent = ppBandejas+' bandeja'+(ppBandejas>1?'s':'');
     document.getElementById('conf-total').textContent = ppTotal.toFixed(2)+'€';
-    var metodoConf = pagoSelPP==='bizum'?'Bizum':'Efectivo';
-    var estadoConf = estadoSelPP==='pendiente'?'Pendiente de pago':'Pagado';
-    if(document.getElementById('conf-metodo')) document.getElementById('conf-metodo').textContent = '💳 '+metodoConf;
-    if(document.getElementById('conf-estado')) document.getElementById('conf-estado').textContent = estadoConf==='Pendiente de pago'?'⏳ Pendiente de pago':'✅ Pagado';
-    document.getElementById('conf-entrega').textContent = formatDate(ppFE)+' ('+ppDia+')';
-    pendingPedido = {clienteId:nuevoId, bandejas:ppBandejas, precio:ppPrecio, total:ppTotal, dia:ppDia, pago:pagoSelPP, estado:estadoSelPP, fechaEntrega:ppFE};
+    var metodoConf = pagoSelPP==='bizum'?'📱 Bizum':'💵 Efectivo';
+    var estadoConf = estadoSelPP==='pendiente'?'⏳ Pendiente de pago':'✅ Pagado';
+    if(document.getElementById('conf-metodo')) document.getElementById('conf-metodo').textContent = metodoConf;
+    if(document.getElementById('conf-estado')) document.getElementById('conf-estado').textContent = estadoConf;
+    if(document.getElementById('conf-entrega')) document.getElementById('conf-entrega').textContent = formatDate(ppFE)+' ('+ppDia+')';
     confirmacionOrigen = 'nuevo';
     document.getElementById('modal-confirmar-pedido').classList.add('open');
   } else {
+    // No pedido — save client directly
+    if(!data.clientes) data.clientes=[];
+    data.clientes.push(pendingCliente);
+    await guardarDatos();
+    pendingCliente = null;
+    resetNuevoClienteForm();
+    renderClientes();
     toast('✓ Cliente añadido');
   }
 }
