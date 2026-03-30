@@ -479,7 +479,11 @@
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
         <span style="font-size:13px;color:var(--muted);">💳 Método de pago</span>
-        <span style="font-size:14px;font-weight:600;" id="conf-pago">—</span>
+        <span style="font-size:14px;font-weight:600;" id="conf-metodo">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px;color:var(--muted);">📋 Estado del pago</span>
+        <span style="font-size:14px;font-weight:600;" id="conf-estado">—</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
         <span style="font-size:13px;color:var(--muted);">📅 Fecha de entrega</span>
@@ -683,7 +687,8 @@ async function agregarCliente() {
     document.getElementById('conf-total').textContent = ppTotal.toFixed(2)+'€';
     var metodoConf = pagoSelPP==='bizum'?'Bizum':'Efectivo';
     var estadoConf = estadoSelPP==='pendiente'?'Pendiente de pago':'Pagado';
-    document.getElementById('conf-pago').textContent = '💳 '+metodoConf+' · '+estadoConf;
+    if(document.getElementById('conf-metodo')) document.getElementById('conf-metodo').textContent = '💳 '+metodoConf;
+    if(document.getElementById('conf-estado')) document.getElementById('conf-estado').textContent = estadoConf==='Pendiente de pago'?'⏳ Pendiente de pago':'✅ Pagado';
     document.getElementById('conf-entrega').textContent = formatDate(ppFE)+' ('+ppDia+')';
     pendingPedido = {clienteId:nuevoId, bandejas:ppBandejas, precio:ppPrecio, total:ppTotal, dia:ppDia, pago:pagoSelPP, estado:estadoSelPP, fechaEntrega:ppFE};
     document.getElementById('modal-confirmar-pedido').classList.add('open');
@@ -880,8 +885,8 @@ async function agregarPedido() {
   document.getElementById('conf-cliente').textContent = c ? c.nombre : '—';
   document.getElementById('conf-bandejas').textContent = bandejas + ' bandeja' + (bandejas>1?'s':'');
   document.getElementById('conf-total').textContent = total.toFixed(2)+'€';
-  const pagoTexto = (pagoSel==='efectivo'?'💵 Efectivo':'📱 Bizum') + ' · ' + (estadoSel==='pagado'?'✅ Pagado':'⏳ Pendiente de pago');
-  document.getElementById('conf-pago').textContent = pagoTexto;
+  if(document.getElementById('conf-metodo')) document.getElementById('conf-metodo').textContent = pagoSel==='bizum'?'📱 Bizum':'💵 Efectivo';
+  if(document.getElementById('conf-estado')) document.getElementById('conf-estado').textContent = estadoSel==='pendiente'?'⏳ Pendiente de pago':'✅ Pagado';
   document.getElementById('conf-entrega').textContent = formatDate(fechaEntrega) + ' · ' + dia;
   document.getElementById('modal-confirmar-pedido').classList.add('open');
 }
@@ -1089,30 +1094,39 @@ function selPagoPP(tipo) {
 var DIAS_SEMANA = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
 function actualizarDiaPP() {
-  var fecha = getDateFromSel('pp-fe');
-  if(!fecha) return;
-  var d = new Date(fecha+'T12:00:00');
-  var diaSemana = DIAS_SEMANA[d.getDay()];
-  var sel = document.getElementById('pp-dia');
-  if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+  try {
+    var fecha = getDateFromSel('pp-fe');
+    if(!fecha) return;
+    var parts = fecha.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    var diaSemana = DIAS_SEMANA[d.getDay()];
+    var sel = document.getElementById('pp-dia');
+    if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+  } catch(e) {}
 }
 
 function actualizarDiaPedido() {
-  var fecha = getDateFromSel('p-fe');
-  if(!fecha) return;
-  var d = new Date(fecha+'T12:00:00');
-  var diaSemana = DIAS_SEMANA[d.getDay()];
-  var sel = document.getElementById('p-dia');
-  if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+  try {
+    var fecha = getDateFromSel('p-fe');
+    if(!fecha) return;
+    var parts = fecha.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    var diaSemana = DIAS_SEMANA[d.getDay()];
+    var sel = document.getElementById('p-dia');
+    if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+  } catch(e) {}
 }
 
 function actualizarDiaModal() {
-  var fecha = getDateFromSel('m-fe');
-  if(!fecha) return;
-  var d = new Date(fecha+'T12:00:00');
-  var diaSemana = DIAS_SEMANA[d.getDay()];
-  var sel = document.getElementById('m-dia');
-  if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+  try {
+    var fecha = getDateFromSel('m-fe');
+    if(!fecha) return;
+    var parts = fecha.split('-');
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    var diaSemana = DIAS_SEMANA[d.getDay()];
+    var sel = document.getElementById('m-dia');
+    if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+  } catch(e) {}
 }
 
 function togglePrimerPedido() {
