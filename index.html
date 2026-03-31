@@ -1466,9 +1466,15 @@ function renderSeguimiento() {
     const diasDesde=ps.length?Math.floor((Date.now()-Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000):null;
     const progreso=freq&&diasDesde!==null?Math.min(100,Math.round((diasDesde/freq)*100)):null;
     const color=progreso===null?'#aaa':progreso>=100?'#B83232':progreso>=75?'#F5A623':'#2D7A4F';
+    var waBtn = c.tel ? `<button onclick="enviarWhatsApp(${c.id})" style="width:100%;margin-top:10px;background:var(--orange);border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;color:white;cursor:pointer;font-family:'Sora',sans-serif;">📲 Enviar recordatorio</button>` : '';
     return `<div class="seguimiento-card">
-      <div class="seg-name">${c.nombre}</div>
-      ${c.tel?`<div class="seg-info" style="margin-top:2px">📞 ${c.tel}</div>`:''}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="seg-name">${c.nombre}</div>
+          ${c.tel?`<div class="seg-info" style="margin-top:2px">📞 ${c.tel}</div>`:''}
+        </div>
+        <span class="badge ${progreso>=100?'cold':diasDesde!==null&&diasDesde>0?'warn':'active'}">${progreso>=100?'⚠️ Recordar':diasDesde!==null?diasDesde+'d':'—'}</span>
+      </div>
       <div class="seg-row"><span class="seg-info">Pedidos totales</span><span class="seg-val">${ps.length}</span></div>
       <div class="seg-row"><span class="seg-info">Días desde último pedido</span><span class="seg-val">${diasDesde!==null?diasDesde+'d':'—'}</span></div>
       <div class="seg-row"><span class="seg-info">Frecuencia habitual</span><span class="seg-val">${freq?'Cada '+freq+'d':'Sin datos aún'}</span></div>
@@ -1477,6 +1483,7 @@ function renderSeguimiento() {
       <div style="font-size:11px;color:${color};margin-top:4px;font-weight:600">
         ${progreso>=100?'⚠️ Toca recordarle — lleva '+diasDesde+'d sin pedir':'Faltan ~'+(freq-diasDesde)+'d para su próximo pedido'}
       </div>`:''}
+      ${waBtn}
     </div>`;
   }).join('');
 }
