@@ -108,6 +108,7 @@
   <button class="tab" onclick="showTab('pedidos')">Pedidos</button>
   <button class="tab" onclick="showTab('compras')">Compras</button>
   <button class="tab" onclick="showTab('seguimiento')">Seguimiento</button>
+  <button class="tab" onclick="showTab('posibles')">Posibles</button>
 </div>
 <div class="content">
 
@@ -378,13 +379,49 @@
     </button>
     <div id="form-posible-container" style="display:none;margin-bottom:1rem;">
       <div class="card">
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Cliente *</label>
+          <select id="posible-cliente-id">
+            <option value="">— Selecciona cliente —</option>
+          </select>
+        </div>
         <div class="form-row">
-          <div class="form-group"><label>Cliente</label><input id="posible-nombre" placeholder="Nombre del cliente" autocomplete="off"/></div>
-          <div class="form-group"><label>Bandejas aprox.</label><input id="posible-bandejas" type="number" min="1" value="1"/></div>
+          <div class="form-group"><label>Bandejas</label><input id="posible-bandejas" type="number" min="1" value="1"/></div>
+          <div class="form-group"><label>Precio/bandeja (€)</label><input id="posible-precio" type="number" value="8.50" step="0.01"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fecha tentativa pedido</label>
+            <input type="date" id="posible-fp" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+          </div>
+          <div class="form-group">
+            <label>Fecha tentativa entrega</label>
+            <input type="date" id="posible-fecha" onchange="actualizarDiaPosible()" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+            <div id="posible-dia-semana" style="font-size:12px;color:var(--orange);font-weight:600;margin-top:4px;"></div>
+          </div>
         </div>
         <div class="form-group" style="margin-bottom:8px;">
-          <label>Fecha tentativa de entrega</label>
-          <input type="date" id="posible-fecha" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+          <label>Franja horaria</label>
+          <select id="posible-franja">
+            <option value="">Sin especificar</option>
+            <option value="mañana">🌅 Mañana</option>
+            <option value="tarde">☀️ Tarde</option>
+            <option value="noche">🌙 Noche</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Método de pago</label>
+          <div class="pago-selector">
+            <button class="pago-btn sel-efectivo" id="ppb2-efectivo" onclick="selPagoPosible('efectivo')">💵 Efectivo</button>
+            <button class="pago-btn" id="ppb2-bizum" onclick="selPagoPosible('bizum')">📱 Bizum</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Estado del pago</label>
+          <div class="pago-selector">
+            <button class="pago-btn sel-efectivo" id="ppb2-pagado" onclick="selEstadoPosible('pagado')">✅ Pagado</button>
+            <button class="pago-btn" id="ppb2-pendiente" onclick="selEstadoPosible('pendiente')">⏳ Pendiente</button>
+          </div>
         </div>
         <div class="form-group" style="margin-bottom:8px;"><label>Nota</label><input id="posible-nota" placeholder="Ej: nos dijo que quizás pide el viernes"/></div>
         <button onclick="agregarPosible()" class="btn">Guardar posible pedido</button>
@@ -1034,6 +1071,20 @@ function togglePosiblesPedidos() {
     if(btn) btn.innerHTML = '<span>−</span> Cerrar';
     var pfecha = document.getElementById('posible-fecha');
     if(pfecha) pfecha.value = getTodayStr();
+    var pfp = document.getElementById('posible-fp');
+    if(pfp) pfp.value = getTodayStr();
+    // Populate client select
+    var psel = document.getElementById('posible-cliente-id');
+    if(psel) {
+      psel.innerHTML = '<option value="">— Selecciona cliente —</option>';
+      (data.clientes||[]).forEach(function(c){
+        var opt = document.createElement('option');
+        opt.value = c.id; opt.text = c.nombre;
+        psel.appendChild(opt);
+      });
+    }
+    selPagoPosible('efectivo');
+    selEstadoPosible('pendiente');
   } else {
     form.style.display = 'none';
     if(icon) icon.textContent = '+';
@@ -1042,17 +1093,23 @@ function togglePosiblesPedidos() {
 }
 
 async function agregarPosible() {
-  var nombre = document.getElementById('posible-nombre').value.trim();
+  var clienteId = document.getElementById('posible-cliente-id').value;
+  var c = clienteId ? (data.clientes||[]).find(function(c){return String(c.id)===String(clienteId);}) : null;
+  var nombre = c ? c.nombre : '';
+  if(!nombre) return toast('Selecciona un cliente');
   var bandejas = parseInt(document.getElementById('posible-bandejas').value)||1;
+  var precio = parseFloat(document.getElementById('posible-precio').value)||8.5;
   var nota = document.getElementById('posible-nota').value.trim();
-  var fechaTentativa = document.getElementById('posible-fecha') ? document.getElementById('posible-fecha').value : '';
-  if(!nombre) return toast('Escribe el nombre del cliente');
+  var fechaTentativa = document.getElementById('posible-fecha').value||'';
+  var fechaPedido = document.getElementById('posible-fp').value||'';
+  var franja = document.getElementById('posible-franja').value||'';
   if(!data.posibles) data.posibles=[];
-  data.posibles.unshift({id:Date.now(), nombre, bandejas, nota, fechaTentativa, fecha:new Date().toISOString()});
+  data.posibles.unshift({id:Date.now(), clienteId:clienteId, nombre, bandejas, precio, nota, fechaTentativa, fechaPedido, franja, pago:pagoPosible, estado:estadoPosible, fecha:new Date().toISOString()});
   await guardarDatos();
-  document.getElementById('posible-nombre').value='';
-  document.getElementById('posible-nota').value='';
+  if(document.getElementById('posible-cliente-id')) document.getElementById('posible-cliente-id').value='';
+  if(document.getElementById('posible-nota')) document.getElementById('posible-nota').value='';
   if(document.getElementById('posible-fecha')) document.getElementById('posible-fecha').value='';
+  if(document.getElementById('posible-fp')) document.getElementById('posible-fp').value='';
   document.getElementById('form-posible-container').style.display='none';
   var icon = document.getElementById('icon-posible');
   var btn = document.getElementById('btn-add-posible');
@@ -1081,18 +1138,25 @@ function renderPosiblesTab() {
     return;
   }
   lista.innerHTML = posibles.map(function(p) {
-    var fechaStr = p.fechaTentativa ? '📅 Entrega tentativa: <strong>'+formatDate(p.fechaTentativa)+'</strong>' : '📅 Sin fecha definida';
+    var fechaStr = p.fechaTentativa ? '🚚 Entrega: <strong>'+formatDate(p.fechaTentativa)+'</strong>' : '🚚 Sin fecha definida';
+    var fpStr = p.fechaPedido ? '📋 Pedido: <strong>'+formatDate(p.fechaPedido)+'</strong>' : '';
+    var metodo = p.pago==='bizum'?'📱 Bizum':'💵 Efectivo';
+    var estado = p.estado==='pendiente'?'<span class="pago-badge pago-pendiente">⏳ Pendiente</span>':'<span class="pago-badge pago-pagado">✅ Pagado</span>';
+    var precio = p.precio||8.5;
+    var total = (p.bandejas*precio).toFixed(2);
     return '<div class="client-card" style="margin-bottom:10px;">'
-      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
-      + '<div>'
-      + '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:700;color:var(--brown);">'+p.nombre+'</div>'
-      + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+' aprox.</div>'
-      + '</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">'
+      + '<div><div style="font-family:Sora,sans-serif;font-size:15px;font-weight:700;color:var(--brown);">'+p.nombre+'</div>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+' · '+total+'€'+(p.franja?' · '+(p.franja==='mañana'?'🌅':p.franja==='tarde'?'☀️':'🌙')+' '+p.franja:'')+'</div></div>'
       + '<span class="badge warn">⏳ Posible</span>'
       + '</div>'
-      + '<div style="font-size:12px;color:var(--muted);margin-top:8px;">'+fechaStr+'</div>'
-      + (p.nota?'<div style="font-size:12px;color:var(--muted);margin-top:4px;">💬 '+p.nota+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">'
+      + '<div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px;">'
+      + (fpStr?'<div style="font-size:12px;color:var(--muted);margin-bottom:2px;">'+fpStr+'</div>':'')
+      + '<div style="font-size:12px;color:var(--muted);">'+fechaStr+'</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">'+metodo+' '+estado+'</div>'
+      + (p.nota?'<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">💬 '+p.nota+'</div>':'')
+      + '<div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:8px;">'
       + '<button onclick="confirmarPosible('+p.id+')" style="flex:1;background:var(--orange);border:none;border-radius:8px;padding:8px;cursor:pointer;font-size:12px;color:white;font-weight:600;font-family:Sora,sans-serif;">✅ Confirmar pedido</button>'
       + '<button onclick="eliminarPosible('+p.id+')" style="background:#FFE8E8;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:14px;color:#B83232;">🗑</button>'
       + '</div>'
@@ -1101,33 +1165,24 @@ function renderPosiblesTab() {
 }
 
 async function confirmarPosible(id) {
-  var p = (data.posibles||[]).find(function(p){return p.id===id;});
+  var p = (data.posibles||[]).find(function(p){return String(p.id)===String(id);});
   if(!p) return;
+  // Create real pedido from posible data
+  var total = +(p.bandejas*(p.precio||8.5)).toFixed(2);
+  if(!data.pedidos) data.pedidos=[];
+  data.pedidos.unshift({
+    id:Date.now(), clienteId:p.clienteId||null, bandejas:p.bandejas, precio:p.precio||8.5,
+    total:total, dia:p.dia||'', franja:p.franja||'', pago:p.pago||'efectivo',
+    estado:p.estado||'pendiente', estadoEntrega:'pendiente-entrega',
+    fechaPedido:p.fechaPedido||getTodayStr(), fechaEntrega:p.fechaTentativa||getTodayStr(),
+    fecha:new Date().toISOString()
+  });
   // Remove from posibles
-  data.posibles = (data.posibles||[]).filter(function(p){return p.id!==id;});
+  data.posibles = (data.posibles||[]).filter(function(p){return String(p.id)!==String(id);});
   await guardarDatos();
   renderPosiblesTab();
-  // Go to pedidos tab with client pre-selected if exists
   showTab('pedidos');
-  var sel = document.getElementById('p-cliente');
-  if(sel) {
-    for(var i=0;i<sel.options.length;i++){
-      if(sel.options[i].text.toLowerCase().includes(p.nombre.toLowerCase())){
-        sel.selectedIndex=i; break;
-      }
-    }
-  }
-  // Set fecha if available
-  if(p.fechaTentativa) {
-    var feEl = document.getElementById('p-fe-input');
-    if(feEl) { feEl.value = p.fechaTentativa; actualizarDiaPedidoInput(); }
-  }
-  // Open form
-  var form = document.getElementById('form-pedido-container');
-  var icon = document.getElementById('icon-toggle-pedido');
-  var btn = document.getElementById('btn-toggle-pedido');
-  if(form) { form.style.display='block'; if(icon) icon.textContent='−'; if(btn) btn.innerHTML='<span>−</span> Cerrar formulario'; }
-  toast('Posible pedido movido a Pedidos');
+  toast('✅ Pedido confirmado y creado');
 }
 
 function renderPosibles() {
@@ -1447,6 +1502,36 @@ function enviarGracias(id) {
 var pagoSelPP = 'efectivo';
 var estadoCompra = 'pagado';
 var metodoCompra = 'efectivo';
+var pagoPosible = 'efectivo';
+var estadoPosible = 'pendiente';
+
+function selPagoPosible(tipo) {
+  pagoPosible = tipo;
+  ['efectivo','bizum'].forEach(function(t){
+    var b=document.getElementById('ppb2-'+t);
+    if(b) b.className='pago-btn'+(t===tipo?' sel-efectivo':'');
+  });
+}
+
+function selEstadoPosible(tipo) {
+  estadoPosible = tipo;
+  ['pagado','pendiente'].forEach(function(t){
+    var b=document.getElementById('ppb2-'+t);
+    if(b) b.className='pago-btn'+(t===tipo?(tipo==='pagado'?' sel-efectivo':' sel-pendiente'):'');
+  });
+}
+
+function actualizarDiaPosible() {
+  try {
+    var val = document.getElementById('posible-fecha').value;
+    if(!val) return;
+    var parts = val.split('-');
+    var d = new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+    var dia = DIAS_SEMANA[d.getDay()];
+    var el = document.getElementById('posible-dia-semana');
+    if(el) el.textContent='📅 '+dia;
+  } catch(e){}
+}
 
 function selMetodoCompra(tipo) {
   metodoCompra = tipo;
