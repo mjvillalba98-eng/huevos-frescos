@@ -1079,7 +1079,9 @@ function updateStatsCompras() {
   const bandejaVendidas = (data.pedidos||[]).reduce((s,p)=>s+p.bandejas,0);
   const stock = bandejaCompradas - bandejaVendidas;
   document.getElementById('stat-comprado').textContent = totalComprado.toFixed(2)+'€';
-  document.getElementById('stat-ganancia').textContent = ganancia.toFixed(2)+'€';
+  var gananciaEl = document.getElementById('stat-ganancia');
+  gananciaEl.textContent = ganancia.toFixed(2)+'€';
+  gananciaEl.style.color = ganancia >= 0 ? 'var(--green)' : 'var(--red)';
   const stockEl = document.getElementById('stat-stock');
   if(stockEl) {
     stockEl.textContent = stock > 0 ? stock+' 🥚' : '0 🥚';
@@ -1331,7 +1333,7 @@ function abrirHistorial(clienteId) {
         + estado
         + entregado
         + '</div>'
-      + (p.entregado && clienteHistorial && clienteHistorial.tel ? '<div style="margin-top:8px;"><button onclick="enviarGraciasPedido('+p.id+')" style="width:100%;background:#FFF0D6;border:none;border-radius:8px;padding:8px;cursor:pointer;font-size:13px;color:#B87A00;font-weight:600;font-family:Sora,sans-serif;">🙏 Gracias</button></div>' : '')
+      + (p.entregado && clienteHistorial && clienteHistorial.tel ? '<div style="margin-top:4px;display:flex;justify-content:flex-end;"><button onclick="enviarGraciasPedido('+p.id+')" style="background:#FFF0D6;border:none;border-radius:8px;padding:6px 16px;cursor:pointer;font-size:13px;color:#B87A00;font-weight:600;font-family:Sora,sans-serif;margin-left:16px;">🙏 Gracias</button></div>' : '')
         + '</div>';
     }).join('');
   }
