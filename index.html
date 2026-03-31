@@ -794,7 +794,7 @@ function showTab(t) {
   if(t==='pedidos'){renderSelectClientes();renderPedidos();fillDateSel('p-fp',today);fillDateSel('p-fe',today);}
   if(t==='compras'){renderCompras();updateStatsCompras();}
   if(t==='seguimiento'){renderSeguimiento();}
-  if(t==='posibles'){renderPosiblesTab();}
+  if(t==='posibles'){renderPosiblesTab();poblarDatalistClientes();}
 }
 
 async function agregarCliente() {
@@ -1060,6 +1060,19 @@ function marcarEnCamino(id) {
 
 
 
+
+function poblarDatalistClientes() {
+  var pdl = document.getElementById('posible-clientes-list');
+  if(pdl) {
+    pdl.innerHTML = '';
+    (data.clientes||[]).forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = c.nombre;
+      pdl.appendChild(opt);
+    });
+  }
+}
+
 function togglePosiblesPedidos() {
   var form = document.getElementById('form-posible-container');
   var icon = document.getElementById('icon-posible');
@@ -1072,16 +1085,7 @@ function togglePosiblesPedidos() {
     if(pfecha) pfecha.value = getTodayStr();
     var pfp = document.getElementById('posible-fp');
     if(pfp) pfp.value = getTodayStr();
-    // Populate datalist
-    var pdl = document.getElementById('posible-clientes-list');
-    if(pdl) {
-      pdl.innerHTML = '';
-      (data.clientes||[]).forEach(function(c){
-        var opt = document.createElement('option');
-        opt.value = c.nombre;
-        pdl.appendChild(opt);
-      });
-    }
+    poblarDatalistClientes();
     selPagoPosible('efectivo');
     selEstadoPosible('pendiente');
   } else {
@@ -1167,25 +1171,43 @@ function renderPosiblesTab() {
 async function confirmarPosible(id) {
   var p = (data.posibles||[]).find(function(p){return String(p.id)===String(id);});
   if(!p) return;
-  // Try to find clienteId by name if not stored
+
+  // Try to find client by name
   var clienteId = p.clienteId;
-  if(!clienteId && p.nombre) {
-    var cFound = (data.clientes||[]).find(function(c){return c.nombre.toLowerCase()===p.nombre.toLowerCase();});
+  var cFound = null;
+  if(p.nombre) {
+    cFound = (data.clientes||[]).find(function(c){
+      return c.nombre.toLowerCase()===p.nombre.toLowerCase();
+    });
     if(cFound) clienteId = cFound.id;
   }
+
+  // If client not found, ask to create
+  if(!clienteId) {
+    var crear = confirm('El cliente "'+p.nombre+'" no existe aún.\n¿Quieres crearlo ahora para poder vincular el pedido?');
+    if(crear) {
+      if(!data.clientes) data.clientes=[];
+      clienteId = Date.now();
+      data.clientes.push({id:clienteId, nombre:p.nombre, tel:'', dir:'', dia:'', nac:'', creado:new Date().toLocaleDateString('es-ES')});
+    }
+  }
+
+  // Create pedido
   var total = +(p.bandejas*(p.precio||8.5)).toFixed(2);
   if(!data.pedidos) data.pedidos=[];
   data.pedidos.unshift({
-    id:Date.now(), clienteId:clienteId||null, bandejas:p.bandejas, precio:p.precio||8.5,
+    id:Date.now()+1, clienteId:clienteId||null, bandejas:p.bandejas, precio:p.precio||8.5,
     total:total, dia:p.dia||'', franja:p.franja||'', pago:p.pago||'efectivo',
     estado:p.estado||'pendiente', estadoEntrega:'pendiente-entrega',
     fechaPedido:p.fechaPedido||getTodayStr(), fechaEntrega:p.fechaTentativa||getTodayStr(),
     fecha:new Date().toISOString()
   });
+
   // Remove from posibles
-  data.posibles = (data.posibles||[]).filter(function(p){return String(p.id)!==String(id);});
+  data.posibles = (data.posibles||[]).filter(function(pp){return String(pp.id)!==String(id);});
   await guardarDatos();
   renderPosiblesTab();
+  renderClientes();
   showTab('pedidos');
   toast('✅ Pedido confirmado y creado');
 }
