@@ -183,13 +183,25 @@
                   <select id="pp-fe-mes" style="flex:1.2;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);" onchange="actualizarDiaPP()"></select>
                   <select id="pp-fe-ano" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 6px;font-size:13px;background:white;color:var(--brown);" onchange="actualizarDiaPP()"></select>
                 </div>
+                <div id="pp-fe-dia-semana" style="font-size:12px;color:var(--orange);font-weight:600;margin-top:2px;"></div>
               </div>
-              <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
-                <label style="font-size:12px;color:var(--muted);font-weight:500;">Día de entrega</label>
-                <select id="pp-dia" style="border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;background:white;color:var(--brown);width:100%;">
-                  <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
-                  <option>Viernes</option><option>Sábado</option><option>Domingo</option>
-                </select>
+              <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;color:var(--muted);font-weight:500;">Día de entrega</label>
+                  <select id="pp-dia" style="border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;background:white;color:var(--brown);width:100%;">
+                    <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+                    <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+                  </select>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;color:var(--muted);font-weight:500;">Franja horaria</label>
+                  <select id="pp-franja" style="border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;background:white;color:var(--brown);width:100%;">
+                    <option value="">Sin especificar</option>
+                    <option value="mañana">🌅 Mañana</option>
+                    <option value="tarde">☀️ Tarde</option>
+                    <option value="noche">🌙 Noche</option>
+                  </select>
+                </div>
               </div>
               <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
                 <label style="font-size:12px;color:var(--muted);font-weight:500;">Método de pago</label>
@@ -254,6 +266,7 @@
           <select id="p-fe-mes" onchange="actualizarDiaPedido()"></select>
           <select id="p-fe-ano" onchange="actualizarDiaPedido()"></select>
         </div>
+        <div id="p-fe-dia-semana" style="font-size:12px;color:var(--orange);font-weight:600;margin-top:4px;"></div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -264,12 +277,21 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Estado de entrega</label>
-          <select id="p-estado-entrega">
-            <option value="pendiente-entrega">📦 Pendiente de entrega</option>
-            <option value="en-camino">🚚 En camino</option>
+          <label>Franja horaria</label>
+          <select id="p-franja">
+            <option value="">Sin especificar</option>
+            <option value="mañana">🌅 Mañana</option>
+            <option value="tarde">☀️ Tarde</option>
+            <option value="noche">🌙 Noche</option>
           </select>
         </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Estado de entrega</label>
+        <select id="p-estado-entrega">
+          <option value="pendiente-entrega">📦 Pendiente de entrega</option>
+          <option value="en-camino">🚚 En camino</option>
+        </select>
       </div>
       <div class="form-group" style="margin-bottom:8px">
         <label>Método de pago</label>
@@ -302,7 +324,8 @@
     <div class="stats">
       <div class="stat"><div class="num" id="stat-comprado">—</div><div class="lbl">Total comprado</div></div>
       <div class="stat green"><div class="num" id="stat-ganancia">—</div><div class="lbl">Ganancia neta</div></div>
-      <div class="stat"><div class="num" id="stat-stock">—</div><div class="lbl">Stock disponible</div></div>
+      <div class="stat"><div class="num" id="stat-stock">—</div><div class="lbl">Stock</div></div>
+      <div class="stat red"><div class="num" id="stat-compras-pendiente">—</div><div class="lbl">Por pagar</div></div>
     </div>
     <div class="card">
       <h2>Registrar compra</h2>
@@ -319,6 +342,13 @@
         </div>
       </div>
       <div class="form-group" style="margin-bottom:8px"><label>Notas (opcional)</label><input id="c-notas" placeholder="Ej: proveedor habitual"/></div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label>Estado del pago</label>
+        <div class="pago-selector">
+          <button class="pago-btn sel-efectivo" id="cb-pagado" onclick="selEstadoCompra('pagado')">✅ Pagado</button>
+          <button class="pago-btn" id="cb-pendiente" onclick="selEstadoCompra('pendiente')">⏳ Pendiente de pago</button>
+        </div>
+      </div>
       <button class="btn" id="btn-guardar-compra" onclick="agregarCompra()">Registrar compra</button>
     </div>
     <div class="card"><h2>Historial de compras</h2><div id="lista-compras"></div></div>
@@ -361,13 +391,25 @@
         <select id="m-fe-mes" onchange="actualizarDiaModal()"></select>
         <select id="m-fe-ano" onchange="actualizarDiaModal()"></select>
       </div>
+      <div id="m-fe-dia-semana" style="font-size:12px;color:var(--orange);font-weight:600;margin-top:4px;"></div>
     </div>
-    <div class="form-group" style="margin-bottom:10px">
-      <label>Día de entrega</label>
-      <select id="m-dia">
-        <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
-        <option>Viernes</option><option>Sábado</option><option>Domingo</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Día de entrega</label>
+        <select id="m-dia">
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+          <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Franja horaria</label>
+        <select id="m-franja">
+          <option value="">Sin especificar</option>
+          <option value="mañana">🌅 Mañana</option>
+          <option value="tarde">☀️ Tarde</option>
+          <option value="noche">🌙 Noche</option>
+        </select>
+      </div>
     </div>
     <div class="form-group" style="margin-bottom:8px">
       <label>Método de pago</label>
@@ -893,7 +935,8 @@ async function guardarModalPedido() {
   const btn=document.getElementById('btn-modal-guardar');
   btn.disabled=true; btn.textContent='Guardando...';
   if(!data.pedidos) data.pedidos=[];
-  data.pedidos.unshift({id:Date.now(),clienteId:modalClienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,pago:pagoModalSel,estado:estadoModalSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
+  var mFranja = document.getElementById('m-franja') ? document.getElementById('m-franja').value : '';
+  data.pedidos.unshift({id:Date.now(),clienteId:modalClienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,franja:mFranja,pago:pagoModalSel,estado:estadoModalSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
   await guardarDatos();
   btn.disabled=false; btn.textContent='Guardar';
   window.cerrarModal(); renderClientes(); toast('✓ Pedido registrado');
@@ -925,7 +968,8 @@ async function agregarPedido() {
 
   // Store pending pedido
   var estadoEntrega = document.getElementById('p-estado-entrega') ? document.getElementById('p-estado-entrega').value : 'pendiente-entrega';
-  pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,pago:pagoSel,estado:estadoSel,estadoEntrega:estadoEntrega,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
+  var franja = document.getElementById('p-franja') ? document.getElementById('p-franja').value : '';
+  pendingPedido = {id:Date.now(),clienteId,bandejas,precio,total,dia,franja:franja,pago:pagoSel,estado:estadoSel,estadoEntrega:estadoEntrega,fechaPedido,fechaEntrega,fecha:new Date().toISOString()};
 
   // Show confirmation modal
   const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(clienteId);});
@@ -993,7 +1037,13 @@ function renderPedidos() {
   if(filtroActual==='pendiente-entrega') pedidos=todosLos.filter(function(p){return !p.entregado && p.estadoEntrega!=='en-camino';});
   else if(filtroActual==='en-camino') pedidos=todosLos.filter(function(p){return !p.entregado && p.estadoEntrega==='en-camino';});
   else if(filtroActual==='entregados') pedidos=todosLos.filter(function(p){return p.entregado;});
-  else pedidos=todosLos;
+  else pedidos=todosLos.slice();
+  // Sort pending by fecha entrega (closest first), entregados by most recent
+  if(filtroActual==='pendiente-entrega' || filtroActual==='en-camino') {
+    pedidos.sort(function(a,b){ return new Date(a.fechaEntrega||a.fecha) - new Date(b.fechaEntrega||b.fecha); });
+  } else {
+    pedidos.sort(function(a,b){ return new Date(b.fechaPedido||b.fecha) - new Date(a.fechaPedido||a.fecha); });
+  }
   if(!pedidos.length){lista.innerHTML='<div class="empty"><div class="icon">📦</div><p>No hay pedidos en esta categoría</p></div>';return;}
   lista.innerHTML=pedidos.slice(0,50).map(function(p){
     const c=(data.clientes||[]).find(function(c){return c.id===p.clienteId;});
@@ -1026,6 +1076,7 @@ function renderPedidos() {
       + entregarBtn
       + '<button onclick="abrirEditarPedido('+p.id+')" style="background:#E8E0FF;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:14px;color:#5533CC;">✏️</button>'
       + '<button onclick="eliminarPedido('+p.id+')" style="background:#FFE8E8;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:14px;color:#B83232;">🗑</button>'
+      + (p.entregado && p.estado!=='pendiente' && c && c.tel ? '<button onclick="enviarGraciasPedido('+p.id+')" style="background:#FFF0D6;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:13px;color:#B87A00;font-weight:600;">🙏</button>' : '')
       + '</div>'
       + '</div>';
   }).join('');
@@ -1040,7 +1091,7 @@ async function agregarCompra() {
   const btn = document.getElementById('btn-guardar-compra');
   btn.disabled=true; btn.textContent='Guardando...';
   if(!data.compras) data.compras=[];
-  data.compras.unshift({id:Date.now(), bandejas, precio, total:+(bandejas*precio).toFixed(2), fecha, notas});
+  data.compras.unshift({id:Date.now(), bandejas, precio, total:+(bandejas*precio).toFixed(2), fecha, notas, estadoPago:estadoCompra});
   await guardarDatos();
   document.getElementById('c-bandejas').value=1;
   document.getElementById('c-notas').value='';
@@ -1073,12 +1124,15 @@ function renderCompras() {
 
 function updateStatsCompras() {
   const totalComprado = (data.compras||[]).reduce((s,c)=>s+c.total,0);
+  const comprasPendientes = (data.compras||[]).filter(function(c){return c.estadoPago==='pendiente';}).reduce(function(s,c){return s+c.total;},0);
   const totalVendido = (data.pedidos||[]).filter(function(p){return p.estado!=='pendiente';}).reduce(function(s,p){return s+p.total;},0);
   const ganancia = totalVendido - totalComprado;
   const bandejaCompradas = (data.compras||[]).reduce((s,c)=>s+c.bandejas,0);
   const bandejaVendidas = (data.pedidos||[]).reduce((s,p)=>s+p.bandejas,0);
   const stock = bandejaCompradas - bandejaVendidas;
   document.getElementById('stat-comprado').textContent = totalComprado.toFixed(2)+'€';
+  var comprasPendientesEl = document.getElementById('stat-compras-pendiente');
+  if(comprasPendientesEl) comprasPendientesEl.textContent = comprasPendientes.toFixed(2)+'€';
   var gananciaEl = document.getElementById('stat-ganancia');
   gananciaEl.textContent = ganancia.toFixed(2)+'€';
   gananciaEl.style.color = ganancia >= 0 ? 'var(--green)' : 'var(--red)';
@@ -1203,6 +1257,15 @@ function enviarGracias(id) {
 
 
 var pagoSelPP = 'efectivo';
+var estadoCompra = 'pagado';
+
+function selEstadoCompra(tipo) {
+  estadoCompra = tipo;
+  ['pagado','pendiente'].forEach(function(t) {
+    var b = document.getElementById('cb-'+t);
+    if(b) b.className = 'pago-btn'+(tipo===t?(t==='pagado'?' sel-efectivo':' sel-pendiente'):'');
+  });
+}
 
 var estadoSel = 'pagado';
 var estadoModalSel = 'pagado';
@@ -1262,6 +1325,8 @@ function actualizarDiaPP() {
     var diaSemana = DIAS_SEMANA[d.getDay()];
     var sel = document.getElementById('pp-dia');
     if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+    var diaDiv = document.getElementById('pp-fe-dia-semana');
+    if(diaDiv) diaDiv.textContent = '📅 ' + diaSemana;
   } catch(e) {}
 }
 
@@ -1274,6 +1339,8 @@ function actualizarDiaPedido() {
     var diaSemana = DIAS_SEMANA[d.getDay()];
     var sel = document.getElementById('p-dia');
     if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+    var diaDiv = document.getElementById('p-fe-dia-semana');
+    if(diaDiv) diaDiv.textContent = '📅 ' + diaSemana;
   } catch(e) {}
 }
 
@@ -1286,6 +1353,8 @@ function actualizarDiaModal() {
     var diaSemana = DIAS_SEMANA[d.getDay()];
     var sel = document.getElementById('m-dia');
     if(sel) { for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===diaSemana){sel.selectedIndex=i;break;} } }
+    var diaDiv = document.getElementById('m-fe-dia-semana');
+    if(diaDiv) diaDiv.textContent = '📅 ' + diaSemana;
   } catch(e) {}
 }
 
@@ -1333,7 +1402,7 @@ function abrirHistorial(clienteId) {
         + estado
         + entregado
         + '</div>'
-      + (p.entregado && clienteHistorial && clienteHistorial.tel ? '<div style="margin-top:4px;display:flex;justify-content:flex-end;"><button onclick="enviarGraciasPedido('+p.id+')" style="background:#FFF0D6;border:none;border-radius:8px;padding:6px 16px;cursor:pointer;font-size:13px;color:#B87A00;font-weight:600;font-family:Sora,sans-serif;margin-left:16px;">🙏 Gracias</button></div>' : '')
+
         + '</div>';
     }).join('');
   }
