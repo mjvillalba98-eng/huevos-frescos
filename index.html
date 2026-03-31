@@ -379,11 +379,22 @@
     </button>
     <div id="form-posible-container" style="display:none;margin-bottom:1rem;">
       <div class="card">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">Datos del cliente</div>
         <div class="form-group" style="margin-bottom:8px;">
-          <label>Cliente *</label>
-          <input id="posible-cliente-nombre" list="posible-clientes-list" placeholder="Busca o escribe el nombre..." autocomplete="off" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+          <label>Nombre *</label>
+          <input id="posible-cliente-nombre" list="posible-clientes-list" placeholder="Busca o escribe el nombre..." autocomplete="off"/>
           <datalist id="posible-clientes-list"></datalist>
         </div>
+        <div class="form-row">
+          <div class="form-group"><label>Teléfono</label><input id="posible-tel" placeholder="689 000 000" type="tel"/></div>
+          <div class="form-group"><label>Dirección</label><input id="posible-dir" placeholder="Calle Mayor 4" autocomplete="off"/></div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Nacionalidad</label>
+          <input id="posible-nac" placeholder="Española" autocomplete="off"/>
+        </div>
+
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">Datos del pedido</div>
         <div class="form-row">
           <div class="form-group"><label>Bandejas</label><input id="posible-bandejas" type="number" min="1" value="1"/></div>
           <div class="form-group"><label>Precio/bandeja (€)</label><input id="posible-precio" type="number" value="8.50" step="0.01"/></div>
@@ -391,21 +402,37 @@
         <div class="form-row">
           <div class="form-group">
             <label>Fecha tentativa pedido</label>
-            <input type="date" id="posible-fp" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+            <input type="date" id="posible-fp"/>
           </div>
           <div class="form-group">
             <label>Fecha tentativa entrega</label>
-            <input type="date" id="posible-fecha" onchange="actualizarDiaPosible()" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+            <input type="date" id="posible-fecha" onchange="actualizarDiaPosible()"/>
             <div id="posible-dia-semana" style="font-size:12px;color:var(--orange);font-weight:600;margin-top:4px;"></div>
           </div>
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Día de entrega</label>
+            <select id="posible-dia">
+              <option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option>
+              <option>Viernes</option><option>Sábado</option><option>Domingo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Franja horaria</label>
+            <select id="posible-franja">
+              <option value="">Sin especificar</option>
+              <option value="mañana">🌅 Mañana</option>
+              <option value="tarde">☀️ Tarde</option>
+              <option value="noche">🌙 Noche</option>
+            </select>
+          </div>
+        </div>
         <div class="form-group" style="margin-bottom:8px;">
-          <label>Franja horaria</label>
-          <select id="posible-franja">
-            <option value="">Sin especificar</option>
-            <option value="mañana">🌅 Mañana</option>
-            <option value="tarde">☀️ Tarde</option>
-            <option value="noche">🌙 Noche</option>
+          <label>Estado de entrega</label>
+          <select id="posible-estado-entrega">
+            <option value="pendiente-entrega">📦 Pendiente de entrega</option>
+            <option value="en-camino">🚚 En camino</option>
           </select>
         </div>
         <div class="form-group" style="margin-bottom:8px;">
@@ -1088,6 +1115,8 @@ function togglePosiblesPedidos() {
     poblarDatalistClientes();
     selPagoPosible('efectivo');
     selEstadoPosible('pendiente');
+    selPagoPosible('efectivo');
+    selEstadoPosible('pendiente');
   } else {
     form.style.display = 'none';
     if(icon) icon.textContent = '+';
@@ -1101,19 +1130,23 @@ async function agregarPosible() {
   var c = (data.clientes||[]).find(function(c){return c.nombre.toLowerCase()===nombreInput.toLowerCase();});
   var clienteId = c ? c.id : null;
   var nombre = nombreInput;
+  var tel = document.getElementById('posible-tel').value.trim();
+  var dir = document.getElementById('posible-dir').value.trim();
+  var nac = document.getElementById('posible-nac').value.trim();
   var bandejas = parseInt(document.getElementById('posible-bandejas').value)||1;
   var precio = parseFloat(document.getElementById('posible-precio').value)||8.5;
   var nota = document.getElementById('posible-nota').value.trim();
   var fechaTentativa = document.getElementById('posible-fecha').value||'';
   var fechaPedido = document.getElementById('posible-fp').value||'';
   var franja = document.getElementById('posible-franja').value||'';
+  var dia = document.getElementById('posible-dia').value||'';
+  var estadoEntrega = document.getElementById('posible-estado-entrega').value||'pendiente-entrega';
   if(!data.posibles) data.posibles=[];
-  data.posibles.unshift({id:Date.now(), clienteId:clienteId, nombre, bandejas, precio, nota, fechaTentativa, fechaPedido, franja, pago:pagoPosible, estado:estadoPosible, fecha:new Date().toISOString()});
+  data.posibles.unshift({id:Date.now(), clienteId:clienteId, nombre, tel, dir, nac, bandejas, precio, nota, fechaTentativa, fechaPedido, franja, dia, estadoEntrega, pago:pagoPosible, estado:estadoPosible, fecha:new Date().toISOString()});
   await guardarDatos();
-  if(document.getElementById('posible-cliente-nombre')) document.getElementById('posible-cliente-nombre').value='';
-  if(document.getElementById('posible-nota')) document.getElementById('posible-nota').value='';
-  if(document.getElementById('posible-fecha')) document.getElementById('posible-fecha').value='';
-  if(document.getElementById('posible-fp')) document.getElementById('posible-fp').value='';
+  ['posible-cliente-nombre','posible-tel','posible-dir','posible-nac','posible-nota','posible-fecha','posible-fp'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
   document.getElementById('form-posible-container').style.display='none';
   var icon = document.getElementById('icon-posible');
   var btn = document.getElementById('btn-add-posible');
@@ -1144,6 +1177,7 @@ function renderPosiblesTab() {
   lista.innerHTML = posibles.map(function(p) {
     var fechaStr = p.fechaTentativa ? '🚚 Entrega: <strong>'+formatDate(p.fechaTentativa)+'</strong>' : '🚚 Sin fecha definida';
     var fpStr = p.fechaPedido ? '📋 Pedido: <strong>'+formatDate(p.fechaPedido)+'</strong>' : '';
+    var clienteInfo = (p.tel?'📞 '+p.tel+'  ':'')+(p.dir?'📍 '+p.dir:'');
     var metodo = p.pago==='bizum'?'📱 Bizum':'💵 Efectivo';
     var estado = p.estado==='pendiente'?'<span class="pago-badge pago-pendiente">⏳ Pendiente</span>':'<span class="pago-badge pago-pagado">✅ Pagado</span>';
     var precio = p.precio||8.5;
@@ -1188,7 +1222,7 @@ async function confirmarPosible(id) {
     if(crear) {
       if(!data.clientes) data.clientes=[];
       clienteId = Date.now();
-      data.clientes.push({id:clienteId, nombre:p.nombre, tel:'', dir:'', dia:'', nac:'', creado:new Date().toLocaleDateString('es-ES')});
+      data.clientes.push({id:clienteId, nombre:p.nombre, tel:p.tel||'', dir:p.dir||'', dia:p.dia||'', nac:p.nac||'', creado:new Date().toLocaleDateString('es-ES')});
     }
   }
 
@@ -1198,8 +1232,8 @@ async function confirmarPosible(id) {
   data.pedidos.unshift({
     id:Date.now()+1, clienteId:clienteId||null, bandejas:p.bandejas, precio:p.precio||8.5,
     total:total, dia:p.dia||'', franja:p.franja||'', pago:p.pago||'efectivo',
-    estado:p.estado||'pendiente', estadoEntrega:'pendiente-entrega',
-    fechaPedido:p.fechaPedido||getTodayStr(), fechaEntrega:p.fechaTentativa||getTodayStr(),
+    estado:p.estado||'pendiente', estadoEntrega:p.estadoEntrega||'pendiente-entrega',
+    dia:p.dia||'', fechaPedido:p.fechaPedido||getTodayStr(), fechaEntrega:p.fechaTentativa||getTodayStr(),
     fecha:new Date().toISOString()
   });
 
@@ -1557,6 +1591,8 @@ function actualizarDiaPosible() {
     var dia = DIAS_SEMANA[d.getDay()];
     var el = document.getElementById('posible-dia-semana');
     if(el) el.textContent='📅 '+dia;
+    var sel = document.getElementById('posible-dia');
+    if(sel) for(var i=0;i<sel.options.length;i++) if(sel.options[i].value===dia){sel.selectedIndex=i;break;}
   } catch(e){}
 }
 
