@@ -362,23 +362,35 @@
     </div>
       </div>
     </div>
-    <div class="card" style="border-color:var(--amber);background:var(--light);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <h2 style="margin:0;">📋 Posibles pedidos</h2>
-        <button onclick="togglePosiblesPedidos()" id="btn-add-posible" style="background:var(--orange);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">+ Añadir</button>
+    <div class="card"><h2>Historial de compras</h2><div id="lista-compras"></div></div>
+  </div>
+
+
+  <!-- POSIBLES PEDIDOS -->
+  <div id="tab-posibles" class="section-hidden">
+    <div class="card" style="background:var(--light);border-color:var(--amber);">
+      <div style="font-size:13px;color:var(--brown);line-height:1.6;">
+        📋 Clientes que posiblemente van a pedir. No confirmados aún. Úsalo para prepararte con anticipación.
       </div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Clientes que posiblemente van a pedir. No confirmados.</div>
-      <div id="form-posible-container" style="display:none;margin-bottom:10px;padding:10px;background:white;border-radius:10px;border:1px solid var(--border);">
+    </div>
+    <button onclick="togglePosiblesPedidos()" id="btn-add-posible" style="width:100%;background:var(--orange);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span id="icon-posible">+</span> Añadir posible pedido
+    </button>
+    <div id="form-posible-container" style="display:none;margin-bottom:1rem;">
+      <div class="card">
         <div class="form-row">
           <div class="form-group"><label>Cliente</label><input id="posible-nombre" placeholder="Nombre del cliente" autocomplete="off"/></div>
           <div class="form-group"><label>Bandejas aprox.</label><input id="posible-bandejas" type="number" min="1" value="1"/></div>
         </div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Fecha tentativa de entrega</label>
+          <input type="date" id="posible-fecha" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+        </div>
         <div class="form-group" style="margin-bottom:8px;"><label>Nota</label><input id="posible-nota" placeholder="Ej: nos dijo que quizás pide el viernes"/></div>
-        <button onclick="agregarPosible()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Guardar</button>
+        <button onclick="agregarPosible()" class="btn">Guardar posible pedido</button>
       </div>
-      <div id="lista-posibles"></div>
     </div>
-    <div class="card"><h2>Historial de compras</h2><div id="lista-compras"></div></div>
+    <div id="lista-posibles-tab"></div>
   </div>
 
   <!-- SEGUIMIENTO -->
@@ -736,16 +748,17 @@ function selPagoModal(tipo) {
 }
 
 function showTab(t) {
-  ['clientes','pedidos','compras','seguimiento'].forEach(id =>
+  ['clientes','pedidos','compras','seguimiento','posibles'].forEach(id =>
     document.getElementById('tab-'+id).classList.toggle('section-hidden', id!==t));
   document.querySelectorAll('.tab').forEach((el,i) =>
-    el.classList.toggle('active', ['clientes','pedidos','compras','seguimiento'][i]===t));
+    el.classList.toggle('active', ['clientes','pedidos','compras','seguimiento','posibles'][i]===t));
   const today = new Date();
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
 
   if(t==='pedidos'){renderSelectClientes();renderPedidos();fillDateSel('p-fp',today);fillDateSel('p-fe',today);}
   if(t==='compras'){renderCompras();updateStatsCompras();}
   if(t==='seguimiento'){renderSeguimiento();}
+  if(t==='posibles'){renderPosiblesTab();}
 }
 
 async function agregarCliente() {
@@ -1013,21 +1026,39 @@ function marcarEnCamino(id) {
 
 function togglePosiblesPedidos() {
   var form = document.getElementById('form-posible-container');
-  form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+  var icon = document.getElementById('icon-posible');
+  var btn = document.getElementById('btn-add-posible');
+  if(form.style.display === 'none' || form.style.display === '') {
+    form.style.display = 'block';
+    if(icon) icon.textContent = '−';
+    if(btn) btn.innerHTML = '<span>−</span> Cerrar';
+    var pfecha = document.getElementById('posible-fecha');
+    if(pfecha) pfecha.value = getTodayStr();
+  } else {
+    form.style.display = 'none';
+    if(icon) icon.textContent = '+';
+    if(btn) btn.innerHTML = '<span>+</span> Añadir posible pedido';
+  }
 }
 
 async function agregarPosible() {
   var nombre = document.getElementById('posible-nombre').value.trim();
   var bandejas = parseInt(document.getElementById('posible-bandejas').value)||1;
   var nota = document.getElementById('posible-nota').value.trim();
+  var fechaTentativa = document.getElementById('posible-fecha') ? document.getElementById('posible-fecha').value : '';
   if(!nombre) return toast('Escribe el nombre del cliente');
   if(!data.posibles) data.posibles=[];
-  data.posibles.unshift({id:Date.now(), nombre, bandejas, nota, fecha:new Date().toISOString()});
+  data.posibles.unshift({id:Date.now(), nombre, bandejas, nota, fechaTentativa, fecha:new Date().toISOString()});
   await guardarDatos();
   document.getElementById('posible-nombre').value='';
   document.getElementById('posible-nota').value='';
+  if(document.getElementById('posible-fecha')) document.getElementById('posible-fecha').value='';
   document.getElementById('form-posible-container').style.display='none';
-  renderPosibles();
+  var icon = document.getElementById('icon-posible');
+  var btn = document.getElementById('btn-add-posible');
+  if(icon) icon.textContent='+';
+  if(btn) btn.innerHTML='<span>+</span> Añadir posible pedido';
+  renderPosiblesTab();
   toast('✓ Posible pedido añadido');
 }
 
@@ -1036,7 +1067,71 @@ async function eliminarPosible(id) {
   await guardarDatos(); renderPosibles(); toast('Eliminado');
 }
 
+
+function renderPosiblesTab() {
+  var lista = document.getElementById('lista-posibles-tab');
+  if(!lista) return;
+  var posibles = (data.posibles||[]).slice().sort(function(a,b){
+    if(!a.fechaTentativa) return 1;
+    if(!b.fechaTentativa) return -1;
+    return new Date(a.fechaTentativa) - new Date(b.fechaTentativa);
+  });
+  if(!posibles.length) {
+    lista.innerHTML='<div class="empty"><div class="icon">📋</div><p>No hay posibles pedidos aún</p></div>';
+    return;
+  }
+  lista.innerHTML = posibles.map(function(p) {
+    var fechaStr = p.fechaTentativa ? '📅 Entrega tentativa: <strong>'+formatDate(p.fechaTentativa)+'</strong>' : '📅 Sin fecha definida';
+    return '<div class="client-card" style="margin-bottom:10px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+      + '<div>'
+      + '<div style="font-family:Sora,sans-serif;font-size:15px;font-weight:700;color:var(--brown);">'+p.nombre+'</div>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+' aprox.</div>'
+      + '</div>'
+      + '<span class="badge warn">⏳ Posible</span>'
+      + '</div>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:8px;">'+fechaStr+'</div>'
+      + (p.nota?'<div style="font-size:12px;color:var(--muted);margin-top:4px;">💬 '+p.nota+'</div>':'')
+      + '<div style="display:flex;gap:8px;margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">'
+      + '<button onclick="confirmarPosible('+p.id+')" style="flex:1;background:var(--orange);border:none;border-radius:8px;padding:8px;cursor:pointer;font-size:12px;color:white;font-weight:600;font-family:Sora,sans-serif;">✅ Confirmar pedido</button>'
+      + '<button onclick="eliminarPosible('+p.id+')" style="background:#FFE8E8;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:14px;color:#B83232;">🗑</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+async function confirmarPosible(id) {
+  var p = (data.posibles||[]).find(function(p){return p.id===id;});
+  if(!p) return;
+  // Remove from posibles
+  data.posibles = (data.posibles||[]).filter(function(p){return p.id!==id;});
+  await guardarDatos();
+  renderPosiblesTab();
+  // Go to pedidos tab with client pre-selected if exists
+  showTab('pedidos');
+  var sel = document.getElementById('p-cliente');
+  if(sel) {
+    for(var i=0;i<sel.options.length;i++){
+      if(sel.options[i].text.toLowerCase().includes(p.nombre.toLowerCase())){
+        sel.selectedIndex=i; break;
+      }
+    }
+  }
+  // Set fecha if available
+  if(p.fechaTentativa) {
+    var feEl = document.getElementById('p-fe-input');
+    if(feEl) { feEl.value = p.fechaTentativa; actualizarDiaPedidoInput(); }
+  }
+  // Open form
+  var form = document.getElementById('form-pedido-container');
+  var icon = document.getElementById('icon-toggle-pedido');
+  var btn = document.getElementById('btn-toggle-pedido');
+  if(form) { form.style.display='block'; if(icon) icon.textContent='−'; if(btn) btn.innerHTML='<span>−</span> Cerrar formulario'; }
+  toast('Posible pedido movido a Pedidos');
+}
+
 function renderPosibles() {
+  renderPosiblesTab();
   var lista = document.getElementById('lista-posibles');
   if(!lista) return;
   var posibles = data.posibles||[];
@@ -1226,7 +1321,7 @@ function updateStatsCompras() {
     stockEl.style.color = stock<=0?'var(--red)':stock<=5?'var(--amber)':'var(--green)';
   }
   var promedioEl = document.getElementById('stat-promedio-semanal');
-  if(promedioEl) promedioEl.textContent = promedioSemanal+' bandejas/semana';
+  if(promedioEl) promedioEl.textContent = promedioSemanal;
   var stockEstadoEl = document.getElementById('stat-stock-estado');
   if(stockEstadoEl) {
     if(stock<=0) { stockEstadoEl.textContent='⚠️ Déficit'; stockEstadoEl.style.color='var(--red)'; }
