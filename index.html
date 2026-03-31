@@ -1242,8 +1242,26 @@ async function confirmarPosible(id) {
   await guardarDatos();
   renderPosiblesTab();
   renderClientes();
-  showTab('pedidos');
-  toast('✅ Pedido confirmado y creado');
+
+  // Send WhatsApp confirmation if client has phone
+  var telCliente = p.tel || (cFound ? cFound.tel : '');
+  if(telCliente) {
+    var metodo = (p.pago==='bizum'?'📱 Bizum':'💵 Efectivo');
+    var estadoTexto = (p.estado==='pendiente'?'⏳ Pendiente de pago':'✅ Pagado');
+    var mensaje = '🥚 ¡Hola '+p.nombre+'!\n\n✅ Confirmamos tu pedido:\n\n'
+      + '🥚 '+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+' de 30 huevos L\n'
+      + '💰 Total: '+(p.bandejas*(p.precio||8.5)).toFixed(2)+'€\n'
+      + '💳 Método de pago: '+metodo+'\n'
+      + '📋 Estado del pago: '+estadoTexto+'\n'
+      + (p.fechaTentativa?'📅 Entrega: '+formatDate(p.fechaTentativa)+(p.dia?' ('+p.dia+')':'')+'\n':'')
+      + '\n¡Gracias por tu compra! 🙏';
+    var tel = telCliente.split(' ').join('').split('-').join('');
+    var telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
+    window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
+  } else {
+    showTab('pedidos');
+    toast('✅ Pedido confirmado y creado');
+  }
 }
 
 function renderPosibles() {
