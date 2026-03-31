@@ -381,9 +381,8 @@
       <div class="card">
         <div class="form-group" style="margin-bottom:8px;">
           <label>Cliente *</label>
-          <select id="posible-cliente-id">
-            <option value="">— Selecciona cliente —</option>
-          </select>
+          <input id="posible-cliente-nombre" list="posible-clientes-list" placeholder="Busca o escribe el nombre..." autocomplete="off" style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);outline:none;width:100%;"/>
+          <datalist id="posible-clientes-list"></datalist>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Bandejas</label><input id="posible-bandejas" type="number" min="1" value="1"/></div>
@@ -1073,14 +1072,14 @@ function togglePosiblesPedidos() {
     if(pfecha) pfecha.value = getTodayStr();
     var pfp = document.getElementById('posible-fp');
     if(pfp) pfp.value = getTodayStr();
-    // Populate client select
-    var psel = document.getElementById('posible-cliente-id');
-    if(psel) {
-      psel.innerHTML = '<option value="">— Selecciona cliente —</option>';
+    // Populate datalist
+    var pdl = document.getElementById('posible-clientes-list');
+    if(pdl) {
+      pdl.innerHTML = '';
       (data.clientes||[]).forEach(function(c){
         var opt = document.createElement('option');
-        opt.value = c.id; opt.text = c.nombre;
-        psel.appendChild(opt);
+        opt.value = c.nombre;
+        pdl.appendChild(opt);
       });
     }
     selPagoPosible('efectivo');
@@ -1093,10 +1092,11 @@ function togglePosiblesPedidos() {
 }
 
 async function agregarPosible() {
-  var clienteId = document.getElementById('posible-cliente-id').value;
-  var c = clienteId ? (data.clientes||[]).find(function(c){return String(c.id)===String(clienteId);}) : null;
-  var nombre = c ? c.nombre : '';
-  if(!nombre) return toast('Selecciona un cliente');
+  var nombreInput = document.getElementById('posible-cliente-nombre').value.trim();
+  if(!nombreInput) return toast('Escribe o selecciona un cliente');
+  var c = (data.clientes||[]).find(function(c){return c.nombre.toLowerCase()===nombreInput.toLowerCase();});
+  var clienteId = c ? c.id : null;
+  var nombre = nombreInput;
   var bandejas = parseInt(document.getElementById('posible-bandejas').value)||1;
   var precio = parseFloat(document.getElementById('posible-precio').value)||8.5;
   var nota = document.getElementById('posible-nota').value.trim();
@@ -1106,7 +1106,7 @@ async function agregarPosible() {
   if(!data.posibles) data.posibles=[];
   data.posibles.unshift({id:Date.now(), clienteId:clienteId, nombre, bandejas, precio, nota, fechaTentativa, fechaPedido, franja, pago:pagoPosible, estado:estadoPosible, fecha:new Date().toISOString()});
   await guardarDatos();
-  if(document.getElementById('posible-cliente-id')) document.getElementById('posible-cliente-id').value='';
+  if(document.getElementById('posible-cliente-nombre')) document.getElementById('posible-cliente-nombre').value='';
   if(document.getElementById('posible-nota')) document.getElementById('posible-nota').value='';
   if(document.getElementById('posible-fecha')) document.getElementById('posible-fecha').value='';
   if(document.getElementById('posible-fp')) document.getElementById('posible-fp').value='';
@@ -1154,7 +1154,7 @@ function renderPosiblesTab() {
       + (fpStr?'<div style="font-size:12px;color:var(--muted);margin-bottom:2px;">'+fpStr+'</div>':'')
       + '<div style="font-size:12px;color:var(--muted);">'+fechaStr+'</div>'
       + '</div>'
-      + '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">'+metodo+' '+estado+'</div>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">'+pagoBadge(p.pago, p.estado)+'</div>'
       + (p.nota?'<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">💬 '+p.nota+'</div>':'')
       + '<div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:8px;">'
       + '<button onclick="confirmarPosible('+p.id+')" style="flex:1;background:var(--orange);border:none;border-radius:8px;padding:8px;cursor:pointer;font-size:12px;color:white;font-weight:600;font-family:Sora,sans-serif;">✅ Confirmar pedido</button>'
@@ -1167,11 +1167,16 @@ function renderPosiblesTab() {
 async function confirmarPosible(id) {
   var p = (data.posibles||[]).find(function(p){return String(p.id)===String(id);});
   if(!p) return;
-  // Create real pedido from posible data
+  // Try to find clienteId by name if not stored
+  var clienteId = p.clienteId;
+  if(!clienteId && p.nombre) {
+    var cFound = (data.clientes||[]).find(function(c){return c.nombre.toLowerCase()===p.nombre.toLowerCase();});
+    if(cFound) clienteId = cFound.id;
+  }
   var total = +(p.bandejas*(p.precio||8.5)).toFixed(2);
   if(!data.pedidos) data.pedidos=[];
   data.pedidos.unshift({
-    id:Date.now(), clienteId:p.clienteId||null, bandejas:p.bandejas, precio:p.precio||8.5,
+    id:Date.now(), clienteId:clienteId||null, bandejas:p.bandejas, precio:p.precio||8.5,
     total:total, dia:p.dia||'', franja:p.franja||'', pago:p.pago||'efectivo',
     estado:p.estado||'pendiente', estadoEntrega:'pendiente-entrega',
     fechaPedido:p.fechaPedido||getTodayStr(), fechaEntrega:p.fechaTentativa||getTodayStr(),
