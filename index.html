@@ -1178,7 +1178,7 @@ function enviarGraciasPedido(pedidoId) {
   if(!p) return toast('Pedido no encontrado');
   var c = (data.clientes||[]).find(function(c){ return String(c.id)===String(p.clienteId); });
   if(!c || !c.tel) return toast('Este cliente no tiene teléfono');
-  var mensaje = '🥚 ¡Hola '+c.nombre+'!\n\n¡Las gallinas ya cantaron de alegría! 🐔🎉 Tu pedido ha llegado y esperamos que lo disfrutes muchísimo ❤️\n\nYa sabes, cuando quieras más huevos frescos aquí estamos, poniendo con amor cada día 🥚✨\n\n¡Hasta pronto!\n\n📞 689 273 452 / 676 075 510';
+  var mensaje = '🥚 ¡Hola '+c.nombre+'!\n\nGracias por tu compra y por confiar en nosotros 🙏\n\nEsperamos que disfrutes tus huevos frescos. Para nosotros es un placer llevarte calidad directo a tu puerta 🐔✨\n\nHasta pronto y que los disfrutes mucho ❤️\n\n📞 689 273 452 / 676 075 510';
   var tel = c.tel.split(' ').join('').split('-').join('');
   var telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
   window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
@@ -1503,7 +1503,7 @@ function enviarWhatsApp(clienteId) {
   const freq = calcFrecuencia(clienteId);
   const diasDesde = ps.length ? Math.floor((Date.now()-Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000) : null;
 
-  let mensaje = '🥚 ¡Hola '+c.nombre+'!\n\n¿Qué fue primero, el huevo o la gallina? 🐔🥚\n¡No lo sabemos! Pero lo que sí sabemos es que esta semana todavía no has pedido tus huevos... y las gallinas te echan de menos!\n\n❤️ ¿Cuántas bandejas quieres pedir esta semana?\n\n🧺 Bandeja 30 huevos L — 8.50€\n📅 Repartos: viernes, sábado y domingo\n📞 689 273 452 / 676 075 510';
+  let mensaje = '🥚 ¡Hola '+c.nombre+'!\n\nVemos que esta semana todavía no has pedido tus huevos... ¡Las gallinas te echan de menos! 🐔\n\n❤️ ¿Todo bien? ¿Cuántas bandejas quieres pedir esta semana? ¡Estamos pendientes de ti!\n\n🧺 Bandeja 30 huevos L — 8.50€\n📅 Repartos: viernes, sábado y domingo\n📞 689 273 452 / 676 075 510';
 
   if(pendiente > 0) {
     mensaje += '\n\n⚠️ Por cierto, tienes pendiente de pagar '+pendiente.toFixed(2)+'€ de tu último pedido 😊';
