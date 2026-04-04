@@ -310,21 +310,108 @@
         🛒 Aquí registras lo que compras al proveedor. Así la app calcula automáticamente tu ganancia.
       </div>
     </div>
-    <div class="stats" style="grid-template-columns:repeat(2,1fr);">
-      <div class="stat"><div class="num" id="stat-comprado">—</div><div class="lbl">Total comprado</div></div>
-      <div class="stat green"><div class="num" id="stat-ganancia">—</div><div class="lbl">Ganancia neta</div></div>
-      <div class="stat red"><div class="num" id="stat-compras-pendiente">—</div><div class="lbl">Por pagar</div></div>
-      <div class="stat"><div class="num" id="stat-stock">—</div><div class="lbl">Stock</div></div>
-    </div>
-    <div class="card" style="margin-bottom:1rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="font-size:12px;color:var(--muted);">Promedio semanal de bandejas</div>
-          <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--brown);" id="stat-promedio-semanal">—</div>
+    <!-- COMPRADO -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comprado</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" id="stat-comprado" style="font-size:18px;">—</div>
+          <div class="lbl">Total gastado</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-bandejas-compradas">— bandejas</div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:12px;color:var(--muted);">Estado stock</div>
-          <div style="font-size:14px;font-weight:700;" id="stat-stock-estado">—</div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-precio-medio">—</div>
+          <div class="lbl">Precio medio</div>
+          <div style="font-size:11px;color:var(--muted);">por bandeja</div>
+        </div>
+        <div class="stat red" style="margin:0;padding:10px;">
+          <div class="num" id="stat-compras-pendiente" style="font-size:18px;">—</div>
+          <div class="lbl">Pendiente pagar</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-compras-pendiente-ban">— bandejas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENDIDO -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Vendido</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-total-vendido">—</div>
+          <div class="lbl">Total facturado</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-bandejas-vendidas">— bandejas</div>
+        </div>
+        <div class="stat green" style="margin:0;padding:10px;">
+          <div class="num" id="stat-ganancia" style="font-size:18px;">—</div>
+          <div class="lbl">Ganancia neta</div>
+          <div style="font-size:11px;color:var(--muted);">1.50€ por bandeja</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-efectivo-cobrado">—</div>
+          <div class="lbl">💵 Efectivo</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-efectivo-ban">— bandejas</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-bizum-cobrado">—</div>
+          <div class="lbl">📱 Bizum</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-bizum-ban">— bandejas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Stock</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-ban-compradas">—</div>
+          <div class="lbl">Compradas</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-ban-vendidas">—</div>
+          <div class="lbl">Vendidas</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" id="stat-stock" style="font-size:18px;">—</div>
+          <div class="lbl">Disponibles</div>
+          <div style="font-size:11px;" id="stat-stock-estado">—</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;background:var(--light);">
+          <div class="num" style="font-size:18px;color:var(--amber);" id="stat-posibles-ban">—</div>
+          <div class="lbl">Posibles</div>
+          <div style="font-size:11px;color:var(--muted);">no confirmados</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-stock-posibles">—</div>
+          <div class="lbl">Si confirman</div>
+          <div style="font-size:11px;color:var(--muted);">deficit total</div>
+        </div>
+      </div>
+      <div id="alerta-stock" style="background:#FFF3CD;border-radius:10px;padding:10px;display:none;">
+        <div style="font-size:12px;font-weight:600;color:#856404;margin-bottom:3px;">Compra recomendada al proveedor</div>
+        <div style="font-size:11px;color:#856404;" id="alerta-stock-texto">—</div>
+      </div>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Resumen general</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div style="text-align:center;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Margen %</div>
+          <div style="font-size:22px;font-weight:700;color:var(--green);" id="stat-margen">—</div>
+        </div>
+        <div style="text-align:center;padding:10px;border-left:0.5px solid var(--border);border-right:0.5px solid var(--border);">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Promedio semanal</div>
+          <div style="font-size:22px;font-weight:700;color:var(--brown);" id="stat-promedio-semanal">—</div>
+        </div>
+        <div style="text-align:center;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Pendiente cobrar</div>
+          <div style="font-size:22px;font-weight:700;color:var(--amber);" id="stat-pendiente-cobrar">—</div>
         </div>
       </div>
     </div>
@@ -1425,43 +1512,101 @@ function renderCompras() {
 }
 
 function updateStatsCompras() {
-  const totalComprado = (data.compras||[]).reduce((s,c)=>s+c.total,0);
-  const comprasPendientes = (data.compras||[]).filter(function(c){return c.estadoPago==='pendiente';}).reduce(function(s,c){return s+c.total;},0);
-  const totalVendido = (data.pedidos||[]).filter(function(p){return p.estado!=='pendiente';}).reduce(function(s,p){return s+p.total;},0);
-  const ganancia = totalVendido - totalComprado;
-  const bandejaCompradas = (data.compras||[]).reduce((s,c)=>s+c.bandejas,0);
-  const bandejasPedidas = (data.pedidos||[]).reduce((s,p)=>s+p.bandejas,0);
-  const stock = bandejaCompradas - bandejasPedidas;
+  var compras = data.compras||[];
+  var pedidos = data.pedidos||[];
+  var posibles = data.posibles||[];
 
-  // Promedio semanal basado en pedidos de las últimas 4 semanas
-  var hace4Semanas = new Date(); hace4Semanas.setDate(hace4Semanas.getDate()-28);
-  var pedidosRecientes = (data.pedidos||[]).filter(function(p){
-    return new Date(p.fechaPedido||p.fecha) >= hace4Semanas;
-  });
-  var promedioSemanal = pedidosRecientes.length > 0 ? Math.ceil(pedidosRecientes.reduce(function(s,p){return s+p.bandejas;},0)/4) : 0;
+  // COMPRADO
+  var totalComprado = compras.reduce(function(s,c){return s+c.total;},0);
+  var bandejaCompradas = compras.reduce(function(s,c){return s+c.bandejas;},0);
+  var comprasPendientes = compras.filter(function(c){return c.estadoPago==='pendiente';}).reduce(function(s,c){return s+c.total;},0);
+  var bandejasPendientePago = compras.filter(function(c){return c.estadoPago==='pendiente';}).reduce(function(s,c){return s+c.bandejas;},0);
+  var precioMedio = bandejaCompradas>0 ? totalComprado/bandejaCompradas : 0;
 
-  // Posibles pedidos bandejas
-  var posiblesBandejas = (data.posibles||[]).reduce(function(s,p){return s+p.bandejas;},0);
+  // VENDIDO
+  var totalVendido = pedidos.reduce(function(s,p){return s+p.total;},0);
+  var bandejasPedidas = pedidos.reduce(function(s,p){return s+p.bandejas;},0);
+  var ganancia = totalVendido - totalComprado;
+
+  // Por metodo de pago
+  var efectivoPedidos = pedidos.filter(function(p){return p.pago==='efectivo';});
+  var bizumPedidos = pedidos.filter(function(p){return p.pago==='bizum';});
+  var totalEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.total;},0);
+  var totalBizum = bizumPedidos.reduce(function(s,p){return s+p.total;},0);
+  var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
+  var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
+
+  // STOCK
+  var stock = bandejaCompradas - bandejasPedidas;
+  var posiblesBandejas = posibles.reduce(function(s,p){return s+p.bandejas;},0);
   var stockConPosibles = stock - posiblesBandejas;
 
-  document.getElementById('stat-comprado').textContent = totalComprado.toFixed(2)+'€';
-  var cpEl = document.getElementById('stat-compras-pendiente');
-  if(cpEl) cpEl.textContent = comprasPendientes.toFixed(2)+'€';
-  var gananciaEl = document.getElementById('stat-ganancia');
-  if(gananciaEl){ gananciaEl.textContent = ganancia.toFixed(2)+'€'; gananciaEl.style.color = ganancia>=0?'var(--green)':'var(--red)'; }
-  const stockEl = document.getElementById('stat-stock');
-  if(stockEl) {
-    stockEl.textContent = stock+' 🥚';
-    stockEl.style.color = stock<=0?'var(--red)':stock<=5?'var(--amber)':'var(--green)';
+  // Promedio semanal
+  var hace4Semanas = new Date(); hace4Semanas.setDate(hace4Semanas.getDate()-28);
+  var pedidosRecientes = pedidos.filter(function(p){return new Date(p.fechaPedido||p.fecha)>=hace4Semanas;});
+  var promedioSemanal = pedidosRecientes.length>0 ? Math.ceil(pedidosRecientes.reduce(function(s,p){return s+p.bandejas;},0)/4) : 0;
+
+  // Pendiente cobrar
+  var pendienteCobrar = pedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
+
+  // Margen
+  var margen = totalVendido>0 ? ((ganancia/totalVendido)*100).toFixed(1) : 0;
+
+  // Update DOM - COMPRADO
+  function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+  set('stat-comprado', totalComprado.toFixed(2)+'€');
+  set('stat-bandejas-compradas', bandejaCompradas+' bandejas');
+  set('stat-precio-medio', precioMedio.toFixed(2)+'€');
+  set('stat-compras-pendiente', comprasPendientes.toFixed(2)+'€');
+  set('stat-compras-pendiente-ban', bandejasPendientePago+' bandejas');
+
+  // VENDIDO
+  set('stat-total-vendido', totalVendido.toFixed(2)+'€');
+  set('stat-bandejas-vendidas', bandejasPedidas+' bandejas');
+  var ganEl = document.getElementById('stat-ganancia');
+  if(ganEl){ ganEl.textContent=ganancia.toFixed(2)+'€'; ganEl.style.color=ganancia>=0?'var(--green)':'var(--red)'; }
+  set('stat-efectivo-cobrado', totalEfectivo.toFixed(2)+'€');
+  set('stat-efectivo-ban', banEfectivo+' bandejas');
+  set('stat-bizum-cobrado', totalBizum.toFixed(2)+'€');
+  set('stat-bizum-ban', banBizum+' bandejas');
+
+  // STOCK
+  set('stat-ban-compradas', bandejaCompradas);
+  set('stat-ban-vendidas', bandejasPedidas);
+  var stockEl = document.getElementById('stat-stock');
+  if(stockEl){ stockEl.textContent=stock; stockEl.style.color=stock<=0?'var(--red)':stock<=5?'var(--amber)':'var(--green)'; }
+  var stockEstEl = document.getElementById('stat-stock-estado');
+  if(stockEstEl){ 
+    if(stock<=0){stockEstEl.textContent='⚠️ Déficit';stockEstEl.style.color='var(--red)';}
+    else if(stock>=promedioSemanal){stockEstEl.textContent='✅ Superávit';stockEstEl.style.color='var(--green)';}
+    else{stockEstEl.textContent='⚡ Justo';stockEstEl.style.color='var(--amber)';}
   }
-  var promedioEl = document.getElementById('stat-promedio-semanal');
-  if(promedioEl) promedioEl.textContent = promedioSemanal;
-  var stockEstadoEl = document.getElementById('stat-stock-estado');
-  if(stockEstadoEl) {
-    if(stock<=0) { stockEstadoEl.textContent='⚠️ Déficit'; stockEstadoEl.style.color='var(--red)'; }
-    else if(stock>=promedioSemanal) { stockEstadoEl.textContent='✅ Superávit'; stockEstadoEl.style.color='var(--green)'; }
-    else { stockEstadoEl.textContent='⚡ Justo'; stockEstadoEl.style.color='var(--amber)'; }
+  set('stat-posibles-ban', posiblesBandejas);
+  var stockPosEl = document.getElementById('stat-stock-posibles');
+  if(stockPosEl){ stockPosEl.textContent=stockConPosibles; stockPosEl.style.color=stockConPosibles<=0?'var(--red)':'var(--green)'; }
+
+  // Alerta stock
+  var alertaEl = document.getElementById('alerta-stock');
+  var alertaTextoEl = document.getElementById('alerta-stock-texto');
+  if(alertaEl && alertaTextoEl) {
+    if(stockConPosibles<=0) {
+      alertaEl.style.display='block';
+      var minComprar = Math.abs(stockConPosibles);
+      var recomendado = Math.max(minComprar, promedioSemanal);
+      alertaTextoEl.textContent='Mínimo '+minComprar+' bandejas para cubrir déficit + posibles. Recomendado '+recomendado+'+ para tener margen.';
+    } else if(stock<=5) {
+      alertaEl.style.display='block';
+      alertaTextoEl.textContent='Stock bajo. Considera comprar '+(promedioSemanal-stock)+' bandejas más para la próxima semana.';
+    } else {
+      alertaEl.style.display='none';
+    }
   }
+
+  // RESUMEN
+  set('stat-margen', margen+'%');
+  set('stat-promedio-semanal', promedioSemanal);
+  set('stat-pendiente-cobrar', pendienteCobrar.toFixed(2)+'€');
+
   renderPosibles();
 }
 
