@@ -1559,8 +1559,10 @@ function updateResumenSemanalPedidos() {
   var finSemPasada = new Date(inicioEstaSemana);
 
   var pedidosSem = data.pedidos||[];
-  var estaSem = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioEstaSemana && d<=hoy; });
-  var semPasada = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioSemPasada && d<finSemPasada; });
+  var finEstaSemana = new Date(inicioEstaSemana); finEstaSemana.setDate(inicioEstaSemana.getDate()+6); finEstaSemana.setHours(23,59,59,999);
+  var finSemPasadaFull = new Date(inicioSemPasada); finSemPasadaFull.setDate(inicioSemPasada.getDate()+6); finSemPasadaFull.setHours(23,59,59,999);
+  var estaSem = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioEstaSemana && d<=finEstaSemana; });
+  var semPasada = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioSemPasada && d<=finSemPasadaFull; });
 
   var totalEsta = estaSem.reduce(function(s,p){return s+p.total;},0);
   var banEsta = estaSem.reduce(function(s,p){return s+p.bandejas;},0);
@@ -1612,12 +1614,14 @@ function updateResumenSemanal() {
   inicioEstaSemana.setHours(0,0,0,0);
   var inicioSemPasada = new Date(inicioEstaSemana);
   inicioSemPasada.setDate(inicioSemPasada.getDate()-7);
-  var finSemPasada = new Date(inicioEstaSemana);
+  inicioSemPasada.setHours(0,0,0,0);
 
   // Basado en pedidos, semana lunes-domingo
   var pedidosSem = data.pedidos||[];
-  var estaSem = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioEstaSemana && d<=hoy; });
-  var semPasada = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioSemPasada && d<finSemPasada; });
+  var finEstaSemana = new Date(inicioEstaSemana); finEstaSemana.setDate(inicioEstaSemana.getDate()+6); finEstaSemana.setHours(23,59,59,999);
+  var finSemPasadaFull = new Date(inicioSemPasada); finSemPasadaFull.setDate(inicioSemPasada.getDate()+6); finSemPasadaFull.setHours(23,59,59,999);
+  var estaSem = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioEstaSemana && d<=finEstaSemana; });
+  var semPasada = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioSemPasada && d<=finSemPasadaFull; });
 
   var totalEsta = estaSem.reduce(function(s,p){return s+p.total;},0);
   var banEsta = estaSem.reduce(function(s,p){return s+p.bandejas;},0);
