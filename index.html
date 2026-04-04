@@ -417,26 +417,6 @@
       </div>
     </div>
 
-    <!-- RESUMEN SEMANAL -->
-    <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Resumen semanal</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Esta semana</div>
-          <div style="font-size:18px;font-weight:700;" id="stat-esta-semana-€">—</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-esta-semana-ban">— bandejas</div>
-        </div>
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Semana pasada</div>
-          <div style="font-size:18px;font-weight:700;" id="stat-semana-pasada-€">—</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-semana-pasada-ban">— bandejas</div>
-        </div>
-      </div>
-      <div id="stat-semana-alerta" style="border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:12px;" id="stat-semana-texto">—</div>
-        <div style="font-size:14px;font-weight:700;" id="stat-semana-pct">—</div>
-      </div>
-    </div>
 
     <!-- HISTORIAL PRECIOS PROVEEDOR -->
     <div class="card" style="margin-bottom:10px;">
@@ -1535,16 +1515,20 @@ function renderPrecios() {
 
 function updateResumenSemanal() {
   var hoy = new Date();
+  // Semana lunes a domingo
+  var diaSemana = hoy.getDay(); // 0=dom, 1=lun...
+  var diasDesdelunes = diaSemana === 0 ? 6 : diaSemana - 1;
   var inicioEstaSemana = new Date(hoy);
-  inicioEstaSemana.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay()===0?-6:1));
+  inicioEstaSemana.setDate(hoy.getDate() - diasDesdelunes);
   inicioEstaSemana.setHours(0,0,0,0);
   var inicioSemPasada = new Date(inicioEstaSemana);
   inicioSemPasada.setDate(inicioSemPasada.getDate()-7);
   var finSemPasada = new Date(inicioEstaSemana);
 
-  var pedidos = data.pedidos||[];
-  var estaSem = pedidos.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioEstaSemana && d<=hoy; });
-  var semPasada = pedidos.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioSemPasada && d<finSemPasada; });
+  // Basado en pedidos, semana lunes-domingo
+  var pedidosSem = data.pedidos||[];
+  var estaSem = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioEstaSemana && d<=hoy; });
+  var semPasada = pedidosSem.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioSemPasada && d<finSemPasada; });
 
   var totalEsta = estaSem.reduce(function(s,p){return s+p.total;},0);
   var banEsta = estaSem.reduce(function(s,p){return s+p.bandejas;},0);
@@ -2297,6 +2281,14 @@ function updateStats() {
   document.getElementById('stat-total').textContent = clientes.length;
   document.getElementById('stat-cobrado').textContent = cobrado.toFixed(2)+'€';
   document.getElementById('stat-pendiente').textContent = pendiente.toFixed(2)+'€';
+  var nClientesDeben = (function(){
+    var ids = {};
+    (data.pedidos||[]).filter(function(p){return p.estado==='pendiente';}).forEach(function(p){ids[p.clienteId]=1;});
+    return Object.keys(ids).length;
+  })();
+  var cdEl = document.getElementById('stat-clientes-deben');
+  if(cdEl) cdEl.textContent = nClientesDeben;
+  if(typeof generarNotificaciones === 'function') generarNotificaciones();
 }
 
 function renderSeguimiento() {
