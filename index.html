@@ -224,9 +224,10 @@
 
   <!-- PEDIDOS -->
   <div id="tab-pedidos" class="section-hidden">
-    <div class="stats">
+    <div class="stats" style="grid-template-columns:repeat(3,1fr);">
       <div class="stat green"><div class="num" id="stat-cobrado">—</div><div class="lbl">Cobrado</div></div>
       <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
+      <div class="stat red"><div class="num" id="stat-clientes-deben">—</div><div class="lbl">Clientes deben</div></div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px;">
       <button onclick="filtrarPedidos('todos')" id="fpb-todos" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--brown);background:var(--brown);color:white;cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">Todos</button>
@@ -414,6 +415,43 @@
           <div style="font-size:22px;font-weight:700;color:var(--amber);" id="stat-pendiente-cobrar">—</div>
         </div>
       </div>
+    </div>
+
+    <!-- RESUMEN SEMANAL -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Resumen semanal</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Esta semana</div>
+          <div style="font-size:18px;font-weight:700;" id="stat-esta-semana-€">—</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-esta-semana-ban">— bandejas</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Semana pasada</div>
+          <div style="font-size:18px;font-weight:700;" id="stat-semana-pasada-€">—</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-semana-pasada-ban">— bandejas</div>
+        </div>
+      </div>
+      <div id="stat-semana-alerta" style="border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:12px;" id="stat-semana-texto">—</div>
+        <div style="font-size:14px;font-weight:700;" id="stat-semana-pct">—</div>
+      </div>
+    </div>
+
+    <!-- HISTORIAL PRECIOS PROVEEDOR -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Precios del proveedor</div>
+        <button onclick="togglePrecioForm()" style="background:var(--orange);color:white;border:none;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">+ Registrar</button>
+      </div>
+      <div id="precio-form" style="display:none;margin-bottom:10px;padding:10px;background:var(--light);border-radius:10px;">
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <div style="flex:1;"><label style="font-size:11px;color:var(--muted);">Precio (€)</label><input id="precio-input" type="number" value="7.00" step="0.01" style="width:100%;"/></div>
+          <div style="flex:1;"><label style="font-size:11px;color:var(--muted);">Fecha</label><input id="precio-fecha" type="date" style="width:100%;"/></div>
+        </div>
+        <button onclick="guardarPrecio()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Guardar precio</button>
+      </div>
+      <div id="lista-precios"></div>
     </div>
     <div style="margin-bottom:1rem;">
       <button onclick="toggleFormCompra()" id="btn-toggle-compra" style="width:100%;background:var(--brown);color:#FFF0D6;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
@@ -906,7 +944,7 @@ function showTab(t) {
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
 
   if(t==='pedidos'){renderSelectClientes();renderPedidos();fillDateSel('p-fp',today);fillDateSel('p-fe',today);}
-  if(t==='compras'){renderCompras();updateStatsCompras();}
+  if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();renderPrecios();}
   if(t==='seguimiento'){renderSeguimiento();}
   if(t==='posibles'){renderPosiblesTab();poblarDatalistClientes();}
 }
@@ -1253,9 +1291,9 @@ function renderPosiblesTab() {
   var lista = document.getElementById('lista-posibles-tab');
   if(!lista) return;
   var posibles = (data.posibles||[]).slice().sort(function(a,b){
-    if(!a.fechaTentativa) return 1;
-    if(!b.fechaTentativa) return -1;
-    return new Date(a.fechaTentativa) - new Date(b.fechaTentativa);
+    var da = a.fechaTentativa ? new Date(a.fechaTentativa) : new Date('9999-12-31');
+    var db = b.fechaTentativa ? new Date(b.fechaTentativa) : new Date('9999-12-31');
+    return da - db;
   });
   if(!posibles.length) {
     lista.innerHTML='<div class="empty"><div class="icon">📋</div><p>No hay posibles pedidos aún</p></div>';
@@ -1269,11 +1307,15 @@ function renderPosiblesTab() {
     var estado = p.estado==='pendiente'?'<span class="pago-badge pago-pendiente">⏳ Pendiente</span>':'<span class="pago-badge pago-pagado">✅ Pagado</span>';
     var precio = p.precio||8.5;
     var total = (p.bandejas*precio).toFixed(2);
-    return '<div class="client-card" style="margin-bottom:10px;">'
+    var diffDias = p.fechaTentativa ? Math.floor((new Date(p.fechaTentativa)-new Date())/86400000) : 99;
+    var urgBg = diffDias<=0?'#FFE8E8':diffDias<=1?'#FFF3CD':'var(--card)';
+    var urgLabel = diffDias<=0?'🔴 Urgente':diffDias<=1?'🟡 Pronto':'⚪ Normal';
+    var urgColor = diffDias<=0?'var(--red)':diffDias<=1?'#856404':'var(--muted)';
+    return '<div class="client-card" style="margin-bottom:10px;background:'+urgBg+';">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">'
       + '<div><div style="font-family:Sora,sans-serif;font-size:15px;font-weight:700;color:var(--brown);">'+p.nombre+'</div>'
       + '<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+' · '+total+'€'+(p.franja?' · '+(p.franja==='mañana'?'🌅':p.franja==='tarde'?'☀️':'🌙')+' '+p.franja:'')+'</div></div>'
-      + '<span class="badge warn">⏳ Posible</span>'
+      + '<span style="font-size:11px;font-weight:600;color:'+urgColor+';">'+urgLabel+'</span>'
       + '</div>'
       + '<div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:8px;">'
       + (fpStr?'<div style="font-size:12px;color:var(--muted);margin-bottom:2px;">'+fpStr+'</div>':'')
@@ -1364,6 +1406,180 @@ function renderPosibles() {
       + '<button onclick="eliminarPosible('+p.id+')" style="background:#FFE8E8;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:13px;color:#B83232;">🗑</button>'
       + '</div>';
   }).join('');
+}
+
+
+function toggleNotificaciones() {
+  var panel = document.getElementById('panel-notificaciones');
+  panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+}
+
+function generarNotificaciones() {
+  var notifs = [];
+  var hoy = new Date();
+
+  // Check clientes sin pedir +7 dias
+  var clientesSinPedir = (data.clientes||[]).filter(function(c) {
+    var ps = (data.pedidos||[]).filter(function(p){return parseInt(p.clienteId)===parseInt(c.id);});
+    if(!ps.length) return false;
+    var ultimo = Math.max.apply(null, ps.map(function(p){return new Date(p.fechaPedido||p.fecha).getTime();}));
+    return Math.floor((Date.now()-ultimo)/86400000) >= 7;
+  });
+  if(clientesSinPedir.length > 0) {
+    notifs.push({tipo:'warn', titulo: clientesSinPedir.length+' cliente'+(clientesSinPedir.length>1?'s':'')+' llevan +7 días sin pedir', sub: clientesSinPedir.slice(0,3).map(function(c){return c.nombre;}).join(', '), accion:'seguimiento'});
+  }
+
+  // Check stock deficit
+  var bandejaCompradas = (data.compras||[]).reduce(function(s,c){return s+c.bandejas;},0);
+  var bandejasPedidas = (data.pedidos||[]).reduce(function(s,p){return s+p.bandejas;},0);
+  var stock = bandejaCompradas - bandejasPedidas;
+  if(stock <= 0) {
+    notifs.push({tipo:'danger', titulo:'Stock en déficit — compra urgente', sub:'Tienes '+stock+' bandejas disponibles', accion:'compras'});
+  } else if(stock <= 5) {
+    notifs.push({tipo:'warn', titulo:'Stock bajo — considera comprar más', sub:'Solo quedan '+stock+' bandejas', accion:'compras'});
+  }
+
+  // Check pendiente cobrar
+  var pendiente = (data.pedidos||[]).filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
+  if(pendiente > 0) {
+    var nClientes = [...new Set((data.pedidos||[]).filter(function(p){return p.estado==='pendiente';}).map(function(p){return p.clienteId;}))].length;
+    notifs.push({tipo:'warn', titulo:pendiente.toFixed(2)+'€ pendiente de cobrar', sub:nClientes+' cliente'+(nClientes>1?'s':'')+' con pagos pendientes', accion:'pedidos'});
+  }
+
+  // Check posibles urgentes (entrega hoy o mañana)
+  var posiblesUrgentes = (data.posibles||[]).filter(function(p){
+    if(!p.fechaTentativa) return false;
+    var diff = Math.floor((new Date(p.fechaTentativa)-hoy)/86400000);
+    return diff <= 1;
+  });
+  if(posiblesUrgentes.length > 0) {
+    notifs.push({tipo:'warn', titulo:posiblesUrgentes.length+' posible'+(posiblesUrgentes.length>1?'s':'')+' con entrega hoy o mañana', sub:'Confirma o descarta antes de comprar', accion:'posibles'});
+  }
+
+  // Update badge
+  var badge = document.getElementById('notif-badge');
+  if(badge) {
+    if(notifs.length > 0) {
+      badge.style.display = 'flex';
+      badge.textContent = notifs.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // Render notifications
+  var lista = document.getElementById('lista-notificaciones');
+  if(lista) {
+    if(!notifs.length) {
+      lista.innerHTML = '<div style="padding:16px;text-align:center;font-size:13px;color:var(--muted);">Todo en orden ✅</div>';
+    } else {
+      lista.innerHTML = notifs.map(function(n) {
+        var bg = n.tipo==='danger'?'#FFE8E8':'#FFF3CD';
+        var color = n.tipo==='danger'?'var(--red)':'#856404';
+        var icon = n.tipo==='danger'?'🔴':'🟡';
+        return '<div onclick="showTab(''+n.accion+'');toggleNotificaciones();" style="background:'+bg+';border-radius:10px;padding:10px;margin-bottom:6px;cursor:pointer;">'
+          + '<div style="font-size:13px;font-weight:600;color:'+color+';margin-bottom:2px;">'+icon+' '+n.titulo+'</div>'
+          + '<div style="font-size:11px;color:'+color+';">'+n.sub+'</div>'
+          + '</div>';
+      }).join('');
+    }
+  }
+}
+
+function togglePrecioForm() {
+  var form = document.getElementById('precio-form');
+  var today = getTodayStr ? getTodayStr() : new Date().toISOString().split('T')[0];
+  form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+  var fechaEl = document.getElementById('precio-fecha');
+  if(fechaEl) fechaEl.value = today;
+}
+
+async function guardarPrecio() {
+  var precio = parseFloat(document.getElementById('precio-input').value)||7;
+  var fecha = document.getElementById('precio-fecha').value;
+  if(!fecha) return toast('Selecciona una fecha');
+  if(!data.precios) data.precios=[];
+  data.precios.unshift({id:Date.now(), precio, fecha});
+  await guardarDatos();
+  document.getElementById('precio-form').style.display='none';
+  renderPrecios();
+  toast('✓ Precio registrado');
+}
+
+function renderPrecios() {
+  var lista = document.getElementById('lista-precios');
+  if(!lista) return;
+  var precios = (data.precios||[]).slice().sort(function(a,b){return new Date(b.fecha)-new Date(a.fecha);});
+  if(!precios.length) {
+    lista.innerHTML='<div style="font-size:13px;color:var(--muted);text-align:center;padding:8px;">Sin precios registrados</div>';
+    return;
+  }
+  lista.innerHTML = precios.map(function(p, i) {
+    var siguiente = precios[i+1];
+    var diff = siguiente ? (p.precio - siguiente.precio).toFixed(2) : null;
+    var diffColor = diff > 0 ? 'var(--red)' : diff < 0 ? 'var(--green)' : 'var(--muted)';
+    var diffText = diff > 0 ? '+'+diff+'€' : diff < 0 ? diff+'€' : 'base';
+    var margen = (8.5 - p.precio).toFixed(2);
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--light);border-radius:8px;margin-bottom:6px;">'
+      + '<div>'
+      + '<div style="font-size:13px;font-weight:600;color:var(--brown);">'+formatDate(p.fecha)+'</div>'
+      + '<div style="font-size:11px;color:var(--muted);">Margen: '+margen+'€/bandeja</div>'
+      + '</div>'
+      + '<div style="text-align:right;">'
+      + '<div style="font-size:15px;font-weight:700;color:var(--brown);">'+p.precio.toFixed(2)+'€</div>'
+      + (diff!==null?'<div style="font-size:11px;color:'+diffColor+';">'+diffText+'</div>':'')
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function updateResumenSemanal() {
+  var hoy = new Date();
+  var inicioEstaSemana = new Date(hoy);
+  inicioEstaSemana.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay()===0?-6:1));
+  inicioEstaSemana.setHours(0,0,0,0);
+  var inicioSemPasada = new Date(inicioEstaSemana);
+  inicioSemPasada.setDate(inicioSemPasada.getDate()-7);
+  var finSemPasada = new Date(inicioEstaSemana);
+
+  var pedidos = data.pedidos||[];
+  var estaSem = pedidos.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioEstaSemana && d<=hoy; });
+  var semPasada = pedidos.filter(function(p){ var d=new Date(p.fechaPedido||p.fecha); return d>=inicioSemPasada && d<finSemPasada; });
+
+  var totalEsta = estaSem.reduce(function(s,p){return s+p.total;},0);
+  var banEsta = estaSem.reduce(function(s,p){return s+p.bandejas;},0);
+  var totalPasada = semPasada.reduce(function(s,p){return s+p.total;},0);
+  var banPasada = semPasada.reduce(function(s,p){return s+p.bandejas;},0);
+
+  function set(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  set('stat-esta-semana-€', totalEsta.toFixed(2)+'€');
+  set('stat-esta-semana-ban', banEsta+' bandejas');
+  set('stat-semana-pasada-€', totalPasada.toFixed(2)+'€');
+  set('stat-semana-pasada-ban', banPasada+' bandejas');
+
+  var alertaEl = document.getElementById('stat-semana-alerta');
+  var textoEl = document.getElementById('stat-semana-texto');
+  var pctEl = document.getElementById('stat-semana-pct');
+  if(alertaEl && textoEl && pctEl) {
+    if(totalPasada===0) {
+      alertaEl.style.background='var(--light)'; textoEl.style.color='var(--muted)'; pctEl.style.color='var(--muted)';
+      textoEl.textContent='Sin datos de semana pasada'; pctEl.textContent='—';
+    } else {
+      var pct = Math.round(((totalEsta-totalPasada)/totalPasada)*100);
+      if(pct>0) {
+        alertaEl.style.background='#D6F0E2'; textoEl.style.color='var(--green)'; pctEl.style.color='var(--green)';
+        textoEl.textContent='Vendiste '+(banEsta-banPasada)+' bandejas más que la semana pasada';
+        pctEl.textContent='+'+pct+'%';
+      } else if(pct<0) {
+        alertaEl.style.background='#FFE8E8'; textoEl.style.color='var(--red)'; pctEl.style.color='var(--red)';
+        textoEl.textContent='Vendiste '+(banPasada-banEsta)+' bandejas menos que la semana pasada';
+        pctEl.textContent=pct+'%';
+      } else {
+        alertaEl.style.background='var(--light)'; textoEl.style.color='var(--muted)'; pctEl.style.color='var(--muted)';
+        textoEl.textContent='Igual que la semana pasada'; pctEl.textContent='0%';
+      }
+    }
+  }
 }
 
 function toggleFormCompra() {
