@@ -913,7 +913,7 @@ DATA_DOC.onSnapshot(function(snap) {
     // Refresh visible tabs
     var pedidosTab = document.getElementById('tab-pedidos');
     if(pedidosTab && !pedidosTab.classList.contains('section-hidden')) {
-      renderPedidos(); renderSelectClientes();
+      renderPedidos(); renderSelectClientes(); updateResumenSemanalPedidos();
     }
     var comprasTab = document.getElementById('tab-compras');
     if(comprasTab && !comprasTab.classList.contains('section-hidden')) {
@@ -954,7 +954,7 @@ function showTab(t) {
   const today = new Date();
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
 
-  if(t==='pedidos'){renderSelectClientes();renderPedidos();fillDateSel('p-fp',today);fillDateSel('p-fe',today);}
+  if(t==='pedidos'){renderSelectClientes();renderPedidos();updateResumenSemanalPedidos();}
   if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();renderPrecios();}
   if(t==='seguimiento'){renderSeguimiento();}
   if(t==='posibles'){renderPosiblesTab();poblarDatalistClientes();}
