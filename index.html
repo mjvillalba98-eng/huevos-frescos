@@ -1477,7 +1477,7 @@ function generarNotificaciones() {
         var bg = n.tipo==='danger'?'#FFE8E8':'#FFF3CD';
         var color = n.tipo==='danger'?'var(--red)':'#856404';
         var icon = n.tipo==='danger'?'🔴':'🟡';
-        return '<div onclick="showTab(''+n.accion+'');toggleNotificaciones();" style="background:'+bg+';border-radius:10px;padding:10px;margin-bottom:6px;cursor:pointer;">'
+        return '<div onclick="showTab(\"'+n.accion+'\");toggleNotificaciones();" style="background:'+bg+';border-radius:10px;padding:10px;margin-bottom:6px;cursor:pointer;">'
           + '<div style="font-size:13px;font-weight:600;color:'+color+';margin-bottom:2px;">'+icon+' '+n.titulo+'</div>'
           + '<div style="font-size:11px;color:'+color+';">'+n.sub+'</div>'
           + '</div>';
