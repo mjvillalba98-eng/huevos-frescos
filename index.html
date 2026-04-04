@@ -435,12 +435,14 @@
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comparativa semanal</div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
         <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Esta semana</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Esta semana</div>
+          <div style="font-size:10px;color:var(--orange);font-weight:600;margin-bottom:4px;" id="stat-esta-semana-rango">—</div>
           <div style="font-size:18px;font-weight:700;" id="stat-esta-semana-p-€">—</div>
           <div style="font-size:11px;color:var(--muted);" id="stat-esta-semana-p-ban">— bandejas</div>
         </div>
         <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Semana pasada</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Semana pasada</div>
+          <div style="font-size:10px;color:var(--orange);font-weight:600;margin-bottom:4px;" id="stat-semana-pasada-rango">—</div>
           <div style="font-size:18px;font-weight:700;" id="stat-semana-pasada-p-€">—</div>
           <div style="font-size:11px;color:var(--muted);" id="stat-semana-pasada-p-ban">— bandejas</div>
         </div>
@@ -1570,6 +1572,12 @@ function updateResumenSemanalPedidos() {
   var banPasada = semPasada.reduce(function(s,p){return s+p.bandejas;},0);
 
   function set(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  var meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  function fmtShort(d){ return d.getDate()+' '+meses[d.getMonth()]; }
+  var finEstaSemanaDate = new Date(inicioEstaSemana); finEstaSemanaDate.setDate(inicioEstaSemana.getDate()+6);
+  var finSemPasadaDate = new Date(inicioSemPasada); finSemPasadaDate.setDate(inicioSemPasada.getDate()+6);
+  set('stat-esta-semana-rango', fmtShort(inicioEstaSemana)+' — '+fmtShort(finEstaSemanaDate));
+  set('stat-semana-pasada-rango', fmtShort(inicioSemPasada)+' — '+fmtShort(finSemPasadaDate));
   set('stat-esta-semana-p-€', totalEsta.toFixed(2)+'€');
   set('stat-esta-semana-p-ban', banEsta+' bandejas');
   set('stat-semana-pasada-p-€', totalPasada.toFixed(2)+'€');
