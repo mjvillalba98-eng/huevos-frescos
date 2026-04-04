@@ -312,26 +312,6 @@
     </div>
       </div>
     </div>
-
-    <div class="card" style="margin-bottom:10px;" id="card-resumen-semanal">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comparativa semanal</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Esta semana</div>
-          <div style="font-size:18px;font-weight:700;" id="stat-esta-semana-p-€">—</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-esta-semana-p-ban">— bandejas</div>
-        </div>
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Semana pasada</div>
-          <div style="font-size:18px;font-weight:700;" id="stat-semana-pasada-p-€">—</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-semana-pasada-p-ban">— bandejas</div>
-        </div>
-      </div>
-      <div id="stat-semana-p-alerta" style="border-radius:10px;padding:10px;background:var(--light);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:12px;color:var(--muted);" id="stat-semana-p-texto">Sin datos suficientes</div>
-        <div style="font-size:14px;font-weight:700;color:var(--muted);" id="stat-semana-p-pct">—</div>
-      </div>
-    </div>
     <div class="card"><h2>Últimos pedidos</h2><div id="lista-pedidos"></div></div>
   </div>
 
@@ -448,6 +428,28 @@
       </div>
     </div>
 
+
+
+
+    <div class="card" style="margin-bottom:10px;" id="card-resumen-semanal">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comparativa semanal</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Esta semana</div>
+          <div style="font-size:18px;font-weight:700;" id="stat-esta-semana-p-€">—</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-esta-semana-p-ban">— bandejas</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Semana pasada</div>
+          <div style="font-size:18px;font-weight:700;" id="stat-semana-pasada-p-€">—</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-semana-pasada-p-ban">— bandejas</div>
+        </div>
+      </div>
+      <div id="stat-semana-p-alerta" style="border-radius:10px;padding:10px;background:var(--light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:12px;color:var(--muted);" id="stat-semana-p-texto">Sin datos suficientes</div>
+        <div style="font-size:14px;font-weight:700;color:var(--muted);" id="stat-semana-p-pct">—</div>
+      </div>
+    </div>
 
     <!-- HISTORIAL PRECIOS PROVEEDOR -->
     <div class="card" style="margin-bottom:10px;">
@@ -954,8 +956,8 @@ function showTab(t) {
   const today = new Date();
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
 
-  if(t==='pedidos'){renderSelectClientes();renderPedidos();updateResumenSemanalPedidos();}
-  if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();renderPrecios();}
+  if(t==='pedidos'){renderSelectClientes();renderPedidos();}
+  if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderPrecios();}
   if(t==='seguimiento'){renderSeguimiento();}
   if(t==='posibles'){renderPosiblesTab();poblarDatalistClientes();}
 }
