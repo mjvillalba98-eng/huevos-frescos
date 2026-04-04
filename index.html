@@ -1603,7 +1603,11 @@ function updateStatsCompras() {
   }
 
   // RESUMEN
-  set('stat-margen', margen+'%');
+  var margenEl = document.getElementById('stat-margen');
+  if(margenEl) {
+    margenEl.textContent = margen+'%';
+    margenEl.style.color = margen>0?'var(--green)':margen<0?'var(--red)':'var(--brown)';
+  }
   set('stat-promedio-semanal', promedioSemanal);
   set('stat-pendiente-cobrar', pendienteCobrar.toFixed(2)+'€');
 
