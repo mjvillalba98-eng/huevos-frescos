@@ -373,6 +373,24 @@
       </div>
     </div>
 
+    <!-- CAJA ACTUAL -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Lo que tienes disponible ahora mismo</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">💵 Efectivo</div>
+          <div style="font-size:20px;font-weight:700;" id="stat-caja-efectivo">—</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="stat-caja-efectivo-det">—</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">📱 Bizum</div>
+          <div style="font-size:20px;font-weight:700;" id="stat-caja-bizum">—</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="stat-caja-bizum-det">—</div>
+        </div>
+      </div>
+    </div>
+
     <!-- STOCK -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Stock</div>
@@ -488,7 +506,6 @@
         <label>Método de pago</label>
         <div class="pago-selector">
           <button class="pago-btn sel-efectivo" id="cm-efectivo" onclick="selMetodoCompra('efectivo')">💵 Efectivo</button>
-          <button class="pago-btn" id="cm-tarjeta" onclick="selMetodoCompra('tarjeta')">💳 Tarjeta</button>
           <button class="pago-btn" id="cm-bizum" onclick="selMetodoCompra('bizum')">📱 Bizum</button>
         </div>
       </div>
@@ -1399,8 +1416,8 @@ async function confirmarPosible(id) {
       + '📋 Estado del pago: '+estadoTexto+'\n'
       + (p.fechaTentativa?'📅 Entrega: '+formatDate(p.fechaTentativa)+(p.dia?' ('+p.dia+')':'')+'\n':'')
       + '\n¡Gracias por tu compra! 🙏';
-    var tel = telCliente.split(' ').join('').split('-').join('');
-    var telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
+    var telLimpio = limpiarTelefono(telCliente);
+    if(!telLimpio) { showTab('pedidos'); toast('✅ Pedido confirmado'); return; }
     window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
   } else {
     showTab('pedidos');
@@ -1423,6 +1440,22 @@ function renderPosibles() {
   }).join('');
 }
 
+
+function limpiarTelefono(tel) {
+  if(!tel) return null;
+  // Remove spaces, dashes, dots, parentheses
+  var t = tel.replace(/[\s\-\.\(\)]/g, '');
+  // If starts with +, remove the +
+  if(t.charAt(0) === '+') t = t.substring(1);
+  // If starts with 0034, remove it
+  if(t.startsWith('0034')) t = t.substring(4);
+  // If starts with 34 and has 11 digits total, it already has prefix
+  if(t.startsWith('34') && t.length === 11) return t;
+  // If 9 digits (Spanish number without prefix), add 34
+  if(t.length === 9) return '34' + t;
+  // Otherwise return as is
+  return t;
+}
 
 function toggleNotificaciones() {
   var panel = document.getElementById('panel-notificaciones');
@@ -1837,6 +1870,20 @@ function updateStatsCompras() {
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
+  // CAJA ACTUAL
+  var comprasEfectivo = compras.filter(function(c){return c.metodoPago!=='bizum';}).reduce(function(s,c){return s+c.total;},0);
+  var comprasBizum = compras.filter(function(c){return c.metodoPago==='bizum';}).reduce(function(s,c){return s+c.total;},0);
+  var cajaEfectivo = totalEfectivo - comprasEfectivo;
+  var cajaBizum = totalBizum - comprasBizum;
+  var elCajaEf = document.getElementById('stat-caja-efectivo');
+  var elCajaBz = document.getElementById('stat-caja-bizum');
+  var elCajaEfDet = document.getElementById('stat-caja-efectivo-det');
+  var elCajaBzDet = document.getElementById('stat-caja-bizum-det');
+  if(elCajaEf){ elCajaEf.textContent=cajaEfectivo.toFixed(2)+'€'; elCajaEf.style.color=cajaEfectivo>=0?'var(--green)':'var(--red)'; }
+  if(elCajaBz){ elCajaBz.textContent=cajaBizum.toFixed(2)+'€'; elCajaBz.style.color=cajaBizum>=0?'var(--green)':'var(--red)'; }
+  if(elCajaEfDet) elCajaEfDet.textContent = totalEfectivo.toFixed(2)+'€ cobrado · '+comprasEfectivo.toFixed(2)+'€ pagado';
+  if(elCajaBzDet) elCajaBzDet.textContent = totalBizum.toFixed(2)+'€ cobrado · '+comprasBizum.toFixed(2)+'€ pagado';
+
   // STOCK
   var stock = bandejaCompradas - bandejasPedidas;
   var posiblesBandejas = posibles.reduce(function(s,p){return s+p.bandejas;},0);
@@ -1967,10 +2014,9 @@ async function confirmarYEnviarWA() {
       + '📋 Estado del pago: '+estadoTexto+'\n'
       + '📅 Entrega: '+formatDate(pendingPedido.fechaEntrega)+' ('+pendingPedido.dia+')\n\n'
       + '¡Gracias por tu compra! 🙏';
-    const tel = c.tel.split(' ').join('').split('-').join('');
-    const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
-    var waUrl = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
-    window.location.href = waUrl;
+    var telLimpio = limpiarTelefono(c.tel);
+    if(!telLimpio) return toast('Número no válido');
+    window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
   }
   pendingPedido = null;
   toast('✓ Pedido guardado');
@@ -2007,8 +2053,8 @@ function enviarGraciasPedido(pedidoId) {
   var c = (data.clientes||[]).find(function(c){ return String(c.id)===String(p.clienteId); });
   if(!c || !c.tel) return toast('Este cliente no tiene teléfono');
   var mensaje = '🥚 ¡Hola '+c.nombre+'!\n\nGracias por tu compra y por confiar en nosotros 🙏\n\nEsperamos que disfrutes tus huevos frescos. Para nosotros es un placer llevarte calidad directo a tu puerta 🐔✨\n\nHasta pronto y que los disfrutes mucho ❤️\n\n📞 689 273 452 / 676 075 510';
-  var tel = c.tel.split(' ').join('').split('-').join('');
-  var telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
+  var telLimpio = limpiarTelefono(c.tel);
+  if(!telLimpio) return toast('Número no válido');
   window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
 }
 
@@ -2021,8 +2067,8 @@ function enviarGracias(id) {
 
   const mensaje = '🥚 ¡Hola '+c.nombre+'! Gracias por tu compra, esperamos que disfrutes los huevos 😊\n\n¡Aquí seguimos para cuando los necesites! 🐔\n\n689 273 452 / 676 075 510';
 
-  const tel = c.tel.split(' ').join('').split('-').join('');
-  const telLimpio = (tel.charAt(0)==='+') ? tel.substring(1) : (tel.startsWith('34') ? tel : '34'+tel);
+  var telLimpio = limpiarTelefono(c.tel);
+  if(!telLimpio) return toast('Número no válido');
   window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
 }
 
@@ -2066,7 +2112,7 @@ function actualizarDiaPosible() {
 
 function selMetodoCompra(tipo) {
   metodoCompra = tipo;
-  ['efectivo','tarjeta','bizum'].forEach(function(t) {
+  ['efectivo','bizum'].forEach(function(t) {
     var b = document.getElementById('cm-'+t);
     if(b) b.className = 'pago-btn'+(t===tipo?' sel-efectivo':'');
   });
@@ -2461,9 +2507,8 @@ function enviarWhatsApp(clienteId) {
     mensaje += '\n\n⚠️ Por cierto, tienes pendiente de pagar '+pendiente.toFixed(2)+'€ de tu último pedido 😊';
   }
 
-  // Clean phone number
-  const tel = c.tel.split(' ').join('').split('-').join('');
-  const telLimpio = (tel.charAt(0)==='+') ? tel : '34'+tel;
+  var telLimpio = limpiarTelefono(c.tel);
+  if(!telLimpio) return toast('Número no válido');
   window.location.href = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(mensaje);
 }
 
