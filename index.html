@@ -1459,9 +1459,7 @@ function renderPosibles() {
 function limpiarTelefono(tel) {
   if(!tel) return null;
   // Remove spaces, dashes, dots, parentheses
-  var t = tel.replace(/[\s\-\.\(\)]/g, '');
-  // If starts with +, remove the +
-  if(t.charAt(0) === '+') t = t.substring(1);
+  var t = tel.replace(/[\s\-\.\(\)\+]/g, '');
   // If starts with 0034, remove it
   if(t.startsWith('0034')) t = t.substring(4);
   // If starts with 34 and has 11 digits total, it already has prefix
