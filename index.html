@@ -376,7 +376,7 @@
     <!-- CAJA ACTUAL -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Lo que tienes disponible ahora mismo</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;" id="stat-caja-desde">Cobrado desde la última compra al proveedor</div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
         <div class="stat" style="margin:0;padding:10px;">
           <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">💵 Efectivo</div>
@@ -1907,27 +1907,31 @@ function updateStatsCompras() {
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
-  // CAJA ACTUAL
-  var comprasEfectivo = compras.reduce(function(s,c){
-    if(c.metodoPago==='mixto') return s+(c.montoEfectivo||0);
-    if(c.metodoPago==='bizum') return s;
-    return s+c.total;
-  },0);
-  var comprasBizum = compras.reduce(function(s,c){
-    if(c.metodoPago==='mixto') return s+(c.montoBizum||0);
-    if(c.metodoPago==='bizum') return s+c.total;
-    return s;
-  },0);
-  var cajaEfectivo = totalEfectivo - comprasEfectivo;
-  var cajaBizum = totalBizum - comprasBizum;
+  // CAJA ACTUAL — desde la última compra hasta hoy
+  // Find date of last purchase
+  var ultimaCompraFecha = compras.length > 0
+    ? new Date(Math.max.apply(null, compras.map(function(c){return new Date(c.fecha).getTime();})))
+    : new Date(0);
+  ultimaCompraFecha.setHours(0,0,0,0);
+
+  // Pedidos cobrados DESDE la última compra
+  var pedidosDesdeCompra = pedidos.filter(function(p){
+    return new Date(p.fechaPedido||p.fecha) >= ultimaCompraFecha;
+  });
+  var cajaEfectivo = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo';}).reduce(function(s,p){return s+p.total;},0);
+  var cajaBizum = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum';}).reduce(function(s,p){return s+p.total;},0);
+
+  var meses2 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var fechaUltimaStr = compras.length>0 ? ultimaCompraFecha.getDate()+' '+meses2[ultimaCompraFecha.getMonth()] : 'inicio';
+
   var elCajaEf = document.getElementById('stat-caja-efectivo');
   var elCajaBz = document.getElementById('stat-caja-bizum');
   var elCajaEfDet = document.getElementById('stat-caja-efectivo-det');
   var elCajaBzDet = document.getElementById('stat-caja-bizum-det');
   if(elCajaEf){ elCajaEf.textContent=cajaEfectivo.toFixed(2)+'€'; elCajaEf.style.color=cajaEfectivo>=0?'var(--green)':'var(--red)'; }
   if(elCajaBz){ elCajaBz.textContent=cajaBizum.toFixed(2)+'€'; elCajaBz.style.color=cajaBizum>=0?'var(--green)':'var(--red)'; }
-  if(elCajaEfDet) elCajaEfDet.textContent = totalEfectivo.toFixed(2)+'€ cobrado · '+comprasEfectivo.toFixed(2)+'€ pagado';
-  if(elCajaBzDet) elCajaBzDet.textContent = totalBizum.toFixed(2)+'€ cobrado · '+comprasBizum.toFixed(2)+'€ pagado';
+  if(elCajaEfDet) elCajaEfDet.textContent = 'Cobrado desde el '+fechaUltimaStr;
+  if(elCajaBzDet) elCajaBzDet.textContent = 'Cobrado desde el '+fechaUltimaStr;
 
   // STOCK
   var stock = bandejaCompradas - bandejasPedidas;
