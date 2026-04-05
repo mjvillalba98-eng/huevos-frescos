@@ -1432,7 +1432,7 @@ async function confirmarPosible(id) {
       + '\n¡Gracias por tu compra! 🙏';
     var telLimpio = limpiarTelefono(telCliente);
     if(!telLimpio) { showTab('pedidos'); toast('✅ Pedido confirmado'); return; }
-    window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+    var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
   } else {
     showTab('pedidos');
     toast('✅ Pedido confirmado y creado');
@@ -2065,7 +2065,7 @@ async function confirmarYEnviarWA() {
       + '¡Gracias por tu compra! 🙏';
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
-    window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+    var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
   }
   pendingPedido = null;
   toast('✓ Pedido guardado');
@@ -2104,7 +2104,7 @@ function enviarGraciasPedido(pedidoId) {
   var mensaje = '🥚 ¡Hola '+c.nombre+'!\n\nGracias por tu compra y por confiar en nosotros 🙏\n\nEsperamos que disfrutes tus huevos frescos. Para nosotros es un placer llevarte calidad directo a tu puerta 🐔✨\n\nHasta pronto y que los disfrutes mucho ❤️\n\n📞 689 273 452 / 676 075 510';
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
-  window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+  var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
 }
 
 function enviarGracias(id) {
@@ -2118,7 +2118,7 @@ function enviarGracias(id) {
 
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
-  window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+  var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
 }
 
 
@@ -2576,7 +2576,7 @@ function enviarWhatsApp(clienteId) {
 
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
-  window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+  var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
 }
 
 
