@@ -1831,10 +1831,8 @@ async function agregarCompra() {
   var totalCompra = +(bandejas*precio).toFixed(2);
   if(metodoCompra === 'mixto') {
     var montoEf = parseFloat(document.getElementById('c-efectivo-monto').value)||0;
-    var montoBz = Math.max(0, totalCompra - montoEf);
-    // Save as two entries
-    if(montoEf > 0) data.compras.unshift({id:Date.now(), bandejas:Math.round(bandejas*(montoEf/totalCompra)*10)/10, precio, total:+montoEf.toFixed(2), fecha, notas, estadoPago:estadoCompra, metodoPago:'efectivo', esMixto:true});
-    if(montoBz > 0) data.compras.unshift({id:Date.now()+1, bandejas:Math.round(bandejas*(montoBz/totalCompra)*10)/10, precio, total:+montoBz.toFixed(2), fecha, notas, estadoPago:estadoCompra, metodoPago:'bizum', esMixto:true});
+    var montoBz = +(Math.max(0, totalCompra - montoEf)).toFixed(2);
+    data.compras.unshift({id:Date.now(), bandejas, precio, total:totalCompra, fecha, notas, estadoPago:estadoCompra, metodoPago:'mixto', montoEfectivo:+montoEf.toFixed(2), montoBizum:montoBz});
   } else {
     data.compras.unshift({id:Date.now(), bandejas, precio, total:totalCompra, fecha, notas, estadoPago:estadoCompra, metodoPago:metodoCompra});
   }
@@ -1859,12 +1857,18 @@ function renderCompras() {
   const compras = data.compras||[];
   if(!compras.length){lista.innerHTML='<div class="empty"><p>No hay compras registradas</p></div>';return;}
   lista.innerHTML = compras.slice(0,30).map(function(c) {
-    var metodoBadge = c.metodoPago==='bizum'
-      ? '<span class="pago-badge pago-bizum">📱 Bizum</span>'
-      : '<span class="pago-badge pago-efectivo">💵 Efectivo</span>';
     var estadoBadge = c.estadoPago==='pendiente'
       ? '<span class="pago-badge pago-pendiente">⏳ Pendiente</span>'
       : '<span class="pago-badge pago-pagado">✅ Pagado</span>';
+    var metodoBadge;
+    if(c.metodoPago==='mixto') {
+      metodoBadge = '<span class="pago-badge pago-efectivo">💵 '+c.montoEfectivo.toFixed(2)+'€</span>'
+        + ' <span class="pago-badge pago-bizum">📱 '+c.montoBizum.toFixed(2)+'€</span>';
+    } else if(c.metodoPago==='bizum') {
+      metodoBadge = '<span class="pago-badge pago-bizum">📱 Bizum</span>';
+    } else {
+      metodoBadge = '<span class="pago-badge pago-efectivo">💵 Efectivo</span>';
+    }
     return '<div class="compra-row" style="flex-direction:column;align-items:stretch;gap:6px;">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;">'
       + '<div style="font-weight:600;font-size:14px;">'+c.bandejas+' bandejas × '+c.precio.toFixed(2)+'€</div>'
@@ -1904,8 +1908,16 @@ function updateStatsCompras() {
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
   // CAJA ACTUAL
-  var comprasEfectivo = compras.filter(function(c){return c.metodoPago!=='bizum';}).reduce(function(s,c){return s+c.total;},0);
-  var comprasBizum = compras.filter(function(c){return c.metodoPago==='bizum';}).reduce(function(s,c){return s+c.total;},0);
+  var comprasEfectivo = compras.reduce(function(s,c){
+    if(c.metodoPago==='mixto') return s+(c.montoEfectivo||0);
+    if(c.metodoPago==='bizum') return s;
+    return s+c.total;
+  },0);
+  var comprasBizum = compras.reduce(function(s,c){
+    if(c.metodoPago==='mixto') return s+(c.montoBizum||0);
+    if(c.metodoPago==='bizum') return s+c.total;
+    return s;
+  },0);
   var cajaEfectivo = totalEfectivo - comprasEfectivo;
   var cajaBizum = totalBizum - comprasBizum;
   var elCajaEf = document.getElementById('stat-caja-efectivo');
