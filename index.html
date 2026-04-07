@@ -2034,7 +2034,7 @@ function editarConfirmacion() {
   }
 }
 
-function getEmoji(id){ var el=document.getElementById(id); return el?el.textContent:''; }
+function getEmoji(id){ var el=document.getElementById(id); if(!el) return ''; var d=document.createElement('div'); d.innerHTML=el.innerHTML; return d.textContent||d.innerText||''; }
 var E_HUEVO='',E_CHECK='',E_DINERO='',E_TARJETA='',E_CLIPBOARD='',E_CALENDAR='',E_GRACIAS='',E_GALLINA='',E_CESTA='',E_TELEFONO='',E_CORAZON='',E_RELOJ='',E_CONFETI='';
 function initEmojis(){
   E_HUEVO = getEmoji('e-huevo');
