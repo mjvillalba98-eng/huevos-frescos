@@ -1432,8 +1432,7 @@ async function confirmarPosible(id) {
       + '\n¡Gracias por tu compra! 🙏';
     var telLimpio = limpiarTelefono(telCliente);
     if(!telLimpio) { showTab('pedidos'); toast('✅ Pedido confirmado'); return; }
-    console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
+window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
   } else {
     showTab('pedidos');
     toast('✅ Pedido confirmado y creado');
@@ -2065,8 +2064,7 @@ async function confirmarYEnviarWA() {
     mensaje += '\u00a1Gracias por tu compra! \uD83D\uDE4F';
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
-    console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
+window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
   }
   pendingPedido = null;
   toast('✓ Pedido guardado');
@@ -2106,7 +2104,7 @@ function enviarGraciasPedido(pedidoId) {
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
+window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
 }
 
 function enviarGracias(id) {
@@ -2126,7 +2124,7 @@ function enviarGracias(id) {
     mensaje += '\u00a1Gracias por tu compra! \uD83D\uDE4F';
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
+window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
 }
 
 
@@ -2585,7 +2583,7 @@ function enviarWhatsApp(clienteId) {
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
+window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
 }
 
 
