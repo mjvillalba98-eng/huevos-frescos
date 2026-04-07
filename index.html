@@ -97,6 +97,7 @@
 </style>
 </head>
 <body>
+<span id="e-huevo" style="display:none">&#x1F95A;</span><span id="e-check" style="display:none">&#x2705;</span><span id="e-dinero" style="display:none">&#x1F4B0;</span><span id="e-tarjeta" style="display:none">&#x1F4B3;</span><span id="e-clipboard" style="display:none">&#x1F4CB;</span><span id="e-calendar" style="display:none">&#x1F4C5;</span><span id="e-gracias" style="display:none">&#x1F64F;</span><span id="e-gallina" style="display:none">&#x1F414;</span><span id="e-corazon" style="display:none">&#x2764;</span><span id="e-cesta" style="display:none">&#x1F9FA;</span><span id="e-telefono" style="display:none">&#x1F4DE;</span>
 <header style="position:relative;">
   <div class="logo">🥚</div>
   <div><h1>Huevos Frescos</h1><p id="sync-label">Conectando...</p></div>
@@ -2033,19 +2034,21 @@ function editarConfirmacion() {
   }
 }
 
-var E_HUEVO = String.fromCodePoint(0x1F95A);
-var E_CHECK = String.fromCodePoint(0x2705);
-var E_DINERO = String.fromCodePoint(0x1F4B0);
-var E_TARJETA = String.fromCodePoint(0x1F4B3);
-var E_CLIPBOARD = String.fromCodePoint(0x1F4CB);
-var E_CALENDAR = String.fromCodePoint(0x1F4C5);
-var E_GRACIAS = String.fromCodePoint(0x1F64F);
-var E_GALLINA = String.fromCodePoint(0x1F414);
-var E_CESTA = String.fromCodePoint(0x1F9FA);
-var E_TELEFONO = String.fromCodePoint(0x1F4DE);
-var E_CORAZON = String.fromCodePoint(0x2764);
-var E_RELOJ = String.fromCodePoint(0x23F0);
-var E_CONFETI = String.fromCodePoint(0x1F389);
+function getEmoji(id){ var el=document.getElementById(id); return el?el.textContent:''; }
+function initEmojis(){
+E_HUEVO = getEmoji('e-huevo');
+var E_CHECK = getEmoji('e-check');
+var E_DINERO = getEmoji('e-dinero');
+var E_TARJETA = getEmoji('e-tarjeta');
+var E_CLIPBOARD = getEmoji('e-clipboard');
+var E_CALENDAR = getEmoji('e-calendar');
+var E_GRACIAS = getEmoji('e-gracias');
+var E_GALLINA = getEmoji('e-gallina');
+var E_CESTA = getEmoji('e-cesta');
+var E_TELEFONO = getEmoji('e-telefono');
+var E_CORAZON = getEmoji('e-corazon');
+var E_RELOJ = '';
+E_CONFETI = '';}
 
 async function confirmarYEnviarWA() {
   if(!pendingPedido) return;
@@ -2704,7 +2707,7 @@ async function guardarEditarPedido() {
 
 selPago('efectivo');
 selPagoModal('efectivo');
-cargarDatos();
+initEmojis(); cargarDatos();
 </script>
 </body>
 </html>
