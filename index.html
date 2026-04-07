@@ -2055,13 +2055,14 @@ async function confirmarYEnviarWA() {
   if(c && c.tel) {
     const metodo = pendingPedido.pago==='bizum'?'📱 Bizum':'💵 Efectivo';
     const estadoTexto = pendingPedido.estado==='pendiente'?'⏳ Pendiente de pago':'✅ Pagado';
-    const mensaje = '🥚 ¡Hola '+c.nombre+'!\n\n✅ Confirmamos tu pedido:\n\n'
-      + '🥚 '+pendingPedido.bandejas+' bandeja'+(pendingPedido.bandejas>1?'s':'')+' de 30 huevos L\n'
-      + '💰 Total: '+pendingPedido.total.toFixed(2)+'€\n'
-      + '💳 Método de pago: '+metodo+'\n'
-      + '📋 Estado del pago: '+estadoTexto+'\n'
-      + '📅 Entrega: '+formatDate(pendingPedido.fechaEntrega)+' ('+pendingPedido.dia+')\n\n'
-      + '¡Gracias por tu compra! 🙏';
+    var mensaje = '\uD83E\uDD5A \u00a1Hola ' + c.nombre + '!\n\n';
+    mensaje += '\u2705 Confirmamos tu pedido:\n\n';
+    mensaje += '\uD83E\uDD5A ' + pendingPedido.bandejas + ' bandeja' + (pendingPedido.bandejas>1?'s':'') + ' de 30 huevos L\n';
+    mensaje += '\uD83D\uDCB0 Total: ' + pendingPedido.total.toFixed(2) + '\u20ac\n';
+    mensaje += '\uD83D\uDCB3 M\u00e9todo de pago: ' + metodo + '\n';
+    mensaje += '\uD83D\uDCCB Estado del pago: ' + estadoTexto + '\n';
+    mensaje += '\uD83D\uDCC5 Entrega: ' + formatDate(pendingPedido.fechaEntrega) + ' (' + pendingPedido.dia + ')\n\n';
+    mensaje += '\u00a1Gracias por tu compra! \uD83D\uDE4F';
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
     console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
@@ -2115,9 +2116,14 @@ function enviarGracias(id) {
   if(!c) return toast('Cliente no encontrado');
   if(!c.tel) return toast('Este cliente no tiene teléfono');
 
-  const mensaje = '🥚 ¡Hola '+c.nombre+'! Gracias por tu compra, esperamos que disfrutes los huevos 😊\n\n¡Aquí seguimos para cuando los necesites! 🐔\n\n689 273 452 / 676 075 510';
-
-  var telLimpio = limpiarTelefono(c.tel);
+    var mensaje = '\uD83E\uDD5A \u00a1Hola ' + c.nombre + '!\n\n';
+    mensaje += '\u2705 Confirmamos tu pedido:\n\n';
+    mensaje += '\uD83E\uDD5A ' + pendingPedido.bandejas + ' bandeja' + (pendingPedido.bandejas>1?'s':'') + ' de 30 huevos L\n';
+    mensaje += '\uD83D\uDCB0 Total: ' + pendingPedido.total.toFixed(2) + '\u20ac\n';
+    mensaje += '\uD83D\uDCB3 M\u00e9todo de pago: ' + metodo + '\n';
+    mensaje += '\uD83D\uDCCB Estado del pago: ' + estadoTexto + '\n';
+    mensaje += '\uD83D\uDCC5 Entrega: ' + formatDate(pendingPedido.fechaEntrega) + ' (' + pendingPedido.dia + ')\n\n';
+    mensaje += '\u00a1Gracias por tu compra! \uD83D\uDE4F';
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
 var waLink=document.createElement('a');waLink.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);waLink.target='_blank';waLink.rel='noopener';document.body.appendChild(waLink);waLink.click();document.body.removeChild(waLink);
