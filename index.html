@@ -2052,8 +2052,8 @@ async function confirmarYEnviarWA() {
   // Send WhatsApp
   const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(pendingPedido.clienteId);});
   if(c && c.tel) {
-    const metodo = pendingPedido.pago==='bizum'?'📱 Bizum':'💵 Efectivo';
-    const estadoTexto = pendingPedido.estado==='pendiente'?'⏳ Pendiente de pago':'✅ Pagado';
+    const metodo = pendingPedido.pago==='bizum'?'Bizum':'Efectivo';
+    const estadoTexto = pendingPedido.estado==='pendiente'?'Pendiente de pago':'Pagado';
     var mensaje = '\uD83E\uDD5A \u00a1Hola ' + c.nombre + '!\n\n';
     mensaje += '\u2705 Confirmamos tu pedido:\n\n';
     mensaje += '\uD83E\uDD5A ' + pendingPedido.bandejas + ' bandeja' + (pendingPedido.bandejas>1?'s':'') + ' de 30 huevos L\n';
