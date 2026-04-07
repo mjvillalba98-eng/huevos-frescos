@@ -2071,19 +2071,21 @@ async function confirmarYEnviarWA() {
   if(c && c.tel) {
     const metodo = pendingPedido.pago==='bizum'?'Bizum':'Efectivo';
     const estadoTexto = pendingPedido.estado==='pendiente'?'Pendiente de pago':'Pagado';
-    var _hu=getEmoji('e-huevo'),_ch=getEmoji('e-check'),_di=getEmoji('e-dinero'),_ta=getEmoji('e-tarjeta'),_cl=getEmoji('e-clipboard'),_ca=getEmoji('e-calendar'),_gr=getEmoji('e-gracias');
     var mensaje = [
-      _hu + ' ¡Hola ' + c.nombre + '!',
+      '*Huevos Frescos*',
       '',
-      _ch + ' Confirmamos tu pedido:',
+      'Hola ' + c.nombre + '!',
       '',
-      _hu + ' ' + pendingPedido.bandejas + ' bandeja' + (pendingPedido.bandejas>1?'s':'') + ' de 30 huevos L',
-      _di + ' Total: ' + pendingPedido.total.toFixed(2) + '€',
-      _ta + ' Método de pago: ' + metodo,
-      _cl + ' Estado del pago: ' + estadoTexto,
-      _ca + ' Entrega: ' + formatDate(pendingPedido.fechaEntrega) + ' (' + pendingPedido.dia + ')',
+      '*Pedido confirmado*',
       '',
-      '¡Gracias por tu compra! ' + _gr
+      '- ' + pendingPedido.bandejas + ' bandeja' + (pendingPedido.bandejas>1?'s':'') + ' de 30 huevos L',
+      '- Total: ' + pendingPedido.total.toFixed(2) + '€',
+      '- Pago: ' + metodo,
+      '- Estado: ' + estadoTexto,
+      '- Entrega: ' + formatDate(pendingPedido.fechaEntrega) + ' (' + pendingPedido.dia + ')',
+      '',
+      'Gracias por tu compra!',
+      '*689 273 452 · 676 075 510*'
     ].join('\n');
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
