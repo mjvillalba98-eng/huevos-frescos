@@ -2035,20 +2035,20 @@ function editarConfirmacion() {
 }
 
 function getEmoji(id){ var el=document.getElementById(id); return el?el.textContent:''; }
+var E_HUEVO='',E_CHECK='',E_DINERO='',E_TARJETA='',E_CLIPBOARD='',E_CALENDAR='',E_GRACIAS='',E_GALLINA='',E_CESTA='',E_TELEFONO='',E_CORAZON='',E_RELOJ='',E_CONFETI='';
 function initEmojis(){
-E_HUEVO = getEmoji('e-huevo');
-var E_CHECK = getEmoji('e-check');
-var E_DINERO = getEmoji('e-dinero');
-var E_TARJETA = getEmoji('e-tarjeta');
-var E_CLIPBOARD = getEmoji('e-clipboard');
-var E_CALENDAR = getEmoji('e-calendar');
-var E_GRACIAS = getEmoji('e-gracias');
-var E_GALLINA = getEmoji('e-gallina');
-var E_CESTA = getEmoji('e-cesta');
-var E_TELEFONO = getEmoji('e-telefono');
-var E_CORAZON = getEmoji('e-corazon');
-var E_RELOJ = '';
-E_CONFETI = '';}
+  E_HUEVO = getEmoji('e-huevo');
+  E_CHECK = getEmoji('e-check');
+  E_DINERO = getEmoji('e-dinero');
+  E_TARJETA = getEmoji('e-tarjeta');
+  E_CLIPBOARD = getEmoji('e-clipboard');
+  E_CALENDAR = getEmoji('e-calendar');
+  E_GRACIAS = getEmoji('e-gracias');
+  E_GALLINA = getEmoji('e-gallina');
+  E_CESTA = getEmoji('e-cesta');
+  E_TELEFONO = getEmoji('e-telefono');
+  E_CORAZON = getEmoji('e-corazon');
+}
 
 async function confirmarYEnviarWA() {
   if(!pendingPedido) return;
