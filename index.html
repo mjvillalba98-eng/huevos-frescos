@@ -1433,7 +1433,7 @@ async function confirmarPosible(id) {
       + '\n¡Gracias por tu compra! 🙏';
     var telLimpio = limpiarTelefono(telCliente);
     if(!telLimpio) { showTab('pedidos'); toast('✅ Pedido confirmado'); return; }
-window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
   } else {
     showTab('pedidos');
     toast('✅ Pedido confirmado y creado');
@@ -2095,7 +2095,7 @@ async function confirmarYEnviarWA() {
     ].join('\n');
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
-    window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+    window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
   }
 }
 
@@ -2133,7 +2133,7 @@ function enviarGraciasPedido(pedidoId) {
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
 }
 
 function enviarGracias(id) {
@@ -2153,7 +2153,7 @@ function enviarGracias(id) {
     mensaje += '¡Gracias por tu compra! ' + E_GRACIAS;
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
 }
 
 
@@ -2612,7 +2612,7 @@ function enviarWhatsApp(clienteId) {
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
 }
 
 
