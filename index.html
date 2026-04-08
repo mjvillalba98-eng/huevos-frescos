@@ -2077,22 +2077,14 @@ async function confirmarYEnviarWA() {
   if(c && c.tel) {
     const metodo = pedidoGuardado.pago==='bizum'?'Bizum':'Efectivo';
     const estadoTexto = pedidoGuardado.estado==='pendiente'?'Pendiente de pago':'Pagado';
-    var mensaje = [
-      '*Huevos Frescos*',
-      '',
-      'Hola ' + c.nombre + '!',
-      '',
-      '*Pedido confirmado*',
-      '',
-      '- ' + pedidoGuardado.bandejas + ' bandeja' + (pedidoGuardado.bandejas>1?'s':'') + ' de 30 huevos L',
-      '- Total: ' + pedidoGuardado.total.toFixed(2) + '€',
-      '- Pago: ' + metodo,
-      '- Estado: ' + estadoTexto,
-      '- Entrega: ' + formatDate(pedidoGuardado.fechaEntrega) + ' (' + pedidoGuardado.dia + ')',
-      '',
-      'Gracias por tu compra!',
-      '*689 273 452 · 676 075 510*'
-    ].join('\n');
+    var mensaje = E_HUEVO + ' ¡Hola ' + c.nombre + '!\n\n'
+      + E_CHECK + ' Confirmamos tu pedido:\n\n'
+      + E_HUEVO + ' ' + pedidoGuardado.bandejas + ' bandeja' + (pedidoGuardado.bandejas>1?'s':'') + ' de 30 huevos L\n'
+      + E_DINERO + ' Total: ' + pedidoGuardado.total.toFixed(2) + '€\n'
+      + E_TARJETA + ' Método de pago: ' + metodo + '\n'
+      + E_CLIPBOARD + ' Estado del pago: ' + estadoTexto + '\n'
+      + E_CALENDAR + ' Entrega: ' + formatDate(pedidoGuardado.fechaEntrega) + ' (' + pedidoGuardado.dia + ')\n\n'
+      + '¡Gracias por tu compra! ' + E_GRACIAS;
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
     abrirWhatsApp(telLimpio, mensaje);
@@ -2124,7 +2116,10 @@ function cancelarConfirmacion() {
 }
 
 function abrirWhatsApp(tel, mensaje) {
-  var url = 'https://wa.me/' + tel + '?text=' + encodeURIComponent(mensaje);
+  var esMobil = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  var url = esMobil
+    ? 'whatsapp://send?phone=' + tel + '&text=' + encodeURIComponent(mensaje)
+    : 'https://wa.me/' + tel + '?text=' + encodeURIComponent(mensaje);
   var a = document.createElement('a');
   a.href = url;
   a.target = '_blank';
