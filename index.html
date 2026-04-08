@@ -1740,6 +1740,7 @@ function toggleFormPedido() {
     var today = getTodayStr();
     var fpEl = document.getElementById('p-fp-input'); if(fpEl) fpEl.value = today;
     var feEl = document.getElementById('p-fe-input'); if(feEl) feEl.value = today;
+    actualizarDiaPedidoInput();
     renderSelectClientes();
   } else {
     form.style.display = 'none';
@@ -2448,6 +2449,7 @@ function togglePrimerPedido() {
     var today = getTodayStr();
     var ppfp = document.getElementById('pp-fp-input'); if(ppfp) ppfp.value = today;
     var ppfe = document.getElementById('pp-fe-input'); if(ppfe) ppfe.value = today;
+    actualizarDiaPPInput();
     selPagoPP('efectivo');
   } else {
     form.style.display = 'none';
