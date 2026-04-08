@@ -2052,6 +2052,10 @@ function initEmojis(){
 
 async function confirmarYEnviarWA() {
   if(!pendingPedido) return;
+
+  // Capture pedido data BEFORE nullifying
+  var pedidoGuardado = pendingPedido;
+
   // Save pending client if exists
   if(pendingCliente) {
     if(!data.clientes) data.clientes=[];
@@ -2060,17 +2064,19 @@ async function confirmarYEnviarWA() {
     resetNuevoClienteForm();
   }
   if(!data.pedidos) data.pedidos=[];
-  data.pedidos.unshift(pendingPedido);
+  data.pedidos.unshift(pedidoGuardado);
   await guardarDatos();
+  pendingPedido = null;
   document.getElementById('modal-confirmar-pedido').classList.remove('open');
   renderPedidos();
   renderClientes();
+  toast('✓ Pedido guardado');
 
-  // Send WhatsApp
-  const c = (data.clientes||[]).find(function(c){return parseInt(c.id)===parseInt(pendingPedido.clienteId);});
+  // Send WhatsApp using saved pedido data
+  const c = (data.clientes||[]).find(function(cl){return parseInt(cl.id)===parseInt(pedidoGuardado.clienteId);});
   if(c && c.tel) {
-    const metodo = pendingPedido.pago==='bizum'?'Bizum':'Efectivo';
-    const estadoTexto = pendingPedido.estado==='pendiente'?'Pendiente de pago':'Pagado';
+    const metodo = pedidoGuardado.pago==='bizum'?'Bizum':'Efectivo';
+    const estadoTexto = pedidoGuardado.estado==='pendiente'?'Pendiente de pago':'Pagado';
     var mensaje = [
       '*Huevos Frescos*',
       '',
@@ -2078,21 +2084,19 @@ async function confirmarYEnviarWA() {
       '',
       '*Pedido confirmado*',
       '',
-      '- ' + pendingPedido.bandejas + ' bandeja' + (pendingPedido.bandejas>1?'s':'') + ' de 30 huevos L',
-      '- Total: ' + pendingPedido.total.toFixed(2) + '€',
+      '- ' + pedidoGuardado.bandejas + ' bandeja' + (pedidoGuardado.bandejas>1?'s':'') + ' de 30 huevos L',
+      '- Total: ' + pedidoGuardado.total.toFixed(2) + '€',
       '- Pago: ' + metodo,
       '- Estado: ' + estadoTexto,
-      '- Entrega: ' + formatDate(pendingPedido.fechaEntrega) + ' (' + pendingPedido.dia + ')',
+      '- Entrega: ' + formatDate(pedidoGuardado.fechaEntrega) + ' (' + pedidoGuardado.dia + ')',
       '',
       'Gracias por tu compra!',
       '*689 273 452 · 676 075 510*'
     ].join('\n');
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
-window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+    window.location.href='https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
   }
-  pendingPedido = null;
-  toast('✓ Pedido guardado');
 }
 
 async function confirmarSoloGuardar() {
