@@ -1433,7 +1433,7 @@ async function confirmarPosible(id) {
       + '\n¡Gracias por tu compra! 🙏';
     var telLimpio = limpiarTelefono(telCliente);
     if(!telLimpio) { showTab('pedidos'); toast('✅ Pedido confirmado'); return; }
-window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+abrirWhatsApp(telLimpio, mensaje);
   } else {
     showTab('pedidos');
     toast('✅ Pedido confirmado y creado');
@@ -2095,7 +2095,7 @@ async function confirmarYEnviarWA() {
     ].join('\n');
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
-    window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+    abrirWhatsApp(telLimpio, mensaje);
   }
 }
 
@@ -2123,6 +2123,17 @@ function cancelarConfirmacion() {
   pendingPedido = null;
 }
 
+function abrirWhatsApp(tel, mensaje) {
+  var url = 'https://wa.me/' + tel + '?text=' + encodeURIComponent(mensaje);
+  var a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); }, 500);
+}
+
 
 function enviarGraciasPedido(pedidoId) {
   var p = (data.pedidos||[]).find(function(p){ return String(p.id)===String(pedidoId); });
@@ -2133,7 +2144,7 @@ function enviarGraciasPedido(pedidoId) {
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+abrirWhatsApp(telLimpio, mensaje);
 }
 
 function enviarGracias(id) {
@@ -2153,7 +2164,7 @@ function enviarGracias(id) {
     mensaje += '¡Gracias por tu compra! ' + E_GRACIAS;
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+abrirWhatsApp(telLimpio, mensaje);
 }
 
 
@@ -2612,7 +2623,7 @@ function enviarWhatsApp(clienteId) {
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
   console.log('WA URL:', 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje));
-window.open('https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje), '_blank');
+abrirWhatsApp(telLimpio, mensaje);
 }
 
 
