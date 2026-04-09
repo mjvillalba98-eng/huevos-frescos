@@ -1169,7 +1169,7 @@ function renderClientes(busca='') {
         <div style="flex:1;min-width:0">
           <div class="client-name">${c.nombre}</div>
           ${c.tel?`<div class="client-info">📞 ${c.tel}</div>`:''}
-          ${c.dir?`<div class="client-info">📍 ${c.dir}</div>`:''}
+          ${c.dir?`<div class="client-info"><a href="https://maps.google.com/?q=${encodeURIComponent(c.dir)}" target="_blank" style="color:var(--muted);text-decoration:none;">📍 ${c.dir}</a></div>`:''}
           ${c.dia?`<div class="client-info">📅 ${c.dia}</div>`:''}
         </div>
         ${badge(c.id)}
@@ -2154,7 +2154,7 @@ async function confirmarYEnviarWA() {
       + E_CLIPBOARD + ' Estado del pago: ' + estadoTexto + '\n'
       + E_CALENDAR + ' Entrega: ' + formatDate(pedidoGuardado.fechaEntrega) + ' (' + pedidoGuardado.dia + ')\n\n'
       + '¡Gracias por tu compra! ' + E_GRACIAS + '\n\n'
-      + '\u{1F512} _Tus datos (nombre y teléfono) se usan únicamente para gestionar tus pedidos y nunca se comparten con terceros._';
+      + '\n🔒 _Tus datos (nombre, teléfono y dirección) se usan únicamente para gestionar tus pedidos y entregas. Nunca se comparten con terceros. Puedes pedir su eliminación en cualquier momento._';
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
     abrirWhatsApp(telLimpio, mensaje);
@@ -2568,7 +2568,7 @@ function renderProximos() {
       + '<div class="client-header">'
       + '<div style="flex:1">'
       + '<div class="client-name">'+(c?c.nombre:'—')+'</div>'
-      + (c&&c.dir?'<div class="client-info">📍 '+c.dir+'</div>':'')
+      + (c&&c.dir?'<div class="client-info"><a href="https://maps.google.com/?q='+encodeURIComponent(c.dir)+'" target="_blank" style="color:var(--muted);text-decoration:none;">📍 '+c.dir+'</a></div>':'')
       + (c&&c.tel?'<div class="client-info">📞 '+c.tel+'</div>':'')
       + '</div>'
       + '<span class="badge warn">⏳ Pendiente</span>'
