@@ -741,8 +741,8 @@
     <div class="form-group" style="margin-bottom:8px">
       <label>Tipo de huevo</label>
       <div style="display:flex;gap:8px;">
-        <button type="button" class="pago-btn sel-efectivo" id="mtipo-suelo" onclick="selTipoModal('suelo')">🏠 Nº2 Suelo — 8.50€</button>
-        <button type="button" class="pago-btn" id="mtipo-campero" onclick="selTipoModal('campero')">🌿 Nº1 Campero — 15€</button>
+        <button type="button" class="pago-btn sel-efectivo" id="mtipo-suelo" onclick="selTipoModal('suelo')" style="font-size:12px;">🏠 Suelo 8.50€</button>
+        <button type="button" class="pago-btn" id="mtipo-campero" onclick="selTipoModal('campero')" style="font-size:12px;">🌿 Campero 15€</button>
       </div>
     </div>
     <div class="form-row">
@@ -2166,17 +2166,17 @@ function editarConfirmacion() {
 function getEmoji(id){ var el=document.getElementById(id); if(!el) return ''; var d=document.createElement('div'); d.innerHTML=el.innerHTML; return d.textContent||d.innerText||''; }
 var E_HUEVO='',E_CHECK='',E_DINERO='',E_TARJETA='',E_CLIPBOARD='',E_CALENDAR='',E_GRACIAS='',E_GALLINA='',E_CESTA='',E_TELEFONO='',E_CORAZON='',E_RELOJ='',E_CONFETI='';
 function initEmojis(){
-  E_HUEVO = '🥚';
-  E_CHECK = '✅';
-  E_DINERO = '💰';
-  E_TARJETA = '💳';
-  E_CLIPBOARD = '📋';
-  E_CALENDAR = '📅';
-  E_GRACIAS = '🙏';
-  E_GALLINA = '🐔';
-  E_CESTA = '🧺';
-  E_TELEFONO = '📞';
-  E_CORAZON = '❤️';
+  E_HUEVO = String.fromCodePoint(0x1F95A);
+  E_CHECK = String.fromCodePoint(0x2705);
+  E_DINERO = String.fromCodePoint(0x1F4B0);
+  E_TARJETA = String.fromCodePoint(0x1F4B3);
+  E_CLIPBOARD = String.fromCodePoint(0x1F4CB);
+  E_CALENDAR = String.fromCodePoint(0x1F4C5);
+  E_GRACIAS = String.fromCodePoint(0x1F64F);
+  E_GALLINA = String.fromCodePoint(0x1F414);
+  E_CESTA = String.fromCodePoint(0x1F9FA);
+  E_TELEFONO = String.fromCodePoint(0x1F4DE);
+  E_CORAZON = String.fromCodePoint(0x2764);
 }
 
 async function confirmarYEnviarWA() {
@@ -2250,13 +2250,17 @@ function abrirWhatsApp(tel, mensaje) {
   var url = esMobil
     ? 'whatsapp://send?phone=' + tel + '&text=' + encodeURIComponent(mensaje)
     : 'https://wa.me/' + tel + '?text=' + encodeURIComponent(mensaje);
-  var a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function(){ document.body.removeChild(a); }, 500);
+  if(esMobil) {
+    var a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); }, 500);
+  } else {
+    window.open(url, 'whatsapp_huevos');
+  }
 }
 
 
