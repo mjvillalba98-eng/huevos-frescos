@@ -139,6 +139,7 @@
   <button class="tab" onclick="showTab('compras')">Compras</button>
   <button class="tab" onclick="showTab('seguimiento')">Seguimiento</button>
   <button class="tab" onclick="showTab('posibles')">Posibles</button>
+  <button class="tab" onclick="showTab('noticias')">&#x1F4E2; Noticias</button>
 </div>
 <div class="content">
 
@@ -732,6 +733,47 @@
 
 >
 
+
+  <!-- NOTICIAS -->
+  <div id="tab-noticias" class="section-hidden">
+    <div class="card" style="background:var(--light);border-color:var(--amber);margin-bottom:10px;">
+      <div style="font-size:13px;color:var(--brown);line-height:1.6;">
+        &#x1F4E2; Envia mensajes a todos tus clientes o a un grupo de una sola vez.
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Nueva campana</div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:6px;">Enviar a</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="pago-btn sel-efectivo" id="ntodos" onclick="selDestinoNoticia('todos')">&#x1F95A; Todos</button>
+          <button type="button" class="pago-btn" id="ncampero" onclick="selDestinoNoticia('campero')">&#x1F33F; Campero</button>
+          <button type="button" class="pago-btn" id="nsuelo" onclick="selDestinoNoticia('suelo')">&#x1F3E0; Suelo</button>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:6px;">Tipo de mensaje</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="pago-btn sel-efectivo" id="ntipo-novedad" onclick="selTipoNoticia('novedad')">&#x1F195; Novedad</button>
+          <button type="button" class="pago-btn" id="ntipo-recordatorio" onclick="selTipoNoticia('recordatorio')">&#x23F0; Recordatorio</button>
+          <button type="button" class="pago-btn" id="ntipo-oferta" onclick="selTipoNoticia('oferta')">&#x1F381; Oferta</button>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:6px;">Vista previa</label>
+        <div id="noticia-preview" style="background:var(--light);border-radius:10px;padding:12px;font-size:13px;color:var(--brown);line-height:1.6;border:1px solid var(--border);white-space:pre-line;min-height:80px;"></div>
+      </div>
+      <div style="background:var(--bg);border-radius:10px;padding:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);">
+        <div style="font-size:13px;color:var(--brown);">Destinatarios</div>
+        <div style="font-size:16px;font-weight:700;color:var(--orange);" id="noticia-count">0 clientes</div>
+      </div>
+      <button onclick="enviarCampanaNoticia()" id="btn-enviar-noticia" style="width:100%;background:var(--orange);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">&#x1F4F2; Enviar campana</button>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Historial</div>
+      <div id="lista-noticias"><div class="empty"><div class="icon">&#x1F4E2;</div><p>Sin campanas enviadas</p></div></div>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL PEDIDO RÁPIDO -->
@@ -1082,10 +1124,10 @@ function selPagoModal(tipo) {
 }
 
 function showTab(t) {
-  ['clientes','pedidos','compras','seguimiento','posibles'].forEach(id =>
+  ['clientes','pedidos','compras','seguimiento','posibles','noticias'].forEach(id =>
     document.getElementById('tab-'+id).classList.toggle('section-hidden', id!==t));
   document.querySelectorAll('.tab').forEach((el,i) =>
-    el.classList.toggle('active', ['clientes','pedidos','compras','seguimiento','posibles'][i]===t));
+    el.classList.toggle('active', ['clientes','pedidos','compras','seguimiento','posibles','noticias'][i]===t));
   const today = new Date();
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
 
@@ -1093,6 +1135,7 @@ function showTab(t) {
   if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderPrecios();renderPerdidas();}
   if(t==='seguimiento'){renderSeguimiento();}
   if(t==='posibles'){renderPosiblesTab();poblarDatalistClientes();}
+  if(t==='noticias'){renderNoticias();}
 }
 
 async function agregarCliente() {
@@ -1227,7 +1270,6 @@ function renderClientes(busca='') {
         <button class="btn-sm add" onclick="event.stopPropagation();abrirModal(${c.id})">+ Pedido</button>
         <button class="btn-sm edit" onclick="event.stopPropagation();abrirEditar(${c.id})">✏️ Editar</button>
         ${c.tel?`<button class="btn-sm wa" onclick="event.stopPropagation();enviarWhatsApp(${c.id})">📲 WA</button>`:''}
-        ${c.tel?`<button class="btn-sm" onclick="event.stopPropagation();enviarNovedadCampero(${c.id})" style="background:#E8F5E9;color:#2D7A4F;">🌿 Novedad</button>`:''}
         <button class="btn-sm del" onclick="event.stopPropagation();eliminarCliente(${c.id})">Eliminar</button>
       </div>
     </div>`;
@@ -2927,6 +2969,110 @@ if(sessionStorage.getItem('hf-auth') === '1') {
 } else {
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app-content').style.display = 'none';
+}
+
+
+// NOTICIAS
+var noticiaDestino = 'todos';
+var noticiaTipo = 'novedad';
+
+function selDestinoNoticia(dest) {
+  noticiaDestino = dest;
+  ['todos','campero','suelo'].forEach(function(d) {
+    var btn = document.getElementById('n'+d);
+    if(btn) btn.className = 'pago-btn'+(d===dest?' sel-efectivo':'');
+  });
+  actualizarPreviewNoticia();
+}
+
+function selTipoNoticia(tipo) {
+  noticiaTipo = tipo;
+  ['novedad','recordatorio','oferta'].forEach(function(t) {
+    var btn = document.getElementById('ntipo-'+t);
+    if(btn) btn.className = 'pago-btn'+(t===tipo?' sel-efectivo':'');
+  });
+  actualizarPreviewNoticia();
+}
+
+function getClientesNoticia() {
+  var clientes = (data.clientes||[]).filter(function(c){ return c.tel; });
+  if(noticiaDestino === 'campero') return clientes.filter(function(c){ return c.tipoPreferido==='campero'; });
+  if(noticiaDestino === 'suelo') return clientes.filter(function(c){ return c.tipoPreferido==='suelo'||!c.tipoPreferido||c.tipoPreferido==='ambos'; });
+  return clientes;
+}
+
+function getMensajeNoticia(nombre) {
+  var huevo = decodeURIComponent('%F0%9F%A5%9A');
+  var casa = decodeURIComponent('%F0%9F%8F%A0');
+  var planta = decodeURIComponent('%F0%9F%8C%BF');
+  var pollo = decodeURIComponent('%F0%9F%90%94');
+  var corazon = decodeURIComponent('%E2%9D%A4');
+  var tel = decodeURIComponent('%F0%9F%93%9E');
+  var smile = decodeURIComponent('%F0%9F%98%8A');
+  if(noticiaTipo === 'novedad') {
+    return huevo+' Hola '+nombre+'! Novedad por aqui '+smile+'\n\nAhora tenemos dos tipos de huevos frescos:\n'+casa+' *N2 Suelo* (gallinero sin jaula) - 8.50EUR\n'+planta+' *N1 Campero* (gallinas en aire libre) - 15EUR\n\nMisma frescura, distinto origen '+pollo+'\n\nCual prefieres? Respondeme y te lo apunto '+smile;
+  } else if(noticiaTipo === 'recordatorio') {
+    return huevo+' Hola '+nombre+'! Te echamos de menos '+smile+'\n\nEsta semana todavia no has pedido... Todo bien?\n\n'+casa+' *N2 Suelo* - 8.50EUR\n'+planta+' *N1 Campero* - 15EUR\n\n'+tel+' 689 273 452 / 676 075 510';
+  } else {
+    return huevo+' Hola '+nombre+'! Oferta especial '+corazon+'\n\nEsta semana: lleva 2 bandejas y te hacemos precio especial.\n\n'+casa+' *N2 Suelo* - 8.50EUR\n'+planta+' *N1 Campero* - 15EUR\n\nResponde y te lo preparo hoy mismo '+smile;
+  }
+}
+
+function actualizarPreviewNoticia() {
+  var preview = document.getElementById('noticia-preview');
+  var count = document.getElementById('noticia-count');
+  var clientes = getClientesNoticia();
+  if(preview) preview.textContent = getMensajeNoticia('[nombre]');
+  if(count) count.textContent = clientes.length+' cliente'+(clientes.length!==1?'s':'');
+}
+
+function renderNoticias() {
+  actualizarPreviewNoticia();
+  var lista = document.getElementById('lista-noticias');
+  if(!lista) return;
+  var campannas = data.campannas||[];
+  if(!campannas.length) {
+    lista.innerHTML = '<div class="empty"><div class="icon">'+decodeURIComponent('%F0%9F%93%A2')+'</div><p>Sin campanas enviadas</p></div>';
+    return;
+  }
+  var meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  lista.innerHTML = campannas.slice(0,10).map(function(camp) {
+    var d = new Date(camp.fecha);
+    var fechaStr = d.getDate()+' '+meses[d.getMonth()]+' '+d.getFullYear();
+    var tipoLabel = camp.tipo==='novedad'?'Novedad':camp.tipo==='recordatorio'?'Recordatorio':'Oferta';
+    var destLabel = camp.destino==='campero'?'Campero':camp.destino==='suelo'?'Suelo':'Todos';
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--border);">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<div style="font-size:13px;font-weight:600;color:var(--brown);">'+tipoLabel+' - '+destLabel+'</div>'
+      + '<div style="font-size:11px;color:var(--muted);">'+fechaStr+'</div>'
+      + '</div>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:3px;">'+camp.enviados+' mensajes enviados</div>'
+      + '</div>';
+  }).join('');
+}
+
+async function enviarCampanaNoticia() {
+  var clientes = getClientesNoticia();
+  if(!clientes.length) return toast('No hay clientes con telefono en ese grupo');
+  var btn = document.getElementById('btn-enviar-noticia');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  var idx = 0; var enviados = 0;
+  function enviarSiguiente() {
+    if(idx >= clientes.length) {
+      if(!data.campannas) data.campannas = [];
+      data.campannas.unshift({id:Date.now(), tipo:noticiaTipo, destino:noticiaDestino, enviados:enviados, fecha:new Date().toISOString()});
+      guardarDatos(); renderNoticias();
+      btn.disabled = false; btn.textContent = decodeURIComponent('%F0%9F%93%B2')+' Enviar campana';
+      toast(decodeURIComponent('%E2%9C%85')+' Campana enviada a '+enviados+' clientes');
+      return;
+    }
+    var cliente = clientes[idx];
+    var telLimpio = limpiarTelefono(cliente.tel);
+    if(telLimpio) { abrirWhatsApp(telLimpio, getMensajeNoticia(cliente.nombre)); enviados++; }
+    idx++;
+    setTimeout(enviarSiguiente, 1800);
+  }
+  enviarSiguiente();
 }
 
 selPago('efectivo');
