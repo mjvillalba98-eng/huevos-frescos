@@ -2265,18 +2265,11 @@ function enviarNovedadCampero(clienteId) {
   if(!c || !c.tel) return toast('Este cliente no tiene teléfono');
   var telLimpio = limpiarTelefono(c.tel);
   if(!telLimpio) return toast('Número no válido');
-  var mensaje = E_HUEVO + ' ¡Hola ' + c.nombre + '! Novedad por aquí 😊
-
-'
-    + 'Ahora tenemos dos opciones:
-'
-    + '🏠 *Suelo Nº2* (gallinero sin jaula) — 8.50€
-'
-    + '🌿 *Campero Nº1* (gallinas en aire libre) — 15€
-
-'
+  var mensaje = E_HUEVO + ' ¡Hola ' + c.nombre + '! Novedad por aquí 😊\n\n'
+    + 'Ahora tenemos dos opciones:\n'
+    + '🏠 *Suelo Nº2* (gallinero sin jaula) — 8.50€\n'
+    + '🌿 *Campero Nº1* (gallinas en aire libre) — 15€\n\n'
     + 'Misma frescura, distinto origen 🐔 ¿Con cuál te quedas?';
-  abrirWhatsApp(telLimpio, mensaje);
 }
 
 function enviarGraciasPedido(pedidoId) {
