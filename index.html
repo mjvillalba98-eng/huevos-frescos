@@ -738,6 +738,13 @@
 <div class="modal-bg" id="modal-pedido">
   <div class="modal">
     <h3>Pedido — <span id="modal-nombre"></span></h3>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Tipo de huevo</label>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="pago-btn sel-efectivo" id="mtipo-suelo" onclick="selTipoModal('suelo')">🏠 Nº2 Suelo — 8.50€</button>
+        <button type="button" class="pago-btn" id="mtipo-campero" onclick="selTipoModal('campero')">🌿 Nº1 Campero — 15€</button>
+      </div>
+    </div>
     <div class="form-row">
       <div class="form-group"><label>Bandejas</label><input id="m-bandejas" type="number" min="1" value="1"/></div>
       <div class="form-group"><label>Precio venta (€)</label><input id="m-precio" type="number" value="8.50" step="0.01"/></div>
@@ -1220,6 +1227,7 @@ function renderClientes(busca='') {
         <button class="btn-sm add" onclick="event.stopPropagation();abrirModal(${c.id})">+ Pedido</button>
         <button class="btn-sm edit" onclick="event.stopPropagation();abrirEditar(${c.id})">✏️ Editar</button>
         ${c.tel?`<button class="btn-sm wa" onclick="event.stopPropagation();enviarWhatsApp(${c.id})">📲 WA</button>`:''}
+        ${c.tel?`<button class="btn-sm" onclick="event.stopPropagation();enviarNovedadCampero(${c.id})" style="background:#E8F5E9;color:#2D7A4F;">🌿 Novedad</button>`:''}
         <button class="btn-sm del" onclick="event.stopPropagation();eliminarCliente(${c.id})">Eliminar</button>
       </div>
     </div>`;
@@ -1270,6 +1278,7 @@ function abrirModal(clienteId) {
   const c=(data.clientes||[]).find(c=>c.id===clienteId);
   document.getElementById('modal-nombre').textContent=c.nombre;
   document.getElementById('m-bandejas').value=1;
+  tipoModalSel='suelo'; if(document.getElementById('mtipo-suelo')) selTipoModal('suelo');
   document.getElementById('m-precio').value='8.50';
   window.selPagoModal('efectivo');
   var today = getTodayStr();
@@ -1293,7 +1302,7 @@ async function guardarModalPedido() {
   btn.disabled=true; btn.textContent='Guardando...';
   if(!data.pedidos) data.pedidos=[];
   var mFranja = document.getElementById('m-franja') ? document.getElementById('m-franja').value : '';
-  data.pedidos.unshift({id:Date.now(),clienteId:modalClienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,franja:mFranja,pago:pagoModalSel,estado:estadoModalSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString()});
+  data.pedidos.unshift({id:Date.now(),clienteId:modalClienteId,bandejas,precio,total:+(bandejas*precio).toFixed(2),dia,franja:mFranja,pago:pagoModalSel,estado:estadoModalSel,fechaPedido,fechaEntrega,fecha:new Date().toISOString(),tipo:tipoModalSel});
   await guardarDatos();
   btn.disabled=false; btn.textContent='Guardar';
   window.cerrarModal(); renderClientes(); toast('✓ Pedido registrado');
@@ -1940,6 +1949,21 @@ async function agregarCompra() {
   renderCompras(); updateStatsCompras(); toast('✓ Compra registrada');
 }
 
+function editarTipoCompra(id) {
+  var c = (data.compras||[]).find(function(c){return c.id===id;});
+  if(!c) return;
+  var actual = c.tipo||'suelo';
+  var nuevo = actual==='suelo' ? 'campero' : 'suelo';
+  var label = nuevo==='campero' ? '🌿 Nº1 Campero' : '🏠 Nº2 Suelo';
+  if(confirm('¿Cambiar esta compra a '+label+'?')) {
+    c.tipo = nuevo;
+    guardarDatos();
+    renderCompras();
+    updateStatsCompras();
+    toast('Tipo actualizado a '+label);
+  }
+}
+
 async function eliminarCompra(id) {
   if(!confirm('¿Eliminar esta compra?')) return;
   data.compras=(data.compras||[]).filter(c=>c.id!==id);
@@ -1968,6 +1992,7 @@ function renderCompras() {
       + '<div style="font-weight:600;font-size:14px;">'+(c.tipo==='campero'?'🌿 ':'')+c.bandejas+' bandejas × '+c.precio.toFixed(2)+'€'+(c.tipo==='campero'?' (Campero)':' (Suelo)')+'</div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
       + '<div style="font-weight:700;color:var(--red);font-size:15px;">-'+c.total.toFixed(2)+'€</div>'
+      + '<button onclick="editarTipoCompra('+c.id+')" style="background:#E8E0FF;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;color:#5533CC;font-weight:600;">Tipo</button>'
       + '<button onclick="eliminarCompra('+c.id+')" style="background:#FFE8E8;border:none;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:14px;color:#B83232;">🗑</button>'
       + '</div></div>'
       + '<div style="font-size:12px;color:var(--muted);">📅 '+formatDate(c.fecha)+(c.notas?' · '+c.notas:'')+'</div>'
@@ -2234,6 +2259,25 @@ function abrirWhatsApp(tel, mensaje) {
   setTimeout(function(){ document.body.removeChild(a); }, 500);
 }
 
+
+function enviarNovedadCampero(clienteId) {
+  var c = (data.clientes||[]).find(function(c){return String(c.id)===String(clienteId);});
+  if(!c || !c.tel) return toast('Este cliente no tiene teléfono');
+  var telLimpio = limpiarTelefono(c.tel);
+  if(!telLimpio) return toast('Número no válido');
+  var mensaje = E_HUEVO + ' ¡Hola ' + c.nombre + '! Novedad por aquí 😊
+
+'
+    + 'Ahora tenemos dos opciones:
+'
+    + '🏠 *Suelo Nº2* (gallinero sin jaula) — 8.50€
+'
+    + '🌿 *Campero Nº1* (gallinas en aire libre) — 15€
+
+'
+    + 'Misma frescura, distinto origen 🐔 ¿Con cuál te quedas?';
+  abrirWhatsApp(telLimpio, mensaje);
+}
 
 function enviarGraciasPedido(pedidoId) {
   var p = (data.pedidos||[]).find(function(p){ return String(p.id)===String(pedidoId); });
@@ -2826,6 +2870,7 @@ async function guardarEditarPedido() {
 
 // TIPO DE HUEVO
 var tipoPedidoSel = 'suelo';
+var tipoModalSel = 'suelo';
 var tipoCompraSel = 'suelo';
 var tipoClienteSel = 'ambos';
 
@@ -2841,6 +2886,13 @@ function selTipoCompra(tipo) {
   document.getElementById('ctipo-suelo').className = 'pago-btn' + (tipo==='suelo'?' sel-efectivo':'');
   document.getElementById('ctipo-campero').className = 'pago-btn' + (tipo==='campero'?' sel-efectivo':'');
   document.getElementById('c-precio').value = tipo==='campero' ? '13.00' : '7.00';
+}
+
+function selTipoModal(tipo) {
+  tipoModalSel = tipo;
+  document.getElementById('mtipo-suelo').className = 'pago-btn' + (tipo==='suelo'?' sel-efectivo':'');
+  document.getElementById('mtipo-campero').className = 'pago-btn' + (tipo==='campero'?' sel-efectivo':'');
+  document.getElementById('m-precio').value = tipo==='campero' ? '15.00' : '8.50';
 }
 
 function selTipoCliente(tipo) {
@@ -2871,6 +2923,8 @@ function checkPassword() {
 if(sessionStorage.getItem('hf-auth') === '1') {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-content').style.display = 'block';
+  initEmojis();
+  cargarDatos();
 } else {
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app-content').style.display = 'none';
@@ -2881,6 +2935,7 @@ selPagoModal('efectivo');
 selTipoPedido('suelo');
 selTipoCompra('suelo');
 selTipoCliente('ambos');
+if(document.getElementById('mtipo-suelo')) selTipoModal('suelo');
 
 // PERDIDAS
 var motivoPerdidaSel = 'Rotura';
