@@ -348,7 +348,7 @@
     <!-- VENDIDO -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Vendido</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
         <div class="stat" style="margin:0;padding:10px;">
           <div class="num" style="font-size:18px;" id="stat-total-vendido">—</div>
           <div class="lbl">Total facturado</div>
@@ -357,7 +357,12 @@
         <div class="stat green" style="margin:0;padding:10px;">
           <div class="num" id="stat-ganancia" style="font-size:18px;">—</div>
           <div class="lbl">Ganancia neta</div>
-          <div style="font-size:11px;color:var(--muted);">1.50€ por bandeja</div>
+          <div style="font-size:11px;color:var(--muted);">descontando pérdidas</div>
+        </div>
+        <div class="stat red" style="margin:0;padding:10px;">
+          <div class="num" id="stat-perdidas-total" style="font-size:18px;">—</div>
+          <div class="lbl">Pérdidas</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-perdidas-ban">— bandejas</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
@@ -426,6 +431,41 @@
         <div style="font-size:12px;font-weight:600;color:#856404;margin-bottom:3px;">Compra recomendada al proveedor</div>
         <div style="font-size:11px;color:#856404;" id="alerta-stock-texto">—</div>
       </div>
+    </div>
+
+    <!-- PERDIDAS -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Salidas sin cobro</div>
+      <button onclick="togglePerdidaForm()" id="btn-toggle-perdida" style="width:100%;background:var(--light);color:var(--brown);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;">
+        <span id="icon-perdida">+</span> Registrar pérdida / cortesía
+      </button>
+      <div id="perdida-form" style="display:none;background:var(--light);border-radius:10px;padding:12px;border:1px solid var(--border);margin-bottom:10px;">
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;color:var(--muted);font-weight:500;">Bandejas</label>
+            <input id="perd-bandejas" type="number" min="1" value="1" style="border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;background:white;color:var(--brown);outline:none;width:100%;"/>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;color:var(--muted);font-weight:500;">Precio (€)</label>
+            <input id="perd-precio" type="number" value="8.50" step="0.01" style="border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;background:white;color:var(--brown);outline:none;width:100%;"/>
+          </div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <label style="font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:6px;">Motivo</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="perd-motivo-btns">
+            <button type="button" class="pago-btn sel-pendiente" id="perdmot-rotura" onclick="selMotivoPerdida('Rotura')">🥚 Rotura</button>
+            <button type="button" class="pago-btn" id="perdmot-reposicion" onclick="selMotivoPerdida('Reposición')">🔄 Reposición</button>
+            <button type="button" class="pago-btn" id="perdmot-cortesia" onclick="selMotivoPerdida('Cortesía')">🎁 Cortesía</button>
+            <button type="button" class="pago-btn" id="perdmot-otro" onclick="selMotivoPerdida('Otro')">📝 Otro</button>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:12px;color:var(--muted);font-weight:500;">Nota (opcional)</label>
+          <input id="perd-nota" placeholder="Ej: reposición cliente Raquel" autocomplete="off" style="border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px;background:white;color:var(--brown);outline:none;width:100%;"/>
+        </div>
+        <button onclick="guardarPerdida()" id="btn-guardar-perdida" style="width:100%;background:var(--red);color:white;border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Registrar pérdida</button>
+      </div>
+      <div id="lista-perdidas"><div class="empty"><div class="icon">✅</div><p>Sin pérdidas registradas</p></div></div>
     </div>
 
     <!-- RESUMEN -->
@@ -991,7 +1031,7 @@ function showTab(t) {
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
 
   if(t==='pedidos'){renderSelectClientes();renderPedidos();}
-  if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderPrecios();}
+  if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderPrecios();renderPerdidas();}
   if(t==='seguimiento'){renderSeguimiento();}
   if(t==='posibles'){renderPosiblesTab();poblarDatalistClientes();}
 }
@@ -1493,7 +1533,7 @@ function generarNotificaciones() {
   // Check stock deficit
   var bandejaCompradas = (data.compras||[]).reduce(function(s,c){return s+c.bandejas;},0);
   var bandejasPedidas = (data.pedidos||[]).reduce(function(s,p){return s+p.bandejas;},0);
-  var stock = bandejaCompradas - bandejasPedidas;
+  var stock = bandejaCompradas - bandejasPedidas - bandejasPerdidas;
   if(stock <= 0) {
     notifs.push({tipo:'danger', titulo:'Stock en déficit — compra urgente', sub:'Tienes '+stock+' bandejas disponibles', accion:'compras'});
   } else if(stock <= 5) {
@@ -1895,9 +1935,12 @@ function updateStatsCompras() {
   var precioMedio = bandejaCompradas>0 ? totalComprado/bandejaCompradas : 0;
 
   // VENDIDO
+  var perdidas = data.perdidas||[];
+  var totalPerdidas = perdidas.reduce(function(s,p){return s+p.total;},0);
+  var bandejasPerdidas = perdidas.reduce(function(s,p){return s+p.bandejas;},0);
   var totalVendido = pedidos.reduce(function(s,p){return s+p.total;},0);
   var bandejasPedidas = pedidos.reduce(function(s,p){return s+p.bandejas;},0);
-  var ganancia = totalVendido - totalComprado;
+  var ganancia = totalVendido - totalComprado - totalPerdidas;
 
   // Por metodo de pago
   var efectivoPedidos = pedidos.filter(function(p){return p.pago==='efectivo';});
@@ -1966,6 +2009,12 @@ function updateStatsCompras() {
   set('stat-efectivo-ban', banEfectivo+' bandejas');
   set('stat-bizum-cobrado', totalBizum.toFixed(2)+'€');
   set('stat-bizum-ban', banBizum+' bandejas');
+
+  // PERDIDAS
+  var perdEl = document.getElementById('stat-perdidas-total');
+  if(perdEl){ perdEl.textContent = totalPerdidas>0 ? totalPerdidas.toFixed(2)+'€' : '0.00€'; }
+  var set2 = function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
+  set2('stat-perdidas-ban', bandejasPerdidas+' bandeja'+(bandejasPerdidas!==1?'s':''));
 
   // STOCK
   set('stat-ban-compradas', bandejaCompradas);
@@ -2722,6 +2771,81 @@ async function guardarEditarPedido() {
 
 selPago('efectivo');
 selPagoModal('efectivo');
+
+// PERDIDAS
+var motivoPerdidaSel = 'Rotura';
+function selMotivoPerdida(motivo) {
+  motivoPerdidaSel = motivo;
+  ['Rotura','Reposición','Cortesía','Otro'].forEach(function(m) {
+    var key = m === 'Reposición' ? 'reposicion' : m === 'Cortesía' ? 'cortesia' : m.toLowerCase();
+    var btn = document.getElementById('perdmot-'+key);
+    if(btn) btn.className = 'pago-btn' + (m===motivo?' sel-pendiente':'');
+  });
+}
+
+function togglePerdidaForm() {
+  var form = document.getElementById('perdida-form');
+  var icon = document.getElementById('icon-perdida');
+  if(form.style.display === 'none') {
+    form.style.display = 'block';
+    icon.textContent = '−';
+  } else {
+    form.style.display = 'none';
+    icon.textContent = '+';
+  }
+}
+
+async function guardarPerdida() {
+  var bandejas = parseInt(document.getElementById('perd-bandejas').value)||1;
+  var precio = parseFloat(document.getElementById('perd-precio').value)||8.5;
+  var nota = document.getElementById('perd-nota').value.trim();
+  var total = Math.round(bandejas * precio * 100) / 100;
+  var btn = document.getElementById('btn-guardar-perdida');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  if(!data.perdidas) data.perdidas = [];
+  data.perdidas.unshift({id:Date.now(), bandejas, precio, total, motivo:motivoPerdidaSel, nota, fecha:new Date().toISOString()});
+  await guardarDatos();
+  btn.disabled = false; btn.textContent = 'Registrar pérdida';
+  document.getElementById('perd-bandejas').value = 1;
+  document.getElementById('perd-nota').value = '';
+  document.getElementById('perdida-form').style.display = 'none';
+  document.getElementById('icon-perdida').textContent = '+';
+  renderPerdidas();
+  updateStatsCompras();
+  toast('✓ Pérdida registrada');
+}
+
+async function eliminarPerdida(id) {
+  if(!confirm('¿Eliminar esta pérdida?')) return;
+  data.perdidas = (data.perdidas||[]).filter(function(p){return p.id!==id;});
+  await guardarDatos();
+  renderPerdidas();
+  updateStatsCompras();
+  toast('Pérdida eliminada');
+}
+
+function renderPerdidas() {
+  var lista = document.getElementById('lista-perdidas');
+  if(!lista) return;
+  var perdidas = data.perdidas||[];
+  if(!perdidas.length) {
+    lista.innerHTML = '<div class="empty"><div class="icon">✅</div><p>Sin pérdidas registradas</p></div>';
+    return;
+  }
+  var meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  lista.innerHTML = perdidas.map(function(p) {
+    var d = new Date(p.fecha);
+    var fechaStr = d.getDate()+' '+meses[d.getMonth()]+' '+d.getFullYear();
+    return '<div class="pedido-row">'
+      + '<div><div style="font-size:13px;font-weight:600;color:var(--brown);">'+p.bandejas+' bandeja'+(p.bandejas>1?'s':'')+' — '+p.motivo+'</div>'
+      + '<div class="pedido-date">'+(p.nota?p.nota+' · ':'')+fechaStr+'</div></div>'
+      + '<div class="pedido-right">'
+      + '<div style="text-align:right;"><div class="pedido-amount" style="color:var(--red);">−'+p.total.toFixed(2)+'€</div></div>'
+      + '<button onclick="eliminarPerdida('+p.id+')" style="background:var(--light);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:11px;color:var(--muted);">✕</button>'
+      + '</div></div>';
+  }).join('');
+}
+
 initEmojis(); cargarDatos();
 </script>
 </body>
