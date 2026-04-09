@@ -2166,17 +2166,17 @@ function editarConfirmacion() {
 function getEmoji(id){ var el=document.getElementById(id); if(!el) return ''; var d=document.createElement('div'); d.innerHTML=el.innerHTML; return d.textContent||d.innerText||''; }
 var E_HUEVO='',E_CHECK='',E_DINERO='',E_TARJETA='',E_CLIPBOARD='',E_CALENDAR='',E_GRACIAS='',E_GALLINA='',E_CESTA='',E_TELEFONO='',E_CORAZON='',E_RELOJ='',E_CONFETI='';
 function initEmojis(){
-  E_HUEVO = getEmoji('e-huevo');
-  E_CHECK = getEmoji('e-check');
-  E_DINERO = getEmoji('e-dinero');
-  E_TARJETA = getEmoji('e-tarjeta');
-  E_CLIPBOARD = getEmoji('e-clipboard');
-  E_CALENDAR = getEmoji('e-calendar');
-  E_GRACIAS = getEmoji('e-gracias');
-  E_GALLINA = getEmoji('e-gallina');
-  E_CESTA = getEmoji('e-cesta');
-  E_TELEFONO = getEmoji('e-telefono');
-  E_CORAZON = getEmoji('e-corazon');
+  E_HUEVO = '🥚';
+  E_CHECK = '✅';
+  E_DINERO = '💰';
+  E_TARJETA = '💳';
+  E_CLIPBOARD = '📋';
+  E_CALENDAR = '📅';
+  E_GRACIAS = '🙏';
+  E_GALLINA = '🐔';
+  E_CESTA = '🧺';
+  E_TELEFONO = '📞';
+  E_CORAZON = '❤️';
 }
 
 async function confirmarYEnviarWA() {
@@ -2270,6 +2270,7 @@ function enviarNovedadCampero(clienteId) {
     + '🏠 *Suelo Nº2* (gallinero sin jaula) — 8.50€\n'
     + '🌿 *Campero Nº1* (gallinas en aire libre) — 15€\n\n'
     + 'Misma frescura, distinto origen 🐔 ¿Con cuál te quedas?';
+  abrirWhatsApp(telLimpio, mensaje);
 }
 
 function enviarGraciasPedido(pedidoId) {
@@ -2894,6 +2895,8 @@ function selTipoCliente(tipo) {
     var btn = document.getElementById('nctipo-'+t);
     if(btn) btn.className = 'pago-btn' + (t===tipo?' sel-efectivo':'');
   });
+  var ppPrecio = document.getElementById('pp-precio');
+  if(ppPrecio) ppPrecio.value = tipo==='campero' ? '15.00' : '8.50';
 }
 
 // ACCESO CON CONTRASEÑA
