@@ -1533,6 +1533,7 @@ function generarNotificaciones() {
   // Check stock deficit
   var bandejaCompradas = (data.compras||[]).reduce(function(s,c){return s+c.bandejas;},0);
   var bandejasPedidas = (data.pedidos||[]).reduce(function(s,p){return s+p.bandejas;},0);
+  var bandejasPerdidas = (data.perdidas||[]).reduce(function(s,p){return s+p.bandejas;},0);
   var stock = bandejaCompradas - bandejasPedidas - bandejasPerdidas;
   if(stock <= 0) {
     notifs.push({tipo:'danger', titulo:'Stock en déficit — compra urgente', sub:'Tienes '+stock+' bandejas disponibles', accion:'compras'});
