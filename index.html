@@ -97,8 +97,26 @@
 </style>
 </head>
 <body>
+
+<!-- PANTALLA DE ACCESO -->
+<div id="login-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;">
+  <div style="font-size:56px;margin-bottom:1rem;">🥚</div>
+  <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--brown);margin-bottom:4px;">Huevos Frescos</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:2rem;">Acceso privado</div>
+  <div style="width:100%;max-width:320px;">
+    <input id="login-password" type="password" placeholder="Contraseña" autocomplete="current-password"
+      style="width:100%;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;font-size:16px;font-family:'DM Sans',sans-serif;background:white;color:var(--brown);outline:none;margin-bottom:10px;box-sizing:border-box;"
+      onkeydown="if(event.key==='Enter')checkPassword()"/>
+    <button onclick="checkPassword()"
+      style="width:100%;background:var(--orange);color:white;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">
+      Entrar
+    </button>
+    <div id="login-error" style="display:none;color:var(--red);font-size:13px;text-align:center;margin-top:10px;">Contraseña incorrecta</div>
+  </div>
+</div>
+
 <span id="e-huevo" style="display:none">&#x1F95A;</span><span id="e-check" style="display:none">&#x2705;</span><span id="e-dinero" style="display:none">&#x1F4B0;</span><span id="e-tarjeta" style="display:none">&#x1F4B3;</span><span id="e-clipboard" style="display:none">&#x1F4CB;</span><span id="e-calendar" style="display:none">&#x1F4C5;</span><span id="e-gracias" style="display:none">&#x1F64F;</span><span id="e-gallina" style="display:none">&#x1F414;</span><span id="e-corazon" style="display:none">&#x2764;</span><span id="e-cesta" style="display:none">&#x1F9FA;</span><span id="e-telefono" style="display:none">&#x1F4DE;</span>
-<header style="position:relative;">
+<div id="app-content" style="display:none;"><header style="position:relative;">
   <div class="logo">🥚</div>
   <div><h1>Huevos Frescos</h1><p id="sync-label">Conectando...</p></div>
   <button class="refresh-btn" onclick="cargarDatos()">↻</button>
@@ -2135,7 +2153,8 @@ async function confirmarYEnviarWA() {
       + E_TARJETA + ' Método de pago: ' + metodo + '\n'
       + E_CLIPBOARD + ' Estado del pago: ' + estadoTexto + '\n'
       + E_CALENDAR + ' Entrega: ' + formatDate(pedidoGuardado.fechaEntrega) + ' (' + pedidoGuardado.dia + ')\n\n'
-      + '¡Gracias por tu compra! ' + E_GRACIAS;
+      + '¡Gracias por tu compra! ' + E_GRACIAS + '\n\n'
+      + '\u{1F512} _Tus datos (nombre y teléfono) se usan únicamente para gestionar tus pedidos y nunca se comparten con terceros._';
     var telLimpio = limpiarTelefono(c.tel);
     if(!telLimpio) return toast('Número no válido');
     abrirWhatsApp(telLimpio, mensaje);
@@ -2770,6 +2789,31 @@ async function guardarEditarPedido() {
   });
 });
 
+// ACCESO CON CONTRASEÑA
+var APP_PASSWORD = 'huevos2024';
+function checkPassword() {
+  var val = document.getElementById('login-password').value;
+  if(val === APP_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    sessionStorage.setItem('hf-auth', '1');
+    initEmojis();
+    cargarDatos();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').focus();
+  }
+}
+// Check if already authenticated
+if(sessionStorage.getItem('hf-auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-content').style.display = 'block';
+} else {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app-content').style.display = 'none';
+}
+
 selPago('efectivo');
 selPagoModal('efectivo');
 
@@ -2847,7 +2891,8 @@ function renderPerdidas() {
   }).join('');
 }
 
-initEmojis(); cargarDatos();
+// initEmojis and cargarDatos are called after login
 </script>
+</div>
 </body>
 </html>
