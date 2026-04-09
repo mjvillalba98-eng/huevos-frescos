@@ -2166,17 +2166,17 @@ function editarConfirmacion() {
 function getEmoji(id){ var el=document.getElementById(id); if(!el) return ''; var d=document.createElement('div'); d.innerHTML=el.innerHTML; return d.textContent||d.innerText||''; }
 var E_HUEVO='',E_CHECK='',E_DINERO='',E_TARJETA='',E_CLIPBOARD='',E_CALENDAR='',E_GRACIAS='',E_GALLINA='',E_CESTA='',E_TELEFONO='',E_CORAZON='',E_RELOJ='',E_CONFETI='';
 function initEmojis(){
-  E_HUEVO = String.fromCodePoint(0x1F95A);
-  E_CHECK = String.fromCodePoint(0x2705);
-  E_DINERO = String.fromCodePoint(0x1F4B0);
-  E_TARJETA = String.fromCodePoint(0x1F4B3);
-  E_CLIPBOARD = String.fromCodePoint(0x1F4CB);
-  E_CALENDAR = String.fromCodePoint(0x1F4C5);
-  E_GRACIAS = String.fromCodePoint(0x1F64F);
-  E_GALLINA = String.fromCodePoint(0x1F414);
-  E_CESTA = String.fromCodePoint(0x1F9FA);
-  E_TELEFONO = String.fromCodePoint(0x1F4DE);
-  E_CORAZON = String.fromCodePoint(0x2764);
+  E_HUEVO = decodeURIComponent('%F0%9F%A5%9A');
+  E_CHECK = decodeURIComponent('%E2%9C%85');
+  E_DINERO = decodeURIComponent('%F0%9F%92%B0');
+  E_TARJETA = decodeURIComponent('%F0%9F%92%B3');
+  E_CLIPBOARD = decodeURIComponent('%F0%9F%93%8B');
+  E_CALENDAR = decodeURIComponent('%F0%9F%93%85');
+  E_GRACIAS = decodeURIComponent('%F0%9F%99%8F');
+  E_GALLINA = decodeURIComponent('%F0%9F%90%94');
+  E_CESTA = decodeURIComponent('%F0%9F%A7%BA');
+  E_TELEFONO = decodeURIComponent('%F0%9F%93%9E');
+  E_CORAZON = decodeURIComponent('%E2%9D%A4');
 }
 
 async function confirmarYEnviarWA() {
@@ -2247,10 +2247,8 @@ function cancelarConfirmacion() {
 
 function abrirWhatsApp(tel, mensaje) {
   var esMobil = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  var url = esMobil
-    ? 'whatsapp://send?phone=' + tel + '&text=' + encodeURIComponent(mensaje)
-    : 'https://wa.me/' + tel + '?text=' + encodeURIComponent(mensaje);
   if(esMobil) {
+    var url = 'whatsapp://send?phone=' + tel + '&text=' + encodeURIComponent(mensaje);
     var a = document.createElement('a');
     a.href = url;
     a.target = '_blank';
@@ -2259,6 +2257,7 @@ function abrirWhatsApp(tel, mensaje) {
     a.click();
     setTimeout(function(){ document.body.removeChild(a); }, 500);
   } else {
+    var url = 'https://web.whatsapp.com/send?phone=' + tel + '&text=' + encodeURIComponent(mensaje);
     window.open(url, 'whatsapp_huevos');
   }
 }
