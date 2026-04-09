@@ -188,8 +188,8 @@
             <label style="font-size:12px;color:var(--muted);font-weight:500;">Tipo de huevo preferido</label>
             <div style="display:flex;gap:6px;">
               <button type="button" class="pago-btn" id="nctipo-ambos" onclick="selTipoCliente('ambos')">🥚 Sin preferencia</button>
-              <button type="button" class="pago-btn" id="nctipo-granja" onclick="selTipoCliente('granja')">🏠 Huevo de Granja</button>
-              <button type="button" class="pago-btn" id="nctipo-campero" onclick="selTipoCliente('campero')">🌿 Huevo Campero</button>
+              <button type="button" class="pago-btn" id="nctipo-granja" onclick="selTipoCliente('granja')">🏠 Huevo de Granja (Nº2)</button>
+              <button type="button" class="pago-btn" id="nctipo-campero" onclick="selTipoCliente('campero')">🌿 Huevo Campero (Nº1)</button>
             </div>
           </div>
           <div style="margin-top:4px;">
@@ -285,8 +285,8 @@
       <div class="form-group" style="margin-bottom:8px">
         <label>Tipo de huevo</label>
         <div style="display:flex;gap:8px;">
-          <button type="button" class="pago-btn sel-efectivo" id="ptipo-granja" onclick="selTipoPedido('granja')">🏠 Granja 8.50€</button>
-          <button type="button" class="pago-btn" id="ptipo-campero" onclick="selTipoPedido('campero')">🌿 Campero 15€</button>
+          <button type="button" class="pago-btn sel-efectivo" id="ptipo-granja" onclick="selTipoPedido('granja')">🏠 🏠 Granja Nº2 8.50€</button>
+          <button type="button" class="pago-btn" id="ptipo-campero" onclick="selTipoPedido('campero')">🌿 🌿 Campero Nº1 15€</button>
         </div>
       </div>
       <div class="form-row">
@@ -436,7 +436,7 @@
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Por tipo de huevo</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
         <div style="background:var(--light);border:1px solid var(--border);border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">&#x1F3E0; Huevo de Granja</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">&#x1F3E0; Huevo de Granja (Nº2)</div>
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;color:var(--muted);">Compradas</span>
             <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-granja-compradas">—</span>
@@ -455,7 +455,7 @@
           <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="tipo-granja-pct">—</div>
         </div>
         <div style="background:#F0FFF4;border:1px solid #2D7A4F;border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:#2D7A4F;margin-bottom:8px;font-weight:600;">&#x1F33F; Huevo Campero</div>
+          <div style="font-size:11px;color:#2D7A4F;margin-bottom:8px;font-weight:600;">&#x1F33F; Huevo Campero (Nº1)</div>
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;color:var(--muted);">Compradas</span>
             <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-campero-compradas">—</span>
@@ -507,12 +507,12 @@
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
         <div class="stat" style="margin:0;padding:10px;background:#F0FFF4;border-color:#2D7A4F;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">🏠 Huevo de Granja</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">🏠 Huevo de Granja (Nº2)</div>
           <div class="num" style="font-size:18px;" id="stat-stock-granja">—</div>
           <div class="lbl">Disponibles</div>
         </div>
         <div class="stat" style="margin:0;padding:10px;background:#F0FFF4;border-color:#2D7A4F;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">🌿 Huevo Campero</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">🌿 Huevo Campero (Nº1)</div>
           <div class="num" style="font-size:18px;" id="stat-stock-campero">—</div>
           <div class="lbl">Disponibles</div>
         </div>
@@ -644,8 +644,8 @@
       <div class="form-group" style="margin-bottom:8px">
         <label>Tipo de huevo</label>
         <div style="display:flex;gap:8px;">
-          <button type="button" class="pago-btn sel-efectivo" id="ctipo-granja" onclick="selTipoCompra('granja')">🏠 Huevo de Granja — 7€</button>
-          <button type="button" class="pago-btn" id="ctipo-campero" onclick="selTipoCompra('campero')">🌿 Huevo Campero — 13€</button>
+          <button type="button" class="pago-btn sel-efectivo" id="ctipo-granja" onclick="selTipoCompra('granja')">🏠 Granja Nº2 — 7€</button>
+          <button type="button" class="pago-btn" id="ctipo-campero" onclick="selTipoCompra('campero')">🌿 Campero Nº1 — 13€</button>
         </div>
       </div>
       <div class="form-row">
@@ -844,8 +844,8 @@
     <div class="form-group" style="margin-bottom:8px">
       <label>Tipo de huevo</label>
       <div style="display:flex;gap:8px;">
-        <button type="button" class="pago-btn sel-efectivo" id="mtipo-granja" onclick="selTipoModal('granja')" style="font-size:12px;">🏠 Granja 8.50€</button>
-        <button type="button" class="pago-btn" id="mtipo-campero" onclick="selTipoModal('campero')" style="font-size:12px;">🌿 Campero 15€</button>
+        <button type="button" class="pago-btn sel-efectivo" id="mtipo-granja" onclick="selTipoModal('granja')" style="font-size:12px;">🏠 🏠 Granja Nº2 8.50€</button>
+        <button type="button" class="pago-btn" id="mtipo-campero" onclick="selTipoModal('campero')" style="font-size:12px;">🌿 🌿 Campero Nº1 15€</button>
       </div>
     </div>
     <div class="form-row">
@@ -1315,7 +1315,7 @@ function renderClientes(busca='') {
           <div class="client-name">${c.nombre}</div>
           ${c.tel?`<div class="client-info">📞 ${c.tel}</div>`:''}
           ${c.dir?`<div class="client-info"><a href="https://maps.google.com/?q=${encodeURIComponent(c.dir)}" target="_blank" style="color:var(--muted);text-decoration:none;">📍 ${c.dir}</a></div>`:''}
-          ${c.tipoPreferido&&c.tipoPreferido!=='ambos'?`<div class="client-info" style="color:var(--green);font-weight:600;">${c.tipoPreferido==='campero'?'🌿 Huevo Campero':'🏠 Huevo de Granja'}</div>`:''}
+          ${c.tipoPreferido&&c.tipoPreferido!=='ambos'?`<div class="client-info" style="color:var(--green);font-weight:600;">${c.tipoPreferido==='campero'?'🌿 Huevo Campero (Nº1)':'🏠 Huevo de Granja (Nº2)'}</div>`:''}
           ${c.dia?`<div class="client-info">📅 ${c.dia}</div>`:''}
         </div>
         ${badge(c.id)}
@@ -2057,7 +2057,7 @@ function editarTipoCompra(id) {
   if(!c) return;
   var actual = c.tipo||'granja';
   var nuevo = actual==='granja' ? 'campero' : 'granja';
-  var label = nuevo==='campero' ? '🌿 Huevo Campero' : '🏠 Huevo de Granja';
+  var label = nuevo==='campero' ? '🌿 Huevo Campero (Nº1)' : '🏠 Huevo de Granja (Nº2)';
   if(confirm('¿Cambiar esta compra a '+label+'?')) {
     c.tipo = nuevo;
     guardarDatos();
@@ -2368,7 +2368,7 @@ async function confirmarYEnviarWA() {
     const estadoTexto = pedidoGuardado.estado==='pendiente'?'Pendiente de pago':'Pagado';
     var mensaje = E_HUEVO + ' ¡Hola ' + c.nombre + '!\n\n'
       + E_CHECK + ' Confirmamos tu pedido:\n\n'
-      + E_HUEVO + ' ' + pedidoGuardado.bandejas + ' bandeja' + (pedidoGuardado.bandejas>1?'s':'') + ' de 30 huevos — ' + (pedidoGuardado.tipo==='campero'?'🌿 Huevo Campero (aire libre)':'🏠 Huevo de Granja (gallinero)') + '\n'
+      + E_HUEVO + ' ' + pedidoGuardado.bandejas + ' bandeja' + (pedidoGuardado.bandejas>1?'s':'') + ' de 30 huevos — ' + (pedidoGuardado.tipo==='campero'?'🌿 Huevo Campero (Nº1)':'🏠 Huevo de Granja (Nº2)') + '\n'
       + E_DINERO + ' Total: ' + pedidoGuardado.total.toFixed(2) + '€\n'
       + E_TARJETA + ' Método de pago: ' + metodo + '\n'
       + E_CLIPBOARD + ' Estado del pago: ' + estadoTexto + '\n'
@@ -2430,8 +2430,8 @@ function enviarNovedadCampero(clienteId) {
   if(!telLimpio) return toast('Número no válido');
   var mensaje = E_HUEVO + ' ¡Hola ' + c.nombre + '! Novedad por aquí 😊\n\n'
     + 'Ahora tenemos dos opciones:\n'
-    + '🏠 *Huevo de Granja* (libre de jaula) — 8.50€\n'
-    + '🌿 *Huevo Campero* (aire libre) — 15€\n\n'
+    + '🏠 *Huevo de Granja (Nº2)* (libre de jaula) — 8.50€\n'
+    + '🌿 *Huevo Campero (Nº1)* (aire libre) — 15€\n\n'
     + 'Misma frescura, distinto origen 🐔 ¿Con cuál te quedas?';
   abrirWhatsApp(telLimpio, mensaje);
 }
@@ -3128,11 +3128,11 @@ function getMensajeNoticia(nombre) {
   var tel = decodeURIComponent('%F0%9F%93%9E');
   var smile = decodeURIComponent('%F0%9F%98%8A');
   if(noticiaTipo === 'novedad') {
-    return huevo+' Hola '+nombre+'! Novedad por aqui '+smile+'\n\nAhora tenemos dos tipos de huevos frescos:\n'+casa+' *Huevo de Granja* (libre de jaula) - 8.50EUR\n'+planta+' *Huevo Campero* (aire libre) - 15EUR\n\nMisma frescura, distinto origen '+pollo+'\n\nCual prefieres? Respondeme y te lo apunto '+smile;
+    return huevo+' Hola '+nombre+'! Novedad por aqui '+smile+'\n\nAhora tenemos dos tipos de huevos frescos:\n'+casa+' *Huevo de Granja (Nº2)* (libre de jaula) - 8.50EUR\n'+planta+' *Huevo Campero (Nº1)* (aire libre) - 15EUR\n\nMisma frescura, distinto origen '+pollo+'\n\nCual prefieres? Respondeme y te lo apunto '+smile;
   } else if(noticiaTipo === 'recordatorio') {
-    return huevo+' Hola '+nombre+'! Te echamos de menos '+smile+'\n\nEsta semana todavia no has pedido... Todo bien?\n\n'+casa+' *Huevo de Granja* - 8.50EUR\n'+planta+' *Huevo Campero* - 15EUR\n\n'+tel+' 689 273 452 / 676 075 510';
+    return huevo+' Hola '+nombre+'! Te echamos de menos '+smile+'\n\nEsta semana todavia no has pedido... Todo bien?\n\n'+casa+' *Huevo de Granja (Nº2)* - 8.50EUR\n'+planta+' *Huevo Campero (Nº1)* - 15EUR\n\n'+tel+' 689 273 452 / 676 075 510';
   } else {
-    return huevo+' Hola '+nombre+'! Oferta especial '+corazon+'\n\nEsta semana: lleva 2 bandejas y te hacemos precio especial.\n\n'+casa+' *Huevo de Granja* - 8.50EUR\n'+planta+' *Huevo Campero* - 15EUR\n\nResponde y te lo preparo hoy mismo '+smile;
+    return huevo+' Hola '+nombre+'! Oferta especial '+corazon+'\n\nEsta semana: lleva 2 bandejas y te hacemos precio especial.\n\n'+casa+' *Huevo de Granja (Nº2)* - 8.50EUR\n'+planta+' *Huevo Campero (Nº1)* - 15EUR\n\nResponde y te lo preparo hoy mismo '+smile;
   }
 }
 
