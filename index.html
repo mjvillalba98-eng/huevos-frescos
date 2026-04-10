@@ -669,12 +669,12 @@
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Todo lo vendido y ganado desde el inicio</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
         <div style="text-align:center;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Bandejas</div><div style="font-size:20px;font-weight:700;color:var(--orange);" id="mes-total-ban">--</div></div>
-        <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Facturado</div><div style="font-size:20px;font-weight:700;color:var(--brown);" id="mes-total-fact">--</div></div>
-        <div style="text-align:center;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Ganancia</div><div style="font-size:20px;font-weight:700;color:var(--green);" id="mes-total-gan">--</div></div>
+        <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Ganancia</div><div style="font-size:20px;font-weight:700;color:var(--green);" id="mes-total-gan">--</div></div>
+        <div style="text-align:center;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Pendiente</div><div style="font-size:20px;font-weight:700;color:var(--amber);" id="hist-pendiente">--</div></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="hist-efectivo-cobrado">--</div><div class="lbl">Efectivo</div><div style="font-size:11px;color:var(--muted);" id="hist-efectivo-ban">-- bandejas</div></div>
-        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="hist-bizum-cobrado">--</div><div class="lbl">Bizum</div><div style="font-size:11px;color:var(--muted);" id="hist-bizum-ban">-- bandejas</div></div>
+        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="hist-efectivo-cobrado">--</div><div class="lbl">Cobrado efectivo</div><div style="font-size:11px;color:var(--muted);" id="hist-efectivo-ban">-- bandejas</div></div>
+        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="hist-bizum-cobrado">--</div><div class="lbl">Cobrado Bizum</div><div style="font-size:11px;color:var(--muted);" id="hist-bizum-ban">-- bandejas</div></div>
       </div>
     </div>
 
@@ -3153,8 +3153,9 @@ function renderResumenMensual() {
   var todoPerd = (data.perdidas||[]).reduce(function(s,x){return s+x.total;},0);
   var todoGan = todoFact - todoComp - todoPerd;
   setEl('mes-total-ban', todoBan);
-  setEl('mes-total-fact', todoFact.toFixed(2)+'€');
   setEl('mes-total-gan', todoGan.toFixed(2)+'€', todoGan>=0?'var(--green)':'var(--red)');
+  var histPend = todoPedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
+  setEl('hist-pendiente', histPend>0?histPend.toFixed(2)+'€':'0€');
   var histEf = todoPedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';});
   var histBz = todoPedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';});
   var histEfTotal = histEf.reduce(function(s,p){return s+p.total;},0);
