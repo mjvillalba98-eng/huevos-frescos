@@ -1587,10 +1587,10 @@ function showTab(t) {
   if(t==='clientes'){renderClientes();document.getElementById('buscador').value='';}
 
   if(t==='pedidos'){renderSelectClientes();renderPedidos();}
-  if(t==='compras'){renderCompras();updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderPrecios();renderPerdidas();renderResumenMensual();}
+  if(t==='compras'){renderCompras();updateStatsCompras();renderPrecios();renderPerdidas();}
   if(t==='seguimiento'){renderSeguimiento();}
   if(t==='posibles'){renderPosiblesTab();poblarDatalistClientes();}
-  if(t==='finanzas'){updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderResumenMensual();}
+  if(t==='finanzas'){updateStats();updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderResumenMensual();renderPerdidas();}
   if(t==='noticias'){renderNoticias();}
 }
 
