@@ -421,8 +421,22 @@
     <!-- CAJA ACTUAL -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;" id="stat-caja-desde">Cobrado desde la última compra al proveedor</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Saldo inicial + cobros - compras al proveedor</div>
+      <div id="saldo-inicial-form" style="display:none;background:var(--light);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid var(--border);">
+        <div style="font-size:12px;font-weight:600;color:var(--brown);margin-bottom:8px;">Saldo inicial de caja (solo una vez)</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <div style="flex:1;">
+            <label style="font-size:11px;color:var(--muted);">💵 Efectivo (€)</label>
+            <input type="number" id="saldo-ef-input" value="0" step="0.01" min="0" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;"/>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:11px;color:var(--muted);">📱 Bizum (€)</label>
+            <input type="number" id="saldo-bz-input" value="0" step="0.01" min="0" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;"/>
+          </div>
+        </div>
+        <button onclick="guardarSaldoInicial()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Guardar saldo inicial</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
         <div class="stat" style="margin:0;padding:10px;">
           <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">💵 Efectivo</div>
           <div style="font-size:20px;font-weight:700;" id="stat-caja-efectivo">—</div>
@@ -434,6 +448,11 @@
           <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="stat-caja-bizum-det">—</div>
         </div>
       </div>
+      <div style="padding:10px;background:var(--light);border-radius:10px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:12px;color:var(--muted);">⏳ Pendiente de cobrar</div>
+        <div style="font-size:14px;font-weight:700;" id="stat-caja-pendiente">—</div>
+      </div>
+      <button onclick="toggleSaldoInicial()" style="width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;">⚙️ Ajustar saldo inicial</button>
     </div>
 
     <!-- POR TIPO -->
@@ -495,10 +514,7 @@
         <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px;">&#x26A0;&#xFE0F; Campero sin movimiento</div>
         <div style="font-size:11px;color:var(--red);" id="alerta-tipo-campero-texto">Tienes bandejas campero sin vender.</div>
       </div>
-      <div style="margin-top:8px;padding:10px;background:var(--light);border-radius:10px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:12px;color:var(--muted);">⏳ Pendiente de cobrar</div>
-        <div style="font-size:14px;font-weight:700;" id="stat-caja-pendiente">—</div>
-      </div>
+
     </div>
 
     <!-- STOCK -->
@@ -2179,24 +2195,27 @@ function updateStatsCompras() {
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
-  // CAJA ACTUAL — cobrado desde la última compra real al proveedor
+  // CAJA ACTUAL — saldo inicial + cobros a clientes - pagos al proveedor
+  var saldoInicialEf = parseFloat((data.saldoInicial||{}).efectivo||0);
+  var saldoInicialBz = parseFloat((data.saldoInicial||{}).bizum||0);
+
   var comprasReales = compras.filter(function(x){return !x.devolucion;});
-  var ultimaCompraFecha = comprasReales.length > 0
-    ? new Date(Math.max.apply(null, comprasReales.map(function(x){return new Date(x.fecha).getTime();})))
-    : new Date(0);
-  ultimaCompraFecha.setHours(0,0,0,0);
 
-  var pedidosDesdeCompra = pedidos.filter(function(p){
-    return new Date(p.fechaPedido||p.fecha) >= ultimaCompraFecha;
-  });
-  var cajaEfectivo = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo';}).reduce(function(s,p){return s+p.total;},0);
-  var cajaBizum = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum';}).reduce(function(s,p){return s+p.total;},0);
+  // Todo cobrado a clientes
+  var cobradoEf = pedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
+  var cobradoBz = pedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
 
-  // Pendiente de cobrar a clientes desde la última compra
-  var pendienteCobrarCaja = pedidosDesdeCompra.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
+  // Todo pagado al proveedor (solo compras reales pagadas)
+  var pagadoEf = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='efectivo';}).reduce(function(s,x){return s+x.total;},0);
+  var pagadoEfMixto = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto';}).reduce(function(s,x){return s+(x.montoEfectivo||0);},0);
+  var pagadoBz = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='bizum';}).reduce(function(s,x){return s+x.total;},0);
+  var pagadoBzMixto = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto';}).reduce(function(s,x){return s+(x.montoBizum||0);},0);
 
-  var meses2 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  var fechaUltimaStr = comprasReales.length>0 ? ultimaCompraFecha.getDate()+' '+meses2[ultimaCompraFecha.getMonth()] : 'inicio';
+  var cajaEfectivo = saldoInicialEf + cobradoEf - pagadoEf - pagadoEfMixto;
+  var cajaBizum = saldoInicialBz + cobradoBz - pagadoBz - pagadoBzMixto;
+
+  // Pendiente de cobrar
+  var pendienteCobrarCaja = pedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
 
   var elCajaEf = document.getElementById('stat-caja-efectivo');
   var elCajaBz = document.getElementById('stat-caja-bizum');
@@ -2205,9 +2224,9 @@ function updateStatsCompras() {
   var elCajaPend = document.getElementById('stat-caja-pendiente');
   if(elCajaEf){ elCajaEf.textContent=cajaEfectivo.toFixed(2)+'€'; elCajaEf.style.color=cajaEfectivo>=0?'var(--green)':'var(--red)'; }
   if(elCajaBz){ elCajaBz.textContent=cajaBizum.toFixed(2)+'€'; elCajaBz.style.color=cajaBizum>=0?'var(--green)':'var(--red)'; }
-  if(elCajaEfDet) elCajaEfDet.textContent = 'Cobrado desde el '+fechaUltimaStr;
-  if(elCajaBzDet) elCajaBzDet.textContent = 'Cobrado desde el '+fechaUltimaStr;
-  if(elCajaPend){ elCajaPend.textContent = pendienteCobrarCaja>0 ? '+'+pendienteCobrarCaja.toFixed(2)+'€ pendiente' : 'Todo cobrado'; elCajaPend.style.color = pendienteCobrarCaja>0?'var(--amber)':'var(--green)'; }
+  if(elCajaEfDet) elCajaEfDet.textContent = 'Saldo inicial + cobros - proveedor';
+  if(elCajaBzDet) elCajaBzDet.textContent = 'Saldo inicial + cobros - proveedor';
+  if(elCajaPend){ elCajaPend.textContent = pendienteCobrarCaja>0?'+'+pendienteCobrarCaja.toFixed(2)+'€ pendiente':'Todo cobrado'; elCajaPend.style.color=pendienteCobrarCaja>0?'var(--amber)':'var(--green)'; }
 
   // POR TIPO
   var comprasGranja = (data.compras||[]).filter(function(x){return !x.tipo||x.tipo==='granja';});
@@ -3242,6 +3261,23 @@ async function enviarCampanaNoticia() {
     setTimeout(enviarSiguiente, 1800);
   }
   enviarSiguiente();
+}
+
+function toggleSaldoInicial() {
+  var f = document.getElementById('saldo-inicial-form');
+  if(f) f.style.display = f.style.display==='none' ? 'block' : 'none';
+}
+
+async function guardarSaldoInicial() {
+  var ef = parseFloat(document.getElementById('saldo-ef-input').value)||0;
+  var bz = parseFloat(document.getElementById('saldo-bz-input').value)||0;
+  if(!data.saldoInicial) data.saldoInicial = {};
+  data.saldoInicial.efectivo = ef;
+  data.saldoInicial.bizum = bz;
+  await guardarDatos();
+  document.getElementById('saldo-inicial-form').style.display = 'none';
+  updateStatsCompras();
+  toast('Saldo inicial guardado');
 }
 
 selPago('efectivo');
