@@ -268,11 +268,6 @@
 
   <!-- PEDIDOS -->
   <div id="tab-pedidos" class="section-hidden">
-    <div class="stats" style="grid-template-columns:repeat(3,1fr);">
-      <div class="stat green"><div class="num" id="stat-cobrado">—</div><div class="lbl">Cobrado</div></div>
-      <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
-      <div class="stat red"><div class="num" id="stat-clientes-deben">—</div><div class="lbl">Clientes deben</div></div>
-    </div>
     <div style="display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px;">
       <button onclick="filtrarPedidos('todos')" id="fpb-todos" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--brown);background:var(--brown);color:white;cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">Todos</button>
       <button onclick="filtrarPedidos('pendiente-entrega')" id="fpb-pendiente-entrega" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:white;color:var(--brown);cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">📦 Pendiente</button>
@@ -3398,6 +3393,10 @@ function getStatsMes(year, month) {
 
   var ps = pedidos.filter(function(p){
     var d = new Date(p.fechaPedido||p.fecha);
+    return d.getFullYear()===year && d.getMonth()===month && p.estado==='pagado';
+  });
+  var psTodos = pedidos.filter(function(p){
+    var d = new Date(p.fechaPedido||p.fecha);
     return d.getFullYear()===year && d.getMonth()===month;
   });
   var cs = compras.filter(function(x){
@@ -3409,7 +3408,7 @@ function getStatsMes(year, month) {
     return d.getFullYear()===year && d.getMonth()===month;
   });
 
-  var bandejas = ps.reduce(function(s,p){return s+p.bandejas;},0);
+  var bandejas = psTodos.reduce(function(s,p){return s+p.bandejas;},0);
   var facturado = ps.reduce(function(s,p){return s+p.total;},0);
   var comprado = cs.reduce(function(s,x){return s+x.total;},0);
   var perdido = perd.reduce(function(s,x){return s+x.total;},0);
@@ -3470,8 +3469,9 @@ function renderResumenMensual() {
 
   // Totales acumulados
   var todoPedidos = data.pedidos||[];
-  var todoBan = todoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
-  var todoFact = todoPedidos.reduce(function(s,p){return s+p.total;},0);
+  var todoPedidosPagados = todoPedidos.filter(function(p){return p.estado==='pagado';});
+  var todoBan = todoPedidosPagados.reduce(function(s,p){return s+p.bandejas;},0);
+  var todoFact = todoPedidosPagados.reduce(function(s,p){return s+p.total;},0);
   var todoComp = (data.compras||[]).filter(function(x){return !x.devolucion;}).reduce(function(s,x){return s+x.total;},0);
   var todoPerd = (data.perdidas||[]).reduce(function(s,x){return s+x.total;},0);
   var todoGan = todoFact - todoComp - todoPerd;
