@@ -3389,12 +3389,8 @@ function navMes(dir) {
 function getStatsMes(year, month) {
   var pedidos = data.pedidos||[];
   var compras = (data.compras||[]).filter(function(x){return !x.devolucion;});
-  var perdidas = data.perdidas||[];
 
-  var ps = pedidos.filter(function(p){
-    var d = new Date(p.fechaPedido||p.fecha);
-    return d.getFullYear()===year && d.getMonth()===month && p.estado==='pagado';
-  });
+  // Todos los pedidos del mes (pagados y pendientes)
   var psTodos = pedidos.filter(function(p){
     var d = new Date(p.fechaPedido||p.fecha);
     return d.getFullYear()===year && d.getMonth()===month;
@@ -3403,16 +3399,11 @@ function getStatsMes(year, month) {
     var d = new Date(x.fecha);
     return d.getFullYear()===year && d.getMonth()===month;
   });
-  var perd = perdidas.filter(function(x){
-    var d = new Date(x.fecha);
-    return d.getFullYear()===year && d.getMonth()===month;
-  });
 
   var bandejas = psTodos.reduce(function(s,p){return s+p.bandejas;},0);
-  var facturado = ps.reduce(function(s,p){return s+p.total;},0);
+  var facturado = psTodos.reduce(function(s,p){return s+p.total;},0);
   var comprado = cs.reduce(function(s,x){return s+x.total;},0);
-  var perdido = perd.reduce(function(s,x){return s+x.total;},0);
-  var ganancia = facturado - comprado - perdido;
+  var ganancia = facturado - comprado;
 
   return {bandejas:bandejas, facturado:facturado, comprado:comprado, ganancia:ganancia};
 }
@@ -3469,9 +3460,8 @@ function renderResumenMensual() {
 
   // Totales acumulados
   var todoPedidos = data.pedidos||[];
-  var todoPedidosPagados = todoPedidos.filter(function(p){return p.estado==='pagado';});
-  var todoBan = todoPedidosPagados.reduce(function(s,p){return s+p.bandejas;},0);
-  var todoFact = todoPedidosPagados.reduce(function(s,p){return s+p.total;},0);
+  var todoBan = todoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
+  var todoFact = todoPedidos.reduce(function(s,p){return s+p.total;},0);
   var todoComp = (data.compras||[]).filter(function(x){return !x.devolucion;}).reduce(function(s,x){return s+x.total;},0);
   var todoPerd = (data.perdidas||[]).reduce(function(s,x){return s+x.total;},0);
   var todoGan = todoFact - todoComp - todoPerd;
