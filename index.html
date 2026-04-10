@@ -257,6 +257,11 @@
         <button onclick="agregarCliente()" style="background:var(--orange);color:white;border:none;border-radius:10px;padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;width:100%;margin-top:8px;" id="btn-guardar-cliente">Guardar cliente</button>
       </div>
     </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <button onclick="setFiltroClientes('activos')" id="fc-activos" style="flex:1;padding:7px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Sora',sans-serif;background:var(--brown);color:white;">Activos</button>
+      <button onclick="setFiltroClientes('inactivos')" id="fc-inactivos" style="flex:1;padding:7px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Sora',sans-serif;background:var(--light);color:var(--brown);">Inactivos</button>
+      <button onclick="setFiltroClientes('todos')" id="fc-todos" style="flex:1;padding:7px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:'Sora',sans-serif;background:var(--light);color:var(--brown);">Todos</button>
+    </div>
     <input class="search" placeholder="🔍 Buscar cliente..." oninput="renderClientes(this.value)" id="buscador">
     <div id="lista-clientes"><div class="empty"><div class="icon">🥚</div><p>Conectando...</p></div></div>
   </div>
@@ -650,7 +655,7 @@
       </div>
       <div class="form-row">
         <div class="form-group"><label>Bandejas compradas</label><input id="c-bandejas" type="number" min="1" value="1"/></div>
-        <div class="form-group"><label>Precio compra/bandeja (€)</label><input id="c-precio" type="number" value="7.00" step="0.01"/></div>
+        <div class="form-group"><label>Precio compra/bandeja (€)</label><input id="c-precio" type="number" value="7.00" step="0.01" min="0"/></div>
       </div>
       <div class="form-group" style="margin-bottom:8px">
         <label>Fecha de compra</label>
@@ -1292,11 +1297,35 @@ function freqNextInfo(clienteId, freq) {
   return `<div class="freq-next">📅 Próximo estimado: ${proxFecha} (en ${diasFaltan}d)</div>`;
 }
 
+var filtroClientes = 'activos';
+function setFiltroClientes(f) {
+  filtroClientes = f;
+  ['activos','inactivos','todos'].forEach(function(id) {
+    var btn = document.getElementById('fc-'+id);
+    if(btn) { btn.style.background = f===id?'var(--brown)':'var(--light)'; btn.style.color = f===id?'white':'var(--brown)'; }
+  });
+  renderClientes(document.getElementById('buscador')?document.getElementById('buscador').value:'');
+}
+
+async function toggleInactivo(id) {
+  var idx = (data.clientes||[]).findIndex(function(c){return c.id===id;});
+  if(idx<0) return;
+  data.clientes[idx].inactivo = !data.clientes[idx].inactivo;
+  await guardarDatos();
+  renderClientes(document.getElementById('buscador')?document.getElementById('buscador').value:'');
+  toast(data.clientes[idx].inactivo ? 'Cliente marcado como inactivo' : 'Cliente reactivado');
+}
+
 function renderClientes(busca='') {
   updateStats();
   const lista = document.getElementById('lista-clientes');
   const clientes = data.clientes||[];
-  const filtro = clientes.filter(c=>
+  var filtrado = clientes.filter(c=> {
+    if(filtroClientes==='activos') return !c.inactivo;
+    if(filtroClientes==='inactivos') return !!c.inactivo;
+    return true;
+  });
+  const filtro = filtrado.filter(c=>
     c.nombre.toLowerCase().includes((busca||'').toLowerCase())||(c.tel||'').includes(busca||''));
   if(!filtro.length) {
     lista.innerHTML='<div class="empty"><div class="icon">🥚</div><p>No hay clientes aún.<br>Pulsa "+ Nuevo" para añadir el primero.</p></div>';
@@ -1318,7 +1347,10 @@ function renderClientes(busca='') {
           ${c.tipoPreferido&&c.tipoPreferido!=='ambos'?`<div class="client-info" style="color:var(--green);font-weight:600;">${c.tipoPreferido==='campero'?'🌿 Huevo Campero (Nº1)':'🏠 Huevo de Granja (Nº2)'}</div>`:''}
           ${c.dia?`<div class="client-info">📅 ${c.dia}</div>`:''}
         </div>
-        ${badge(c.id)}
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+          ${badge(c.id)}
+          ${c.inactivo?'<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#FFE8E8;color:var(--red);">Inactivo</span>':''}
+        </div>
       </div>
       <div class="client-stats">
         <div class="client-stat"><span>${ps.length}</span>Pedidos</div>
@@ -1331,6 +1363,7 @@ function renderClientes(busca='') {
         <button class="btn-sm add" onclick="event.stopPropagation();abrirModal(${c.id})">+ Pedido</button>
         <button class="btn-sm edit" onclick="event.stopPropagation();abrirEditar(${c.id})">✏️ Editar</button>
         ${c.tel?`<button class="btn-sm wa" onclick="event.stopPropagation();enviarWhatsApp(${c.id})">📲 WA</button>`:''}
+        <button class="btn-sm" onclick="event.stopPropagation();toggleInactivo(${c.id})" style="background:${c.inactivo?'#D6F0E2':'#FFE8E8'};color:${c.inactivo?'var(--green)':'var(--red)'};">${c.inactivo?'✓ Activo':'Inactivo'}</button>
         <button class="btn-sm del" onclick="event.stopPropagation();eliminarCliente(${c.id})">Eliminar</button>
       </div>
     </div>`;
@@ -2028,7 +2061,7 @@ function renderPedidos() {
 // ── COMPRAS ──────────────────────────────────────────────
 async function agregarCompra() {
   const bandejas = parseInt(document.getElementById('c-bandejas').value)||1;
-  const precio = parseFloat(document.getElementById('c-precio').value)||7;
+  const precio = parseFloat(document.getElementById('c-precio').value)||0;
   const fecha = getDateFromInput('c-fd-input')||getTodayStr();
   const notas = document.getElementById('c-notas').value.trim();
   const btn = document.getElementById('btn-guardar-compra');
@@ -2840,7 +2873,7 @@ function updateStats() {
   const pedidos = data.pedidos||[];
   const cobrado = pedidos.filter(function(p){return p.estado!=='pendiente';}).reduce(function(s,p){return s+p.total;},0);
   const pendiente = pedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
-  document.getElementById('stat-total').textContent = clientes.length;
+  document.getElementById('stat-total').textContent = clientes.filter(function(cl){return !cl.inactivo;}).length;
   document.getElementById('stat-cobrado').textContent = cobrado.toFixed(2)+'€';
   document.getElementById('stat-pendiente').textContent = pendiente.toFixed(2)+'€';
   var nClientesDeben = (function(){
