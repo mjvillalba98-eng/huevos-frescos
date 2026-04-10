@@ -637,7 +637,7 @@
           <div style="font-size:11px;color:var(--muted);" id="stat-bandejas-vendidas">— bandejas</div>
         </div>
         <div class="stat green" style="margin:0;padding:10px;">
-          <div class="num" id="stat-ganancia" style="font-size:18px;">—</div>
+          <div class="num" id="stat-ganancia-old" style="font-size:18px;">—</div>
           <div class="lbl">Ganancia neta</div>
           <div style="font-size:11px;color:var(--muted);">descontando pérdidas</div>
         </div>
@@ -672,8 +672,8 @@
         <div style="text-align:center;"><div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Ganancia</div><div style="font-size:20px;font-weight:700;color:var(--green);" id="mes-total-gan">--</div></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="stat-efectivo-cobrado">--</div><div class="lbl">Efectivo</div><div style="font-size:11px;color:var(--muted);" id="stat-efectivo-ban">-- bandejas</div></div>
-        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="stat-bizum-cobrado">--</div><div class="lbl">Bizum</div><div style="font-size:11px;color:var(--muted);" id="stat-bizum-ban">-- bandejas</div></div>
+        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="hist-efectivo-cobrado">--</div><div class="lbl">Efectivo</div><div style="font-size:11px;color:var(--muted);" id="hist-efectivo-ban">-- bandejas</div></div>
+        <div class="stat" style="margin:0;padding:10px;"><div class="num" style="font-size:18px;" id="hist-bizum-cobrado">--</div><div class="lbl">Bizum</div><div style="font-size:11px;color:var(--muted);" id="hist-bizum-ban">-- bandejas</div></div>
       </div>
     </div>
 
@@ -3149,6 +3149,14 @@ function renderResumenMensual() {
   setEl('mes-total-ban', todoBan);
   setEl('mes-total-fact', todoFact.toFixed(2)+'€');
   setEl('mes-total-gan', todoGan.toFixed(2)+'€', todoGan>=0?'var(--green)':'var(--red)');
+  var histEf = todoPedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';});
+  var histBz = todoPedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';});
+  var histEfTotal = histEf.reduce(function(s,p){return s+p.total;},0);
+  var histBzTotal = histBz.reduce(function(s,p){return s+p.total;},0);
+  setEl('hist-efectivo-cobrado', histEfTotal.toFixed(2)+'€');
+  setEl('hist-efectivo-ban', histEf.reduce(function(s,p){return s+p.bandejas;},0)+' bandejas');
+  setEl('hist-bizum-cobrado', histBzTotal.toFixed(2)+'€');
+  setEl('hist-bizum-ban', histBz.reduce(function(s,p){return s+p.bandejas;},0)+' bandejas');
   var btnNext = document.getElementById('btn-mes-next');
   if(btnNext) btnNext.style.opacity = mesOffset>=0?'0.3':'1';
 }
