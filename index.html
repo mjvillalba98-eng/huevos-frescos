@@ -635,6 +635,7 @@
           <div class="num" style="font-size:18px;" id="stat-total-vendido">—</div>
           <div class="lbl">Total facturado</div>
           <div style="font-size:11px;color:var(--muted);" id="stat-bandejas-vendidas">— bandejas</div>
+          <div style="font-size:10px;color:var(--amber);margin-top:2px;" id="stat-vendido-pendiente"></div>
         </div>
         <div class="stat green" style="margin:0;padding:10px;">
           <div class="num" id="stat-ganancia-old" style="font-size:18px;">—</div>
@@ -2197,9 +2198,14 @@ function updateStatsCompras() {
 
   // VENDIDO
   set('stat-total-vendido', totalVendido.toFixed(2)+'€');
+  var pendienteVend = pedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
+  var pendVendEl = document.getElementById('stat-vendido-pendiente');
+  if(pendVendEl) pendVendEl.textContent = pendienteVend>0 ? pendienteVend.toFixed(2)+'€ pendiente' : '';
   set('stat-bandejas-vendidas', bandejasPedidas+' bandejas');
   var ganEl = document.getElementById('stat-ganancia');
   if(ganEl){ ganEl.textContent=ganancia.toFixed(2)+'€'; ganEl.style.color=ganancia>=0?'var(--green)':'var(--red)'; }
+  var ganElOld = document.getElementById('stat-ganancia-old');
+  if(ganElOld){ ganElOld.textContent=ganancia.toFixed(2)+'€'; ganElOld.style.color=ganancia>=0?'var(--green)':'var(--red)'; }
   set('stat-efectivo-cobrado', totalEfectivo.toFixed(2)+'€');
   set('stat-efectivo-ban', banEfectivo+' bandejas');
   set('stat-bizum-cobrado', totalBizum.toFixed(2)+'€');
