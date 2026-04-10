@@ -2125,29 +2125,36 @@ function updateStatsCompras() {
   var ganancia = totalVendido - totalComprado - totalPerdidas;
 
   // Por metodo de pago
-  var efectivoPedidos = pedidos.filter(function(p){return p.pago==='efectivo';});
-  var bizumPedidos = pedidos.filter(function(p){return p.pago==='bizum';});
+  var efectivoPedidos = pedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';});
+  var bizumPedidos = pedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';});
   var totalEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.total;},0);
   var totalBizum = bizumPedidos.reduce(function(s,p){return s+p.total;},0);
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
-  // CAJA ACTUAL — desde la última compra hasta hoy
-  // Find date of last purchase
-  var ultimaCompraFecha = compras.length > 0
-    ? new Date(Math.max.apply(null, compras.map(function(c){return new Date(c.fecha).getTime();})))
-    : new Date(0);
-  ultimaCompraFecha.setHours(0,0,0,0);
+  // CAJA ACTUAL — saldo inicial + cobros desde fecha - pagos proveedor
+  var saldoInicialEf = parseFloat((data.saldoInicial||{}).efectivo||0);
+  var saldoInicialBz = parseFloat((data.saldoInicial||{}).bizum||0);
+  var saldoFecha = (data.saldoInicial||{}).fecha ? new Date((data.saldoInicial||{}).fecha) : new Date(0);
+  saldoFecha.setHours(0,0,0,0);
+  var ultimaCompraFecha = saldoFecha;
 
   // Pedidos cobrados DESDE la última compra
   var pedidosDesdeCompra = pedidos.filter(function(p){
-    return new Date(p.fechaPedido||p.fecha) >= ultimaCompraFecha;
+    return new Date(p.fechaPedido||p.fecha) >= saldoFecha;
   });
-  var cajaEfectivo = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo';}).reduce(function(s,p){return s+p.total;},0);
-  var cajaBizum = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum';}).reduce(function(s,p){return s+p.total;},0);
+  var cobEf = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
+  var cobBz = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
+  var comprasRealesCaja = (data.compras||[]).filter(function(x){return !x.devolucion;});
+  var pagEf = comprasRealesCaja.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='efectivo'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+x.total;},0);
+  var pagEfMx = comprasRealesCaja.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+(x.montoEfectivo||0);},0);
+  var pagBz = comprasRealesCaja.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='bizum'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+x.total;},0);
+  var pagBzMx = comprasRealesCaja.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+(x.montoBizum||0);},0);
+  var cajaEfectivo = saldoInicialEf + cobEf - pagEf - pagEfMx;
+  var cajaBizum = saldoInicialBz + cobBz - pagBz - pagBzMx;
 
   var meses2 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  var fechaUltimaStr = compras.length>0 ? ultimaCompraFecha.getDate()+' '+meses2[ultimaCompraFecha.getMonth()] : 'inicio';
+  var fechaUltimaStr = (data.saldoInicial||{}).fecha ? new Date(data.saldoInicial.fecha).getDate()+' '+meses2[new Date(data.saldoInicial.fecha).getMonth()] : 'inicio';
 
   var elCajaEf = document.getElementById('stat-caja-efectivo');
   var elCajaBz = document.getElementById('stat-caja-bizum');
@@ -2182,8 +2189,8 @@ function updateStatsCompras() {
   var comprasCamperoR = compras.filter(function(x){return !x.devolucion && x.precio>0 && x.tipo==='campero';});
   var pmSuelo = comprasSueloR.length>0 ? comprasSueloR.reduce(function(s,x){return s+x.total;},0)/comprasSueloR.reduce(function(s,x){return s+x.bandejas;},0) : 0;
   var pmCampero = comprasCamperoR.length>0 ? comprasCamperoR.reduce(function(s,x){return s+x.total;},0)/comprasCamperoR.reduce(function(s,x){return s+x.bandejas;},0) : 0;
-  var pmText = pmSuelo>0 ? pmSuelo.toFixed(2)+'EUR' : '--';
-  if(pmCampero>0) pmText += ' / C:'+pmCampero.toFixed(2)+'EUR';
+  var pmText = pmSuelo>0 ? pmSuelo.toFixed(2)+'€' : '--';
+  if(pmCampero>0) pmText += ' / C:'+pmCampero.toFixed(2)+'€';
   set('stat-precio-medio', pmText);
   set('stat-compras-pendiente', comprasPendientes.toFixed(2)+'€');
   set('stat-compras-pendiente-ban', bandejasPendientePago+' bandejas');
@@ -3104,15 +3111,15 @@ function renderResumenMensual() {
   setEl('mes-actual-label', MESES_NOMBRES[mesRef.getMonth()]);
   setEl('mes-ant-label', MESES_NOMBRES[mesAnt.getMonth()]);
   setEl('mes-actual-ban', actual.bandejas+' band.');
-  setEl('mes-actual-fact', actual.facturado.toFixed(2)+'EUR');
-  setEl('mes-actual-comp', '-'+actual.comprado.toFixed(2)+'EUR');
-  setEl('mes-actual-perd', actual.perdido>0?'-'+actual.perdido.toFixed(2)+'EUR':'0.00EUR');
-  setEl('mes-actual-gan', actual.ganancia.toFixed(2)+'EUR', actual.ganancia>=0?'var(--green)':'var(--red)');
+  setEl('mes-actual-fact', actual.facturado.toFixed(2)+'€');
+  setEl('mes-actual-comp', '-'+actual.comprado.toFixed(2)+'€');
+  setEl('mes-actual-perd', actual.perdido>0?'-'+actual.perdido.toFixed(2)+'€':'0.00EUR');
+  setEl('mes-actual-gan', actual.ganancia.toFixed(2)+'€', actual.ganancia>=0?'var(--green)':'var(--red)');
   setEl('mes-ant-ban', anterior.bandejas+' band.');
-  setEl('mes-ant-fact', anterior.facturado.toFixed(2)+'EUR');
-  setEl('mes-ant-comp', '-'+anterior.comprado.toFixed(2)+'EUR');
-  setEl('mes-ant-perd', anterior.perdido>0?'-'+anterior.perdido.toFixed(2)+'EUR':'0.00EUR');
-  setEl('mes-ant-gan', anterior.ganancia.toFixed(2)+'EUR', anterior.ganancia>=0?'var(--green)':'var(--red)');
+  setEl('mes-ant-fact', anterior.facturado.toFixed(2)+'€');
+  setEl('mes-ant-comp', '-'+anterior.comprado.toFixed(2)+'€');
+  setEl('mes-ant-perd', anterior.perdido>0?'-'+anterior.perdido.toFixed(2)+'€':'0.00EUR');
+  setEl('mes-ant-gan', anterior.ganancia.toFixed(2)+'€', anterior.ganancia>=0?'var(--green)':'var(--red)');
   var comp = document.getElementById('mes-comparativa');
   var compTxt = document.getElementById('mes-comparativa-txt');
   var compPct = document.getElementById('mes-comparativa-pct');
@@ -3122,7 +3129,7 @@ function renderResumenMensual() {
       compTxt.textContent='Sin datos suficientes'; compPct.textContent='';
     } else if(anterior.ganancia<=0) {
       comp.style.background='#D6F0E2'; compTxt.style.color='var(--green)'; compPct.style.color='var(--green)';
-      compTxt.textContent='Primer mes con datos'; compPct.textContent=actual.ganancia.toFixed(0)+'EUR';
+      compTxt.textContent='Primer mes con datos'; compPct.textContent=actual.ganancia.toFixed(0)+'€';
     } else {
       var pct = Math.round((actual.ganancia - anterior.ganancia)/Math.abs(anterior.ganancia)*100);
       var mejor = pct >= 0;
@@ -3140,8 +3147,8 @@ function renderResumenMensual() {
   var todoPerd = (data.perdidas||[]).reduce(function(s,x){return s+x.total;},0);
   var todoGan = todoFact - todoComp - todoPerd;
   setEl('mes-total-ban', todoBan);
-  setEl('mes-total-fact', todoFact.toFixed(2)+'EUR');
-  setEl('mes-total-gan', todoGan.toFixed(2)+'EUR', todoGan>=0?'var(--green)':'var(--red)');
+  setEl('mes-total-fact', todoFact.toFixed(2)+'€');
+  setEl('mes-total-gan', todoGan.toFixed(2)+'€', todoGan>=0?'var(--green)':'var(--red)');
   var btnNext = document.getElementById('btn-mes-next');
   if(btnNext) btnNext.style.opacity = mesOffset>=0?'0.3':'1';
 }
