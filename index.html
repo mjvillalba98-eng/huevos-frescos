@@ -3390,9 +3390,9 @@ function getStatsMes(year, month) {
   var pedidos = data.pedidos||[];
   var compras = (data.compras||[]).filter(function(x){return !x.devolucion;});
 
-  // Todos los pedidos del mes (pagados y pendientes)
+  // Todos los pedidos del mes por fecha de entrega
   var psTodos = pedidos.filter(function(p){
-    var d = new Date(p.fechaPedido||p.fecha);
+    var d = new Date(p.fechaEntrega||p.fechaPedido||p.fecha);
     return d.getFullYear()===year && d.getMonth()===month;
   });
   var cs = compras.filter(function(x){
