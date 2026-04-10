@@ -8,7 +8,8 @@
 <style>
   :root{--bg:#FDF6ED;--card:#FFFFFF;--orange:#E8651A;--brown:#3B1A00;--amber:#F5A623;--light:#FFF0D6;--muted:#9B7A50;--border:#EDD9B8;--green:#2D7A4F;--red:#B83232;--purple:#5533CC;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);min-height:100vh;max-width:480px;margin:0 auto;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);min-height:100vh;display:flex;justify-content:center;}
+  #app{width:100%;max-width:480px;min-height:100vh;background:var(--bg);position:relative;}
   header{background:var(--brown);padding:1rem 1.2rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
   header .logo{font-size:26px;}
   header h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:#FFF0D6;}
@@ -3596,6 +3597,7 @@ function renderPerdidas() {
 
 // initEmojis and cargarDatos are called after login
 </script>
+</div>
 </div>
 </body>
 </html>
