@@ -421,7 +421,7 @@
     <!-- CAJA ACTUAL -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;" id="stat-caja-desde">Total cobrado menos pagado al proveedor</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;" id="stat-caja-desde">Cobrado desde la última compra al proveedor</div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
         <div class="stat" style="margin:0;padding:10px;">
           <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">💵 Efectivo</div>
@@ -494,6 +494,10 @@
       <div id="alerta-tipo-campero" style="display:none;background:#FFE8E8;border-radius:10px;padding:10px;border:1px solid var(--red);">
         <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px;">&#x26A0;&#xFE0F; Campero sin movimiento</div>
         <div style="font-size:11px;color:var(--red);" id="alerta-tipo-campero-texto">Tienes bandejas campero sin vender.</div>
+      </div>
+      <div style="margin-top:8px;padding:10px;background:var(--light);border-radius:10px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:12px;color:var(--muted);">⏳ Pendiente de cobrar</div>
+        <div style="font-size:14px;font-weight:700;" id="stat-caja-pendiente">—</div>
       </div>
     </div>
 
@@ -2175,26 +2179,46 @@ function updateStatsCompras() {
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
-  // CAJA ACTUAL REAL
-  // Efectivo: cobrado clientes efectivo - pagado proveedor efectivo - pagado proveedor mixto
+  // CAJA ACTUAL — desde la última compra real, restando lo pagado al proveedor
   var comprasReales = compras.filter(function(x){return !x.devolucion;});
-  var cobradoEfectivo = pedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
-  var cobradoBizum = pedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
-  var pagadoProvEf = comprasReales.filter(function(x){return x.metodoPago==='efectivo'&&x.estadoPago==='pagado';}).reduce(function(s,x){return s+x.total;},0);
-  var pagadoProvMixtoEf = comprasReales.filter(function(x){return x.metodoPago==='mixto'&&x.estadoPago==='pagado';}).reduce(function(s,x){return s+(x.montoEfectivo||0);},0);
-  var pagadoProvBz = comprasReales.filter(function(x){return x.metodoPago==='bizum'&&x.estadoPago==='pagado';}).reduce(function(s,x){return s+x.total;},0);
-  var pagadoProvMixBz = comprasReales.filter(function(x){return x.metodoPago==='mixto'&&x.estadoPago==='pagado';}).reduce(function(s,x){return s+(x.montoBizum||0);},0);
-  var cajaEfectivo = cobradoEfectivo - pagadoProvEf - pagadoProvMixtoEf;
-  var cajaBizum = cobradoBizum - pagadoProvBz - pagadoProvMixBz;
+  var ultimaCompraFecha = comprasReales.length > 0
+    ? new Date(Math.max.apply(null, comprasReales.map(function(x){return new Date(x.fecha).getTime();})))
+    : new Date(0);
+  ultimaCompraFecha.setHours(0,0,0,0);
+
+  var pedidosDesdeCompra = pedidos.filter(function(p){
+    return new Date(p.fechaPedido||p.fecha) >= ultimaCompraFecha;
+  });
+  var cajaEfectivo = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo';}).reduce(function(s,p){return s+p.total;},0);
+  var cajaBizum = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum';}).reduce(function(s,p){return s+p.total;},0);
+
+  // Restar compras pagadas al proveedor desde la ultima compra
+  var comprasDesde = comprasReales.filter(function(x){
+    return new Date(x.fecha) >= ultimaCompraFecha && x.estadoPago==='pagado';
+  });
+  comprasDesde.forEach(function(x){
+    if(x.metodoPago==='efectivo') cajaEfectivo -= x.total;
+    else if(x.metodoPago==='mixto') cajaEfectivo -= (x.montoEfectivo||0);
+    if(x.metodoPago==='bizum') cajaBizum -= x.total;
+    else if(x.metodoPago==='mixto') cajaBizum -= (x.montoBizum||0);
+  });
+
+  // Pendiente de cobrar a clientes
+  var pendienteCobrarCaja = pedidosDesdeCompra.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
+
+  var meses2 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var fechaUltimaStr = comprasReales.length>0 ? ultimaCompraFecha.getDate()+' '+meses2[ultimaCompraFecha.getMonth()] : 'inicio';
 
   var elCajaEf = document.getElementById('stat-caja-efectivo');
   var elCajaBz = document.getElementById('stat-caja-bizum');
   var elCajaEfDet = document.getElementById('stat-caja-efectivo-det');
   var elCajaBzDet = document.getElementById('stat-caja-bizum-det');
+  var elCajaPend = document.getElementById('stat-caja-pendiente');
   if(elCajaEf){ elCajaEf.textContent=cajaEfectivo.toFixed(2)+'€'; elCajaEf.style.color=cajaEfectivo>=0?'var(--green)':'var(--red)'; }
   if(elCajaBz){ elCajaBz.textContent=cajaBizum.toFixed(2)+'€'; elCajaBz.style.color=cajaBizum>=0?'var(--green)':'var(--red)'; }
-  if(elCajaEfDet) elCajaEfDet.textContent = 'Cobrado - pagado proveedor (efectivo)';
-  if(elCajaBzDet) elCajaBzDet.textContent = 'Cobrado - pagado proveedor (Bizum)';
+  if(elCajaEfDet) elCajaEfDet.textContent = 'Cobrado desde el '+fechaUltimaStr;
+  if(elCajaBzDet) elCajaBzDet.textContent = 'Cobrado desde el '+fechaUltimaStr;
+  if(elCajaPend){ elCajaPend.textContent = pendienteCobrarCaja>0 ? '+'+pendienteCobrarCaja.toFixed(2)+'€ pendiente' : 'Todo cobrado'; elCajaPend.style.color = pendienteCobrarCaja>0?'var(--amber)':'var(--green)'; }
 
   // POR TIPO
   var comprasGranja = (data.compras||[]).filter(function(x){return !x.tipo||x.tipo==='granja';});
