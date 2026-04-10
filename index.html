@@ -545,12 +545,9 @@
 
   <!-- FINANZAS -->
   <div id="tab-finanzas" class="section-hidden">
-    <div class="card" style="background:var(--light);border-color:var(--amber);margin-bottom:10px;">
-      <div style="font-size:13px;color:var(--brown);line-height:1.6;">
-        💰 Resumen financiero completo del negocio.
-      </div>
-    </div>
-    <!-- CAJA ACTUAL -->
+
+    <!-- 1. CAJA ACTUAL -->
+<!-- CAJA ACTUAL -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Saldo inicial + cobros - compras al proveedor</div>
@@ -591,20 +588,17 @@
       <button onclick="toggleSaldoInicial()" style="width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;">⚙️ Ajustar saldo inicial</button>
     </div>
 
-    <!-- RESUMEN MENSUAL -->
+    <!-- 2. ESTE MES -->
     <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">📅 Este mes</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Resumen mensual</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button onclick="navMes(-1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);">&#8592;</button>
-          <div style="font-size:13px;font-weight:600;color:var(--brown);min-width:90px;text-align:center;" id="mes-label">—</div>
-          <button onclick="navMes(1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);" id="btn-mes-next">&#8594;</button>
-        </div>
+        <button onclick="navMes(-1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);">&#8592;</button>
+        <div style="font-size:14px;font-weight:700;color:var(--brown);text-align:center;" id="mes-label">—</div>
+        <button onclick="navMes(1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);" id="btn-mes-next">&#8594;</button>
       </div>
-
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
         <div style="background:#FFF8F0;border:1.5px solid var(--orange);border-radius:10px;padding:12px;">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-actual-label">Mes actual</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-actual-label">—</div>
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;color:var(--muted);">Bandejas</span>
             <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-actual-ban">—</span>
@@ -626,9 +620,8 @@
             <span style="font-size:15px;font-weight:700;" id="mes-actual-gan">—</span>
           </div>
         </div>
-
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-ant-label">Mes anterior</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-ant-label">—</div>
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
             <span style="font-size:11px;color:var(--muted);">Bandejas</span>
             <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-ant-ban">—</span>
@@ -651,90 +644,29 @@
           </div>
         </div>
       </div>
-
-      <div id="mes-comparativa" style="border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;">
-        <div id="mes-comparativa-txt" style="font-size:12px;font-weight:600;"></div>
+      <div id="mes-comparativa" style="border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;background:var(--light);">
+        <div id="mes-comparativa-txt" style="font-size:12px;font-weight:600;color:var(--muted);"></div>
         <div id="mes-comparativa-pct" style="font-size:20px;font-weight:700;"></div>
       </div>
-
-      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Acumulado total</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Bandejas</div>
-            <div style="font-size:20px;font-weight:700;color:var(--orange);" id="mes-total-ban">—</div>
-          </div>
-          <div style="text-align:center;border-left:0.5px solid var(--border);border-right:0.5px solid var(--border);">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Facturado</div>
-            <div style="font-size:20px;font-weight:700;color:var(--brown);" id="mes-total-fact">—</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Ganancia</div>
-            <div style="font-size:20px;font-weight:700;color:var(--green);" id="mes-total-gan">—</div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- VENDIDO -->
+    <!-- 3. RENDIMIENTO -->
     <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Vendido</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div class="num" style="font-size:18px;" id="stat-total-vendido">—</div>
-          <div class="lbl">Total facturado</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-bandejas-vendidas">— bandejas</div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">📈 Rendimiento</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+        <div style="text-align:center;padding:10px;background:var(--light);border-radius:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Ganancia total</div>
+          <div style="font-size:18px;font-weight:700;color:var(--green);" id="stat-ganancia">—</div>
         </div>
-        <div class="stat green" style="margin:0;padding:10px;">
-          <div class="num" id="stat-ganancia" style="font-size:18px;">—</div>
-          <div class="lbl">Ganancia neta</div>
-          <div style="font-size:11px;color:var(--muted);">descontando pérdidas</div>
-        </div>
-        <div class="stat red" style="margin:0;padding:10px;">
-          <div class="num" id="stat-perdidas-total" style="font-size:18px;">—</div>
-          <div class="lbl">Pérdidas</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-perdidas-ban">— bandejas</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div class="num" style="font-size:18px;" id="stat-efectivo-cobrado">—</div>
-          <div class="lbl">💵 Efectivo</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-efectivo-ban">— bandejas</div>
-        </div>
-        <div class="stat" style="margin:0;padding:10px;">
-          <div class="num" style="font-size:18px;" id="stat-bizum-cobrado">—</div>
-          <div class="lbl">📱 Bizum</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-bizum-ban">— bandejas</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RESUMEN -->
-    <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Resumen general</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-        <div style="text-align:center;padding:10px;">
+        <div style="text-align:center;padding:10px;background:var(--light);border-radius:10px;">
           <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Margen %</div>
-          <div style="font-size:22px;font-weight:700;color:var(--green);" id="stat-margen">—</div>
+          <div style="font-size:18px;font-weight:700;color:var(--green);" id="stat-margen">—</div>
         </div>
-        <div style="text-align:center;padding:10px;border-left:0.5px solid var(--border);border-right:0.5px solid var(--border);">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Promedio semanal</div>
-          <div style="font-size:22px;font-weight:700;color:var(--brown);" id="stat-promedio-semanal">—</div>
-        </div>
-        <div style="text-align:center;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Pendiente cobrar</div>
-          <div style="font-size:22px;font-weight:700;color:var(--amber);" id="stat-pendiente-cobrar">—</div>
+        <div style="text-align:center;padding:10px;background:var(--light);border-radius:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Prom. semanal</div>
+          <div style="font-size:18px;font-weight:700;color:var(--brown);" id="stat-promedio-semanal">—</div>
         </div>
       </div>
-    </div>
-
-
-
-
-    <!-- SEMANAL -->
-    <div class="card" style="margin-bottom:10px;" id="card-resumen-semanal">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comparativa semanal</div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
         <div class="stat" style="margin:0;padding:10px;">
           <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Esta semana</div>
@@ -755,67 +687,79 @@
       </div>
     </div>
 
-    <!-- POR TIPO -->
+    <!-- 4. POR TIPO -->
     <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Por tipo de huevo</div>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">🥚 Por tipo de huevo</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
         <div style="background:var(--light);border:1px solid var(--border);border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">&#x1F3E0; Huevo de Granja (Nº2)</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Compradas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-granja-compradas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Vendidas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-granja-vendidas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:11px;color:var(--muted);">Ganancia</span>
-            <span style="font-size:13px;font-weight:700;color:var(--green);" id="tipo-granja-ganancia">—</span>
-          </div>
-          <div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden;">
-            <div id="tipo-granja-bar" style="background:var(--orange);border-radius:4px;height:5px;width:0%;transition:width 0.3s;"></div>
-          </div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">&#x1F3E0; Granja (Nº2)</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--muted);">Compradas</span><span style="font-size:13px;font-weight:700;" id="tipo-granja-compradas">—</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--muted);">Vendidas</span><span style="font-size:13px;font-weight:700;" id="tipo-granja-vendidas">—</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--muted);">Ganancia</span><span style="font-size:13px;font-weight:700;color:var(--green);" id="tipo-granja-ganancia">—</span></div>
+          <div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden;"><div id="tipo-granja-bar" style="background:var(--orange);border-radius:4px;height:5px;width:0%;transition:width 0.3s;"></div></div>
           <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="tipo-granja-pct">—</div>
         </div>
         <div style="background:#F0FFF4;border:1px solid #2D7A4F;border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:#2D7A4F;margin-bottom:8px;font-weight:600;">&#x1F33F; Huevo Campero (Nº1)</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Compradas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-campero-compradas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Vendidas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-campero-vendidas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:11px;color:var(--muted);">Ganancia</span>
-            <span style="font-size:13px;font-weight:700;color:var(--green);" id="tipo-campero-ganancia">—</span>
-          </div>
-          <div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden;">
-            <div id="tipo-campero-bar" style="background:#2D7A4F;border-radius:4px;height:5px;width:0%;transition:width 0.3s;"></div>
-          </div>
+          <div style="font-size:11px;color:#2D7A4F;margin-bottom:8px;font-weight:600;">&#x1F33F; Campero (Nº1)</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--muted);">Compradas</span><span style="font-size:13px;font-weight:700;" id="tipo-campero-compradas">—</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--muted);">Vendidas</span><span style="font-size:13px;font-weight:700;" id="tipo-campero-vendidas">—</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:11px;color:var(--muted);">Ganancia</span><span style="font-size:13px;font-weight:700;color:var(--green);" id="tipo-campero-ganancia">—</span></div>
+          <div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden;"><div id="tipo-campero-bar" style="background:#2D7A4F;border-radius:4px;height:5px;width:0%;transition:width 0.3s;"></div></div>
           <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="tipo-campero-pct">—</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <div style="text-align:center;padding:8px;background:var(--light);border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">&#x1F3E0; Margen Granja</div>
-          <div style="font-size:20px;font-weight:700;color:var(--orange);" id="tipo-granja-margen">—</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="text-align:center;padding:8px;background:var(--light);border-radius:8px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Margen Granja</div>
+          <div style="font-size:18px;font-weight:700;color:var(--orange);" id="tipo-granja-margen">—</div>
           <div style="font-size:10px;color:var(--muted);">1.50&#x20AC;/bandeja</div>
         </div>
         <div style="text-align:center;padding:8px;background:#F0FFF4;border-radius:8px;border:1px solid #2D7A4F;">
-          <div style="font-size:11px;color:#2D7A4F;margin-bottom:3px;">&#x1F33F; Margen Campero</div>
-          <div style="font-size:20px;font-weight:700;color:#2D7A4F;" id="tipo-campero-margen">—</div>
+          <div style="font-size:11px;color:#2D7A4F;margin-bottom:3px;">Margen Campero</div>
+          <div style="font-size:18px;font-weight:700;color:#2D7A4F;" id="tipo-campero-margen">—</div>
           <div style="font-size:10px;color:var(--muted);">2.00&#x20AC;/bandeja</div>
         </div>
       </div>
-      <div id="alerta-tipo-campero" style="display:none;background:#FFE8E8;border-radius:10px;padding:10px;border:1px solid var(--red);">
+      <div id="alerta-tipo-campero" style="display:none;background:#FFE8E8;border-radius:10px;padding:10px;border:1px solid var(--red);margin-top:8px;">
         <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px;">&#x26A0;&#xFE0F; Campero sin movimiento</div>
         <div style="font-size:11px;color:var(--red);" id="alerta-tipo-campero-texto">Tienes bandejas campero sin vender.</div>
       </div>
-
     </div>
+
+    <!-- 5. HISTÓRICO -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">🗓 Histórico</div>
+      <div style="border-top:1px solid var(--border);padding-top:10px;">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Acumulado total</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Bandejas</div>
+            <div style="font-size:20px;font-weight:700;color:var(--orange);" id="mes-total-ban">—</div>
+          </div>
+          <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Facturado</div>
+            <div style="font-size:20px;font-weight:700;color:var(--brown);" id="mes-total-fact">—</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Ganancia</div>
+            <div style="font-size:20px;font-weight:700;color:var(--green);" id="mes-total-gan">—</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-efectivo-cobrado">—</div>
+          <div class="lbl">💵 Efectivo</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-efectivo-ban">— bandejas</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div class="num" style="font-size:18px;" id="stat-bizum-cobrado">—</div>
+          <div class="lbl">📱 Bizum</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-bizum-ban">— bandejas</div>
+        </div>
+      </div>
+    </div>
+
 
   </div>
 
