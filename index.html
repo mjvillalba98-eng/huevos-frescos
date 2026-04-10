@@ -8,8 +8,7 @@
 <style>
   :root{--bg:#FDF6ED;--card:#FFFFFF;--orange:#E8651A;--brown:#3B1A00;--amber:#F5A623;--light:#FFF0D6;--muted:#9B7A50;--border:#EDD9B8;--green:#2D7A4F;--red:#B83232;--purple:#5533CC;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);min-height:100vh;display:flex;justify-content:center;}
-  #app{width:100%;max-width:480px;min-height:100vh;background:var(--bg);position:relative;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--brown);min-height:100vh;max-width:480px;margin:0 auto;}
   header{background:var(--brown);padding:1rem 1.2rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
   header .logo{font-size:26px;}
   header h1{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:#FFF0D6;}
@@ -592,6 +591,91 @@
       <button onclick="toggleSaldoInicial()" style="width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;">⚙️ Ajustar saldo inicial</button>
     </div>
 
+    <!-- RESUMEN MENSUAL -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Resumen mensual</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="navMes(-1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);">&#8592;</button>
+          <div style="font-size:13px;font-weight:600;color:var(--brown);min-width:90px;text-align:center;" id="mes-label">—</div>
+          <button onclick="navMes(1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);" id="btn-mes-next">&#8594;</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="background:#FFF8F0;border:1.5px solid var(--orange);border-radius:10px;padding:12px;">
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-actual-label">Mes actual</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Bandejas</span>
+            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-actual-ban">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Facturado</span>
+            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-actual-fact">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Compras</span>
+            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-actual-comp">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Pérdidas</span>
+            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-actual-perd">—</span>
+          </div>
+          <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;">
+            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia real</span>
+            <span style="font-size:15px;font-weight:700;" id="mes-actual-gan">—</span>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;">
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-ant-label">Mes anterior</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Bandejas</span>
+            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-ant-ban">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Facturado</span>
+            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-ant-fact">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Compras</span>
+            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-ant-comp">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Pérdidas</span>
+            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-ant-perd">—</span>
+          </div>
+          <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;">
+            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia real</span>
+            <span style="font-size:15px;font-weight:700;" id="mes-ant-gan">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="mes-comparativa" style="border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;">
+        <div id="mes-comparativa-txt" style="font-size:12px;font-weight:600;"></div>
+        <div id="mes-comparativa-pct" style="font-size:20px;font-weight:700;"></div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
+        <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Acumulado total</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Bandejas</div>
+            <div style="font-size:20px;font-weight:700;color:var(--orange);" id="mes-total-ban">—</div>
+          </div>
+          <div style="text-align:center;border-left:0.5px solid var(--border);border-right:0.5px solid var(--border);">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Facturado</div>
+            <div style="font-size:20px;font-weight:700;color:var(--brown);" id="mes-total-fact">—</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Ganancia</div>
+            <div style="font-size:20px;font-weight:700;color:var(--green);" id="mes-total-gan">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- VENDIDO -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Vendido</div>
@@ -731,91 +815,6 @@
         <div style="font-size:11px;color:var(--red);" id="alerta-tipo-campero-texto">Tienes bandejas campero sin vender.</div>
       </div>
 
-    </div>
-
-    <!-- RESUMEN MENSUAL -->
-    <div class="card" style="margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Resumen mensual</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button onclick="navMes(-1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);">&#8592;</button>
-          <div style="font-size:13px;font-weight:600;color:var(--brown);min-width:90px;text-align:center;" id="mes-label">—</div>
-          <button onclick="navMes(1)" style="background:var(--light);border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--brown);" id="btn-mes-next">&#8594;</button>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-        <div style="background:#FFF8F0;border:1.5px solid var(--orange);border-radius:10px;padding:12px;">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-actual-label">Mes actual</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Bandejas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-actual-ban">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Facturado</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-actual-fact">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Compras</span>
-            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-actual-comp">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Pérdidas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-actual-perd">—</span>
-          </div>
-          <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;">
-            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia real</span>
-            <span style="font-size:15px;font-weight:700;" id="mes-actual-gan">—</span>
-          </div>
-        </div>
-
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;" id="mes-ant-label">Mes anterior</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Bandejas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-ant-ban">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Facturado</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="mes-ant-fact">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Compras</span>
-            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-ant-comp">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Pérdidas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-ant-perd">—</span>
-          </div>
-          <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;">
-            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia real</span>
-            <span style="font-size:15px;font-weight:700;" id="mes-ant-gan">—</span>
-          </div>
-        </div>
-      </div>
-
-      <div id="mes-comparativa" style="border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;">
-        <div id="mes-comparativa-txt" style="font-size:12px;font-weight:600;"></div>
-        <div id="mes-comparativa-pct" style="font-size:20px;font-weight:700;"></div>
-      </div>
-
-      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-        <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Acumulado total</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Bandejas</div>
-            <div style="font-size:20px;font-weight:700;color:var(--orange);" id="mes-total-ban">—</div>
-          </div>
-          <div style="text-align:center;border-left:0.5px solid var(--border);border-right:0.5px solid var(--border);">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Facturado</div>
-            <div style="font-size:20px;font-weight:700;color:var(--brown);" id="mes-total-fact">—</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">Ganancia</div>
-            <div style="font-size:20px;font-weight:700;color:var(--green);" id="mes-total-gan">—</div>
-          </div>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -3598,7 +3597,6 @@ function renderPerdidas() {
 
 // initEmojis and cargarDatos are called after login
 </script>
-</div>
 </div>
 </body>
 </html>
