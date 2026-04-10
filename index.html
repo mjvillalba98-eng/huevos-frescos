@@ -3189,7 +3189,7 @@ function selTipoNoticia(tipo) {
 }
 
 function getClientesNoticia() {
-  var clientes = (data.clientes||[]).filter(function(c){ return c.tel; });
+  var clientes = (data.clientes||[]).filter(function(c){ return c.tel && !c.inactivo; });
   if(noticiaDestino === 'campero') return clientes.filter(function(c){ return c.tipoPreferido==='campero'; });
   if(noticiaDestino === 'granja') return clientes.filter(function(c){ return c.tipoPreferido==='granja'||!c.tipoPreferido||c.tipoPreferido==='ambos'; });
   return clientes;
@@ -3204,11 +3204,11 @@ function getMensajeNoticia(nombre) {
   var tel = decodeURIComponent('%F0%9F%93%9E');
   var smile = decodeURIComponent('%F0%9F%98%8A');
   if(noticiaTipo === 'novedad') {
-    return huevo+' Hola '+nombre+'! Novedad por aqui '+smile+'\n\nAhora tenemos dos tipos de huevos frescos:\n'+casa+' *Huevo de Granja (Nº2)* (libre de jaula) - 8.50EUR\n'+planta+' *Huevo Campero (Nº1)* (aire libre) - 15EUR\n\nMisma frescura, distinto origen '+pollo+'\n\nCual prefieres? Respondeme y te lo apunto '+smile;
+    return huevo+' Hola '+nombre+'! Novedad por aqui '+smile+'\n\nAhora tenemos dos tipos de huevos frescos (bandeja de 30 huevos L):\n\n'+casa+' *Huevo de Granja (Nº2)* - libre de jaula\n   Bandeja 30 huevos - 8.50€\n\n'+planta+' *Huevo Campero (Nº1)* - aire libre\n   Bandeja 30 huevos - 15€\n\nMisma frescura, distinto origen '+pollo+'\n\nCual prefieres? Respondeme y te lo apunto '+smile;
   } else if(noticiaTipo === 'recordatorio') {
-    return huevo+' Hola '+nombre+'! Te echamos de menos '+smile+'\n\nEsta semana todavia no has pedido... Todo bien?\n\n'+casa+' *Huevo de Granja (Nº2)* - 8.50EUR\n'+planta+' *Huevo Campero (Nº1)* - 15EUR\n\n'+tel+' 689 273 452 / 676 075 510';
+    return huevo+' Hola '+nombre+'! Te echamos de menos '+smile+'\n\nEsta semana todavia no has pedido tus huevos... Todo bien?\n\n'+casa+' *Huevo de Granja (Nº2)*\n   Bandeja 30 huevos L - 8.50€\n\n'+planta+' *Huevo Campero (Nº1)*\n   Bandeja 30 huevos L - 15€\n\n'+tel+' 689 273 452 / 676 075 510';
   } else {
-    return huevo+' Hola '+nombre+'! Oferta especial '+corazon+'\n\nEsta semana: lleva 2 bandejas y te hacemos precio especial.\n\n'+casa+' *Huevo de Granja (Nº2)* - 8.50EUR\n'+planta+' *Huevo Campero (Nº1)* - 15EUR\n\nResponde y te lo preparo hoy mismo '+smile;
+    return huevo+' Hola '+nombre+'! Oferta especial '+corazon+'\n\nEsta semana: lleva 2 bandejas y te hacemos precio especial.\n\n'+casa+' *Huevo de Granja (Nº2)* - Bandeja 30 huevos L - 8.50€\n'+planta+' *Huevo Campero (Nº1)* - Bandeja 30 huevos L - 15€\n\nResponde y te lo preparo hoy mismo '+smile;
   }
 }
 
