@@ -2179,7 +2179,7 @@ function updateStatsCompras() {
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
-  // CAJA ACTUAL — desde la última compra real, restando lo pagado al proveedor
+  // CAJA ACTUAL — cobrado desde la última compra real al proveedor
   var comprasReales = compras.filter(function(x){return !x.devolucion;});
   var ultimaCompraFecha = comprasReales.length > 0
     ? new Date(Math.max.apply(null, comprasReales.map(function(x){return new Date(x.fecha).getTime();})))
@@ -2192,18 +2192,7 @@ function updateStatsCompras() {
   var cajaEfectivo = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo';}).reduce(function(s,p){return s+p.total;},0);
   var cajaBizum = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum';}).reduce(function(s,p){return s+p.total;},0);
 
-  // Restar compras pagadas al proveedor desde la ultima compra
-  var comprasDesde = comprasReales.filter(function(x){
-    return new Date(x.fecha) >= ultimaCompraFecha && x.estadoPago==='pagado';
-  });
-  comprasDesde.forEach(function(x){
-    if(x.metodoPago==='efectivo') cajaEfectivo -= x.total;
-    else if(x.metodoPago==='mixto') cajaEfectivo -= (x.montoEfectivo||0);
-    if(x.metodoPago==='bizum') cajaBizum -= x.total;
-    else if(x.metodoPago==='mixto') cajaBizum -= (x.montoBizum||0);
-  });
-
-  // Pendiente de cobrar a clientes
+  // Pendiente de cobrar a clientes desde la última compra
   var pendienteCobrarCaja = pedidosDesdeCompra.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
 
   var meses2 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
