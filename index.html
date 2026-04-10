@@ -551,28 +551,6 @@
         💰 Resumen financiero completo del negocio.
       </div>
     </div>
-    <!-- RESUMEN -->
-    <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Resumen general</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-        <div style="text-align:center;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Margen %</div>
-          <div style="font-size:22px;font-weight:700;color:var(--green);" id="stat-margen">—</div>
-        </div>
-        <div style="text-align:center;padding:10px;border-left:0.5px solid var(--border);border-right:0.5px solid var(--border);">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Promedio semanal</div>
-          <div style="font-size:22px;font-weight:700;color:var(--brown);" id="stat-promedio-semanal">—</div>
-        </div>
-        <div style="text-align:center;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Pendiente cobrar</div>
-          <div style="font-size:22px;font-weight:700;color:var(--amber);" id="stat-pendiente-cobrar">—</div>
-        </div>
-      </div>
-    </div>
-
-
-
-
     <!-- CAJA ACTUAL -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
@@ -648,6 +626,51 @@
       </div>
     </div>
 
+    <!-- RESUMEN -->
+    <div class="card" style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Resumen general</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div style="text-align:center;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Margen %</div>
+          <div style="font-size:22px;font-weight:700;color:var(--green);" id="stat-margen">—</div>
+        </div>
+        <div style="text-align:center;padding:10px;border-left:0.5px solid var(--border);border-right:0.5px solid var(--border);">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Promedio semanal</div>
+          <div style="font-size:22px;font-weight:700;color:var(--brown);" id="stat-promedio-semanal">—</div>
+        </div>
+        <div style="text-align:center;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Pendiente cobrar</div>
+          <div style="font-size:22px;font-weight:700;color:var(--amber);" id="stat-pendiente-cobrar">—</div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <!-- SEMANAL -->
+    <div class="card" style="margin-bottom:10px;" id="card-resumen-semanal">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comparativa semanal</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Esta semana</div>
+          <div style="font-size:10px;color:var(--orange);font-weight:600;margin-bottom:4px;" id="stat-esta-semana-rango">—</div>
+          <div style="font-size:18px;font-weight:700;" id="stat-esta-semana-p-€">—</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-esta-semana-p-ban">— bandejas</div>
+        </div>
+        <div class="stat" style="margin:0;padding:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Semana pasada</div>
+          <div style="font-size:10px;color:var(--orange);font-weight:600;margin-bottom:4px;" id="stat-semana-pasada-rango">—</div>
+          <div style="font-size:18px;font-weight:700;" id="stat-semana-pasada-p-€">—</div>
+          <div style="font-size:11px;color:var(--muted);" id="stat-semana-pasada-p-ban">— bandejas</div>
+        </div>
+      </div>
+      <div id="stat-semana-p-alerta" style="border-radius:10px;padding:10px;background:var(--light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:12px;color:var(--muted);" id="stat-semana-p-texto">Sin datos suficientes</div>
+        <div style="font-size:14px;font-weight:700;color:var(--muted);" id="stat-semana-p-pct">—</div>
+      </div>
+    </div>
+
     <!-- POR TIPO -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Por tipo de huevo</div>
@@ -708,28 +731,6 @@
         <div style="font-size:11px;color:var(--red);" id="alerta-tipo-campero-texto">Tienes bandejas campero sin vender.</div>
       </div>
 
-    </div>
-
-    <div class="card" style="margin-bottom:10px;" id="card-resumen-semanal">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comparativa semanal</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Esta semana</div>
-          <div style="font-size:10px;color:var(--orange);font-weight:600;margin-bottom:4px;" id="stat-esta-semana-rango">—</div>
-          <div style="font-size:18px;font-weight:700;" id="stat-esta-semana-p-€">—</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-esta-semana-p-ban">— bandejas</div>
-        </div>
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Semana pasada</div>
-          <div style="font-size:10px;color:var(--orange);font-weight:600;margin-bottom:4px;" id="stat-semana-pasada-rango">—</div>
-          <div style="font-size:18px;font-weight:700;" id="stat-semana-pasada-p-€">—</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-semana-pasada-p-ban">— bandejas</div>
-        </div>
-      </div>
-      <div id="stat-semana-p-alerta" style="border-radius:10px;padding:10px;background:var(--light);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:12px;color:var(--muted);" id="stat-semana-p-texto">Sin datos suficientes</div>
-        <div style="font-size:14px;font-weight:700;color:var(--muted);" id="stat-semana-p-pct">—</div>
-      </div>
     </div>
 
     <!-- RESUMEN MENSUAL -->
