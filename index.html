@@ -470,8 +470,12 @@
         <button onclick="togglePrecioForm()" style="background:var(--orange);color:white;border:none;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">+ Registrar</button>
       </div>
       <div id="precio-form" style="display:none;margin-bottom:10px;padding:10px;background:var(--light);border-radius:10px;">
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <button type="button" id="ptipo-suelo-btn" onclick="selPrecioTipo('suelo')" style="flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;border:2px solid var(--orange);background:var(--orange);color:white;cursor:pointer;">Granja N2</button>
+          <button type="button" id="ptipo-campero-btn" onclick="selPrecioTipo('campero')" style="flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;border:2px solid var(--border);background:white;color:var(--brown);cursor:pointer;">Campero N1</button>
+        </div>
         <div style="display:flex;gap:8px;margin-bottom:8px;">
-          <div style="flex:1;"><label style="font-size:11px;color:var(--muted);">Precio (€)</label><input id="precio-input" type="number" value="7.00" step="0.01" style="width:100%;"/></div>
+          <div style="flex:1;"><label style="font-size:11px;color:var(--muted);">Precio (EUR)</label><input id="precio-input" type="number" value="7.00" step="0.01" min="0" style="width:100%;"/></div>
           <div style="flex:1;"><label style="font-size:11px;color:var(--muted);">Fecha</label><input id="precio-fecha" type="date" style="width:100%;"/></div>
         </div>
         <button onclick="guardarPrecio()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Guardar precio</button>
@@ -1754,7 +1758,9 @@ async function guardarPrecio() {
   var fecha = document.getElementById('precio-fecha').value;
   if(!fecha) return toast('Selecciona una fecha');
   if(!data.precios) data.precios=[];
-  data.precios.unshift({id:Date.now(), precio, fecha});
+  var cbtn2 = document.getElementById('ptipo-campero-btn');
+  var tipoPrecio = cbtn2 && (cbtn2.style.background==='rgb(45, 122, 79)'||cbtn2.style.background==='#2D7A4F') ? 'campero' : 'suelo';
+  data.precios.unshift({id:Date.now(), precio, fecha, tipo:tipoPrecio});
   await guardarDatos();
   document.getElementById('precio-form').style.display='none';
   renderPrecios();
@@ -1774,9 +1780,15 @@ function renderPrecios() {
     var diff = siguiente ? (p.precio - siguiente.precio).toFixed(2) : null;
     var diffColor = diff > 0 ? 'var(--red)' : diff < 0 ? 'var(--green)' : 'var(--muted)';
     var diffText = diff > 0 ? '+'+diff+'€' : diff < 0 ? diff+'€' : 'base';
-    var margen = (8.5 - p.precio).toFixed(2);
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--light);border-radius:8px;margin-bottom:6px;">'
+    var esCampero = p.tipo==='campero';
+    var precioVenta = esCampero ? 15.0 : 8.5;
+    var margen = (precioVenta - p.precio).toFixed(2);
+    var tipoLabel = esCampero ? 'Campero N1' : 'Granja N2';
+    var bg = esCampero ? '#F0FFF4' : 'var(--light)';
+    var tipoColor = esCampero ? '#2D7A4F' : 'var(--orange)';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:'+bg+';border-radius:8px;margin-bottom:6px;">'
       + '<div>'
+      + '<div style="font-size:10px;font-weight:600;color:'+tipoColor+';margin-bottom:2px;">'+tipoLabel+'</div>'
       + '<div style="font-size:13px;font-weight:600;color:var(--brown);">'+formatDate(p.fecha)+'</div>'
       + '<div style="font-size:11px;color:var(--muted);">Margen: '+margen+'€/bandeja</div>'
       + '</div>'
@@ -2166,7 +2178,13 @@ function updateStatsCompras() {
   function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
   set('stat-comprado', totalComprado.toFixed(2)+'€');
   set('stat-bandejas-compradas', bandejaCompradas+' bandejas');
-  set('stat-precio-medio', precioMedio.toFixed(2)+'€');
+  var comprasSueloR = compras.filter(function(x){return !x.devolucion && x.precio>0 && (!x.tipo||x.tipo==='suelo');});
+  var comprasCamperoR = compras.filter(function(x){return !x.devolucion && x.precio>0 && x.tipo==='campero';});
+  var pmSuelo = comprasSueloR.length>0 ? comprasSueloR.reduce(function(s,x){return s+x.total;},0)/comprasSueloR.reduce(function(s,x){return s+x.bandejas;},0) : 0;
+  var pmCampero = comprasCamperoR.length>0 ? comprasCamperoR.reduce(function(s,x){return s+x.total;},0)/comprasCamperoR.reduce(function(s,x){return s+x.bandejas;},0) : 0;
+  var pmText = pmSuelo>0 ? pmSuelo.toFixed(2)+'EUR' : '--';
+  if(pmCampero>0) pmText += ' / C:'+pmCampero.toFixed(2)+'EUR';
+  set('stat-precio-medio', pmText);
   set('stat-compras-pendiente', comprasPendientes.toFixed(2)+'€');
   set('stat-compras-pendiente-ban', bandejasPendientePago+' bandejas');
 
@@ -2186,7 +2204,25 @@ function updateStatsCompras() {
   var set2 = function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
   set2('stat-perdidas-ban', bandejasPerdidas+' bandeja'+(bandejasPerdidas!==1?'s':''));
 
-  // STOCK
+  // STOCK por tipo
+  var comprasSuelo = compras.filter(function(x){return !x.tipo||x.tipo==='suelo';});
+  var comprasCamp = compras.filter(function(x){return x.tipo==='campero';});
+  var pedidosSuelo = pedidos.filter(function(x){return !x.tipo||x.tipo==='suelo';});
+  var pedidosCamp = pedidos.filter(function(x){return x.tipo==='campero';});
+  var perdSuelo = perdidas.filter(function(x){return !x.tipo||x.tipo==='suelo';});
+  var perdCamp = perdidas.filter(function(x){return x.tipo==='campero';});
+  var banCompSuelo = comprasSuelo.reduce(function(s,x){return s+x.bandejas;},0);
+  var banCompCamp = comprasCamp.reduce(function(s,x){return s+x.bandejas;},0);
+  var banVendSuelo = pedidosSuelo.reduce(function(s,x){return s+x.bandejas;},0);
+  var banVendCamp = pedidosCamp.reduce(function(s,x){return s+x.bandejas;},0);
+  var banPerdSuelo = perdSuelo.reduce(function(s,x){return s+x.bandejas;},0);
+  var banPerdCamp = perdCamp.reduce(function(s,x){return s+x.bandejas;},0);
+  var stockSuelo = banCompSuelo - banVendSuelo - banPerdSuelo;
+  var stockCamp = banCompCamp - banVendCamp - banPerdCamp;
+  var sueloEl = document.getElementById('stat-stock-suelo');
+  var campEl = document.getElementById('stat-stock-campero');
+  if(sueloEl){ sueloEl.textContent=stockSuelo; sueloEl.style.color=stockSuelo<=0?'var(--red)':stockSuelo<=3?'var(--amber)':'var(--green)'; }
+  if(campEl){ campEl.textContent=stockCamp; campEl.style.color=stockCamp<=0?'var(--red)':stockCamp<=2?'var(--amber)':'var(--green)'; }
   set('stat-ban-compradas', bandejaCompradas);
   set('stat-ban-vendidas', bandejasPedidas);
   var stockEl = document.getElementById('stat-stock');
