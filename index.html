@@ -746,8 +746,12 @@
             <span style="font-size:11px;color:var(--muted);">Compras</span>
             <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-actual-comp">—</span>
           </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Pérdidas</span>
+            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-actual-perd">—</span>
+          </div>
           <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;">
-            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia</span>
+            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia real</span>
             <span style="font-size:15px;font-weight:700;" id="mes-actual-gan">—</span>
           </div>
         </div>
@@ -766,8 +770,12 @@
             <span style="font-size:11px;color:var(--muted);">Compras</span>
             <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-ant-comp">—</span>
           </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:11px;color:var(--muted);">Pérdidas</span>
+            <span style="font-size:13px;font-weight:700;color:var(--red);" id="mes-ant-perd">—</span>
+          </div>
           <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;">
-            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia</span>
+            <span style="font-size:11px;color:var(--muted);font-weight:600;">Ganancia real</span>
             <span style="font-size:15px;font-weight:700;" id="mes-ant-gan">—</span>
           </div>
         </div>
@@ -3389,6 +3397,7 @@ function navMes(dir) {
 function getStatsMes(year, month) {
   var pedidos = data.pedidos||[];
   var compras = (data.compras||[]).filter(function(x){return !x.devolucion;});
+  var perdidas = data.perdidas||[];
 
   // Todos los pedidos del mes por fecha de entrega
   var psTodos = pedidos.filter(function(p){
@@ -3399,13 +3408,18 @@ function getStatsMes(year, month) {
     var d = new Date(x.fecha);
     return d.getFullYear()===year && d.getMonth()===month;
   });
+  var perd = perdidas.filter(function(x){
+    var d = new Date(x.fecha);
+    return d.getFullYear()===year && d.getMonth()===month;
+  });
 
   var bandejas = psTodos.reduce(function(s,p){return s+p.bandejas;},0);
   var facturado = psTodos.reduce(function(s,p){return s+p.total;},0);
   var comprado = cs.reduce(function(s,x){return s+x.total;},0);
-  var ganancia = facturado - comprado;
+  var perdido = perd.reduce(function(s,x){return s+x.total;},0);
+  var ganancia = facturado - comprado - perdido;
 
-  return {bandejas:bandejas, facturado:facturado, comprado:comprado, ganancia:ganancia};
+  return {bandejas:bandejas, facturado:facturado, comprado:comprado, perdido:perdido, ganancia:ganancia};
 }
 
 function renderResumenMensual() {
@@ -3426,12 +3440,14 @@ function renderResumenMensual() {
   setEl('mes-actual-ban', actual.bandejas+' band.');
   setEl('mes-actual-fact', actual.facturado.toFixed(2)+'€');
   setEl('mes-actual-comp', '-'+actual.comprado.toFixed(2)+'€');
+  setEl('mes-actual-perd', actual.perdido>0?'-'+actual.perdido.toFixed(2)+'€':'0.00€');
   setEl('mes-actual-gan', actual.ganancia.toFixed(2)+'€', actual.ganancia>=0?'var(--green)':'var(--red)');
 
   // Anterior
   setEl('mes-ant-ban', anterior.bandejas+' band.');
   setEl('mes-ant-fact', anterior.facturado.toFixed(2)+'€');
   setEl('mes-ant-comp', '-'+anterior.comprado.toFixed(2)+'€');
+  setEl('mes-ant-perd', anterior.perdido>0?'-'+anterior.perdido.toFixed(2)+'€':'0.00€');
   setEl('mes-ant-gan', anterior.ganancia.toFixed(2)+'€', anterior.ganancia>=0?'var(--green)':'var(--red)');
 
   // Comparativa
