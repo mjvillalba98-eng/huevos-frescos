@@ -380,143 +380,6 @@
       </div>
     </div>
 
-    <!-- VENDIDO -->
-    <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Vendido</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div class="num" style="font-size:18px;" id="stat-total-vendido">—</div>
-          <div class="lbl">Total facturado</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-bandejas-vendidas">— bandejas</div>
-        </div>
-        <div class="stat green" style="margin:0;padding:10px;">
-          <div class="num" id="stat-ganancia" style="font-size:18px;">—</div>
-          <div class="lbl">Ganancia neta</div>
-          <div style="font-size:11px;color:var(--muted);">descontando pérdidas</div>
-        </div>
-        <div class="stat red" style="margin:0;padding:10px;">
-          <div class="num" id="stat-perdidas-total" style="font-size:18px;">—</div>
-          <div class="lbl">Pérdidas</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-perdidas-ban">— bandejas</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div class="num" style="font-size:18px;" id="stat-efectivo-cobrado">—</div>
-          <div class="lbl">💵 Efectivo</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-efectivo-ban">— bandejas</div>
-        </div>
-        <div class="stat" style="margin:0;padding:10px;">
-          <div class="num" style="font-size:18px;" id="stat-bizum-cobrado">—</div>
-          <div class="lbl">📱 Bizum</div>
-          <div style="font-size:11px;color:var(--muted);" id="stat-bizum-ban">— bandejas</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CAJA ACTUAL -->
-    <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Saldo inicial + cobros - compras al proveedor</div>
-      <div id="saldo-inicial-form" style="display:none;background:var(--light);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid var(--border);">
-        <div style="font-size:12px;font-weight:600;color:var(--brown);margin-bottom:8px;">Saldo inicial de caja (solo una vez)</div>
-        <div style="display:flex;gap:8px;margin-bottom:8px;">
-          <div style="flex:1;">
-            <label style="font-size:11px;color:var(--muted);">💵 Efectivo (€)</label>
-            <input type="number" id="saldo-ef-input" value="0" step="0.01" min="0" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;"/>
-          </div>
-          <div style="flex:1;">
-            <label style="font-size:11px;color:var(--muted);">📱 Bizum (€)</label>
-            <input type="number" id="saldo-bz-input" value="0" step="0.01" min="0" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;"/>
-          </div>
-        </div>
-        <div style="margin-bottom:8px;">
-          <label style="font-size:11px;color:var(--muted);">Fecha desde la que contar</label>
-          <input type="date" id="saldo-fecha-input" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;box-sizing:border-box;"/>
-        </div>
-        <button onclick="guardarSaldoInicial()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Guardar saldo inicial</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">💵 Efectivo</div>
-          <div style="font-size:20px;font-weight:700;" id="stat-caja-efectivo">—</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="stat-caja-efectivo-det">—</div>
-        </div>
-        <div class="stat" style="margin:0;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">📱 Bizum</div>
-          <div style="font-size:20px;font-weight:700;" id="stat-caja-bizum">—</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="stat-caja-bizum-det">—</div>
-        </div>
-      </div>
-      <div style="padding:10px;background:var(--light);border-radius:10px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <div style="font-size:12px;color:var(--muted);">⏳ Pendiente de cobrar</div>
-        <div style="font-size:14px;font-weight:700;" id="stat-caja-pendiente">—</div>
-      </div>
-      <button onclick="toggleSaldoInicial()" style="width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;">⚙️ Ajustar saldo inicial</button>
-    </div>
-
-    <!-- POR TIPO -->
-    <div class="card" style="margin-bottom:10px;">
-      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Por tipo de huevo</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <div style="background:var(--light);border:1px solid var(--border);border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">&#x1F3E0; Huevo de Granja (Nº2)</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Compradas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-granja-compradas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Vendidas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-granja-vendidas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:11px;color:var(--muted);">Ganancia</span>
-            <span style="font-size:13px;font-weight:700;color:var(--green);" id="tipo-granja-ganancia">—</span>
-          </div>
-          <div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden;">
-            <div id="tipo-granja-bar" style="background:var(--orange);border-radius:4px;height:5px;width:0%;transition:width 0.3s;"></div>
-          </div>
-          <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="tipo-granja-pct">—</div>
-        </div>
-        <div style="background:#F0FFF4;border:1px solid #2D7A4F;border-radius:10px;padding:10px;">
-          <div style="font-size:11px;color:#2D7A4F;margin-bottom:8px;font-weight:600;">&#x1F33F; Huevo Campero (Nº1)</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Compradas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-campero-compradas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-size:11px;color:var(--muted);">Vendidas</span>
-            <span style="font-size:13px;font-weight:700;color:var(--brown);" id="tipo-campero-vendidas">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:11px;color:var(--muted);">Ganancia</span>
-            <span style="font-size:13px;font-weight:700;color:var(--green);" id="tipo-campero-ganancia">—</span>
-          </div>
-          <div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden;">
-            <div id="tipo-campero-bar" style="background:#2D7A4F;border-radius:4px;height:5px;width:0%;transition:width 0.3s;"></div>
-          </div>
-          <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="tipo-campero-pct">—</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <div style="text-align:center;padding:8px;background:var(--light);border-radius:8px;border:1px solid var(--border);">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">&#x1F3E0; Margen Granja</div>
-          <div style="font-size:20px;font-weight:700;color:var(--orange);" id="tipo-granja-margen">—</div>
-          <div style="font-size:10px;color:var(--muted);">1.50&#x20AC;/bandeja</div>
-        </div>
-        <div style="text-align:center;padding:8px;background:#F0FFF4;border-radius:8px;border:1px solid #2D7A4F;">
-          <div style="font-size:11px;color:#2D7A4F;margin-bottom:3px;">&#x1F33F; Margen Campero</div>
-          <div style="font-size:20px;font-weight:700;color:#2D7A4F;" id="tipo-campero-margen">—</div>
-          <div style="font-size:10px;color:var(--muted);">2.00&#x20AC;/bandeja</div>
-        </div>
-      </div>
-      <div id="alerta-tipo-campero" style="display:none;background:#FFE8E8;border-radius:10px;padding:10px;border:1px solid var(--red);">
-        <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px;">&#x26A0;&#xFE0F; Campero sin movimiento</div>
-        <div style="font-size:11px;color:var(--red);" id="alerta-tipo-campero-texto">Tienes bandejas campero sin vender.</div>
-      </div>
-
-    </div>
-
     <!-- STOCK -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Stock</div>
@@ -1546,6 +1409,10 @@ DATA_DOC.onSnapshot(function(snap) {
     var pedidosTab = document.getElementById('tab-pedidos');
     if(pedidosTab && !pedidosTab.classList.contains('section-hidden')) {
       renderPedidos(); renderSelectClientes(); updateResumenSemanalPedidos();
+    }
+    var finanzasTab = document.getElementById('tab-finanzas');
+    if(finanzasTab && !finanzasTab.classList.contains('section-hidden')) {
+      updateStats();updateStatsCompras();updateResumenSemanal();updateResumenSemanalPedidos();renderResumenMensual();renderPerdidas();
     }
     var comprasTab = document.getElementById('tab-compras');
     if(comprasTab && !comprasTab.classList.contains('section-hidden')) {
