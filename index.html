@@ -434,6 +434,10 @@
             <input type="number" id="saldo-bz-input" value="0" step="0.01" min="0" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;"/>
           </div>
         </div>
+        <div style="margin-bottom:8px;">
+          <label style="font-size:11px;color:var(--muted);">Fecha desde la que contar</label>
+          <input type="date" id="saldo-fecha-input" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;box-sizing:border-box;"/>
+        </div>
         <button onclick="guardarSaldoInicial()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;">Guardar saldo inicial</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
@@ -2195,21 +2199,23 @@ function updateStatsCompras() {
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
   var banBizum = bizumPedidos.reduce(function(s,p){return s+p.bandejas;},0);
 
-  // CAJA ACTUAL — saldo inicial + cobros a clientes - pagos al proveedor
+  // CAJA ACTUAL — saldo inicial + cobros desde fecha - pagos proveedor desde fecha
   var saldoInicialEf = parseFloat((data.saldoInicial||{}).efectivo||0);
   var saldoInicialBz = parseFloat((data.saldoInicial||{}).bizum||0);
+  var saldoFecha = (data.saldoInicial||{}).fecha ? new Date((data.saldoInicial||{}).fecha) : new Date(0);
+  saldoFecha.setHours(0,0,0,0);
 
   var comprasReales = compras.filter(function(x){return !x.devolucion;});
 
-  // Todo cobrado a clientes
-  var cobradoEf = pedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
-  var cobradoBz = pedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
+  // Cobrado a clientes DESDE la fecha del saldo inicial
+  var cobradoEf = pedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado'&&new Date(p.fechaPedido||p.fecha)>=saldoFecha;}).reduce(function(s,p){return s+p.total;},0);
+  var cobradoBz = pedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado'&&new Date(p.fechaPedido||p.fecha)>=saldoFecha;}).reduce(function(s,p){return s+p.total;},0);
 
-  // Todo pagado al proveedor (solo compras reales pagadas)
-  var pagadoEf = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='efectivo';}).reduce(function(s,x){return s+x.total;},0);
-  var pagadoEfMixto = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto';}).reduce(function(s,x){return s+(x.montoEfectivo||0);},0);
-  var pagadoBz = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='bizum';}).reduce(function(s,x){return s+x.total;},0);
-  var pagadoBzMixto = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto';}).reduce(function(s,x){return s+(x.montoBizum||0);},0);
+  // Pagado al proveedor DESDE la fecha del saldo inicial
+  var pagadoEf = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='efectivo'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+x.total;},0);
+  var pagadoEfMixto = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+(x.montoEfectivo||0);},0);
+  var pagadoBz = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='bizum'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+x.total;},0);
+  var pagadoBzMixto = comprasReales.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+(x.montoBizum||0);},0);
 
   var cajaEfectivo = saldoInicialEf + cobradoEf - pagadoEf - pagadoEfMixto;
   var cajaBizum = saldoInicialBz + cobradoBz - pagadoBz - pagadoBzMixto;
@@ -3265,15 +3271,30 @@ async function enviarCampanaNoticia() {
 
 function toggleSaldoInicial() {
   var f = document.getElementById('saldo-inicial-form');
-  if(f) f.style.display = f.style.display==='none' ? 'block' : 'none';
+  if(!f) return;
+  var showing = f.style.display !== 'none';
+  f.style.display = showing ? 'none' : 'block';
+  if(!showing) {
+    // Pre-fill with saved values
+    var si = data.saldoInicial||{};
+    var efEl = document.getElementById('saldo-ef-input');
+    var bzEl = document.getElementById('saldo-bz-input');
+    var feEl = document.getElementById('saldo-fecha-input');
+    if(efEl) efEl.value = si.efectivo||0;
+    if(bzEl) bzEl.value = si.bizum||0;
+    if(feEl) feEl.value = si.fecha||new Date().toISOString().split('T')[0];
+  }
 }
 
 async function guardarSaldoInicial() {
   var ef = parseFloat(document.getElementById('saldo-ef-input').value)||0;
   var bz = parseFloat(document.getElementById('saldo-bz-input').value)||0;
+  var fechaEl = document.getElementById('saldo-fecha-input');
+  var fecha = fechaEl && fechaEl.value ? fechaEl.value : new Date().toISOString().split('T')[0];
   if(!data.saldoInicial) data.saldoInicial = {};
   data.saldoInicial.efectivo = ef;
   data.saldoInicial.bizum = bz;
+  data.saldoInicial.fecha = fecha;
   await guardarDatos();
   document.getElementById('saldo-inicial-form').style.display = 'none';
   updateStatsCompras();
