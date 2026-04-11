@@ -550,8 +550,17 @@
     <!-- CAJA ACTUAL -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Caja actual</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;" id="stat-caja-desde">Cobrado desde la última compra al proveedor</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Saldo inicial + cobros - compras al proveedor</div>
+      <div id="saldo-inicial-form" style="display:none;background:var(--light);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid var(--border);">
+        <div style="font-size:12px;font-weight:600;color:var(--brown);margin-bottom:8px;">Saldo inicial (solo una vez)</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <div style="flex:1;"><label style="font-size:11px;color:var(--muted);">💵 Efectivo (€)</label><input type="number" id="saldo-ef-input" value="0" step="0.01" min="0" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;box-sizing:border-box;"/></div>
+          <div style="flex:1;"><label style="font-size:11px;color:var(--muted);">📱 Bizum (€)</label><input type="number" id="saldo-bz-input" value="0" step="0.01" min="0" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;box-sizing:border-box;"/></div>
+        </div>
+        <div style="margin-bottom:8px;"><label style="font-size:11px;color:var(--muted);">Fecha desde la que contar</label><input type="date" id="saldo-fecha-input" style="border:1px solid var(--border);border-radius:8px;padding:8px;font-size:14px;width:100%;background:white;color:var(--brown);outline:none;box-sizing:border-box;"/></div>
+        <button onclick="guardarSaldoInicial()" style="width:100%;background:var(--orange);color:white;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">Guardar saldo inicial</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;">
         <div class="stat" style="margin:0;padding:10px;">
           <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">💵 Efectivo</div>
           <div style="font-size:20px;font-weight:700;" id="stat-caja-efectivo">—</div>
@@ -563,6 +572,11 @@
           <div style="font-size:10px;color:var(--muted);margin-top:3px;" id="stat-caja-bizum-det">—</div>
         </div>
       </div>
+      <div style="padding:10px;background:var(--light);border-radius:10px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:12px;color:var(--muted);">⏳ Pendiente de cobrar</div>
+        <div style="font-size:14px;font-weight:700;" id="stat-caja-pendiente">—</div>
+      </div>
+      <button onclick="toggleSaldoInicial()" style="width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;">⚙️ Ajustar saldo inicial</button>
     </div>
 
 
@@ -1323,7 +1337,7 @@ function renderClientes(busca='') {
         <button class="btn-sm add" onclick="event.stopPropagation();abrirModal(${c.id})">+ Pedido</button>
         <button class="btn-sm edit" onclick="event.stopPropagation();abrirEditar(${c.id})">✏️ Editar</button>
         ${c.tel?`<button class="btn-sm wa" onclick="event.stopPropagation();enviarWhatsApp(${c.id})">📲 WA</button>`:''}
-        ${c.tel?`<button class="btn-sm" onclick="event.stopPropagation();enviarNovedadCampero(${c.id})" style="background:#E8F5E9;color:#2D7A4F;">🌿 Novedad</button>`:''}
+
         <button class="btn-sm del" onclick="event.stopPropagation();eliminarCliente(${c.id})">Eliminar</button>
       </div>
     </div>`;
