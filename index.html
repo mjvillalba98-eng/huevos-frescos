@@ -2140,8 +2140,8 @@ function updateStatsCompras() {
   var ganancia = totalVendido - totalComprado - totalPerdidas;
 
   // Por metodo de pago
-  var efectivoPedidos = pedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';});
-  var bizumPedidos = pedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';});
+  var efectivoPedidos = pedidos.filter(function(p){return (p.pago||'').toLowerCase()==='efectivo'&&p.estado==='pagado';});
+  var bizumPedidos = pedidos.filter(function(p){return (p.pago||'').toLowerCase()==='bizum'&&p.estado==='pagado';});
   var totalEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.total;},0);
   var totalBizum = bizumPedidos.reduce(function(s,p){return s+p.total;},0);
   var banEfectivo = efectivoPedidos.reduce(function(s,p){return s+p.bandejas;},0);
@@ -2160,8 +2160,8 @@ function updateStatsCompras() {
     fr.setHours(0,0,0,0);
     return fr >= saldoFecha;
   });
-  var cobEf = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
-  var cobBz = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
+  var cobEf = pedidosDesdeCompra.filter(function(p){return (p.pago||'').toLowerCase()==='efectivo'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
+  var cobBz = pedidosDesdeCompra.filter(function(p){return (p.pago||'').toLowerCase()==='bizum'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
   var comprasRealesCaja = (data.compras||[]).filter(function(x){return !x.devolucion;});
   var pagEf = comprasRealesCaja.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='efectivo'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+x.total;},0);
   var pagEfMx = comprasRealesCaja.filter(function(x){return x.estadoPago==='pagado'&&x.metodoPago==='mixto'&&new Date(x.fecha)>=saldoFecha;}).reduce(function(s,x){return s+(x.montoEfectivo||0);},0);
@@ -3199,8 +3199,8 @@ function renderResumenMensual() {
   setEl('mes-total-gan', todoGan.toFixed(2)+'€', todoGan>=0?'var(--green)':'var(--red)');
   var histPend = todoPedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
   setEl('hist-pendiente', histPend>0?histPend.toFixed(2)+'€':'0€');
-  var histEf = todoPedidos.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';});
-  var histBz = todoPedidos.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';});
+  var histEf = todoPedidos.filter(function(p){return (p.pago||'').toLowerCase()==='efectivo'&&p.estado==='pagado';});
+  var histBz = todoPedidos.filter(function(p){return (p.pago||'').toLowerCase()==='bizum'&&p.estado==='pagado';});
   var histEfTotal = histEf.reduce(function(s,p){return s+p.total;},0);
   var histBzTotal = histBz.reduce(function(s,p){return s+p.total;},0);
   setEl('hist-efectivo-cobrado', histEfTotal.toFixed(2)+'€');
