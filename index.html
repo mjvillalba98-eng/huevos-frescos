@@ -1689,16 +1689,12 @@ function renderPosibles() {
 
 function limpiarTelefono(tel) {
   if(!tel) return null;
-  // Remove spaces, dashes, dots, parentheses
-  var t = tel.replace(/[\s\-\.\(\)\+]/g, '');
-  // If starts with 0034, remove it
+  var t = tel.replace(/[\s\-\.\(\)]/g, '');
+  if(t.startsWith('+')) t = t.substring(1);
   if(t.startsWith('0034')) t = t.substring(4);
-  // If starts with 34 and has 11 digits total, it already has prefix
-  if(t.startsWith('34') && t.length === 11) return t;
-  // If 9 digits (Spanish number without prefix), add 34
-  if(t.length === 9) return '34' + t;
-  // Otherwise return as is
-  return t;
+  if(t.startsWith('34') && t.length === 11) return '+' + t;
+  if(t.length === 9) return '+34' + t;
+  return '+' + t;
 }
 
 function toggleNotificaciones() {
@@ -2428,7 +2424,7 @@ function abrirWhatsApp(tel, mensaje) {
     a.click();
     setTimeout(function(){ document.body.removeChild(a); }, 500);
   } else {
-    var url = 'https://web.whatsapp.com/send?phone=' + tel + '&text=' + encodeURIComponent(mensaje);
+    var url = 'https://web.whatsapp.com/send?phone=' + tel.replace('+','') + '&text=' + encodeURIComponent(mensaje);
     window.open(url, 'whatsapp_huevos');
   }
 }
@@ -3323,7 +3319,7 @@ function enviarCampana() {
   function siguiente() {
     if(i >= clientes.length){ campanaEnviando=false; toast('Campana enviada a '+enviados+' clientes'); return; }
     var cliente = clientes[i++];
-    var telLimpio = (cliente.tel||'').replace(/[^0-9+]/g,'');
+    var telLimpio = limpiarTelefono(cliente.tel);
     if(telLimpio) { abrirWhatsApp(telLimpio, getMensajeNoticia(cliente.nombre)); enviados++; }
     setTimeout(siguiente, 1800);
   }
