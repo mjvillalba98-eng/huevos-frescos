@@ -282,11 +282,6 @@
 
   <!-- PEDIDOS -->
   <div id="tab-pedidos" class="section-hidden">
-    <div class="stats" style="grid-template-columns:repeat(3,1fr);">
-      <div class="stat green"><div class="num" id="stat-cobrado">—</div><div class="lbl">Cobrado</div></div>
-      <div class="stat red"><div class="num" id="stat-pendiente">—</div><div class="lbl">Pendiente</div></div>
-      <div class="stat red"><div class="num" id="stat-clientes-deben">—</div><div class="lbl">Clientes deben</div></div>
-    </div>
     <div style="display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px;">
       <button onclick="filtrarPedidos('todos')" id="fpb-todos" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--brown);background:var(--brown);color:white;cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">Todos</button>
       <button onclick="filtrarPedidos('pendiente-entrega')" id="fpb-pendiente-entrega" style="white-space:nowrap;font-size:12px;padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:white;color:var(--brown);cursor:pointer;font-weight:600;font-family:'Sora',sans-serif;flex-shrink:0;">📦 Pendiente</button>
@@ -3303,7 +3298,9 @@ var noticiaHistorial = [];
 
 function abrirWhatsApp(tel, msg) {
   var telLimpio = tel.replace(/[^0-9+]/g,'');
-  if(!/^\+/.test(telLimpio)) telLimpio = '+34'+telLimpio;
+  if(telLimpio.startsWith('+34')) { /* already has prefix */ }
+  else if(telLimpio.startsWith('34')) { telLimpio = '+'+telLimpio; }
+  else if(!telLimpio.startsWith('+')) { telLimpio = '+34'+telLimpio; }
   var url;
   var ua = navigator.userAgent.toLowerCase();
   if(/android|iphone|ipad|ipod/.test(ua)) {
