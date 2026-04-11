@@ -2855,7 +2855,12 @@ function updateStats() {
   const pedidos = data.pedidos||[];
   const cobrado = pedidos.filter(function(p){return p.estado!=='pendiente';}).reduce(function(s,p){return s+p.total;},0);
   const pendiente = pedidos.filter(function(p){return p.estado==='pendiente';}).reduce(function(s,p){return s+p.total;},0);
-  document.getElementById('stat-total').textContent = clientes.length;
+  var activosCount = clientes.filter(function(cl){return !cl.inactivo;}).length;
+  var inactivosCount = clientes.filter(function(cl){return !!cl.inactivo;}).length;
+  var totalMostrar2 = filtroClientes==='activos' ? activosCount : filtroClientes==='inactivos' ? inactivosCount : clientes.length;
+  document.getElementById('stat-total').textContent = totalMostrar2;
+  var elA = document.getElementById('stat-activos'); if(elA) elA.textContent = activosCount;
+  var elI = document.getElementById('stat-inactivos'); if(elI) elI.textContent = inactivosCount;
   document.getElementById('stat-cobrado').textContent = cobrado.toFixed(2)+'€';
   document.getElementById('stat-pendiente').textContent = pendiente.toFixed(2)+'€';
   var nClientesDeben = (function(){
