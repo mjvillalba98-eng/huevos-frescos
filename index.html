@@ -146,10 +146,21 @@
 
   <!-- CLIENTES -->
   <div id="tab-clientes">
-    <div class="stats" style="grid-template-columns:1fr;">
-      <div class="stat"><div class="num" id="stat-total">—</div><div class="lbl">Total clientes</div></div>
-      <div class="stat"><div class="num" style="color:var(--green);" id="stat-activos">—</div><div class="lbl">Activos</div></div>
-      <div class="stat"><div class="num" style="color:var(--muted);" id="stat-inactivos">—</div><div class="lbl">Inactivos</div></div>
+    <div style="margin-bottom:10px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="stat" style="margin:0;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Activos</div>
+          <div style="font-size:26px;font-weight:700;color:var(--green);" id="stat-activos">—</div>
+        </div>
+        <div class="stat" style="margin:0;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Inactivos</div>
+          <div style="font-size:26px;font-weight:700;color:var(--muted);" id="stat-inactivos">—</div>
+        </div>
+      </div>
+      <div class="stat" style="margin:0;text-align:center;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Total clientes</div>
+        <div style="font-size:26px;font-weight:700;color:var(--brown);" id="stat-total">—</div>
+      </div>
     </div>
 
     <div id="nuevo-cliente-section" style="margin-bottom:1rem;">
