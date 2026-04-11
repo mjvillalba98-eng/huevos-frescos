@@ -2225,7 +2225,7 @@ function updateStatsCompras() {
   function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
   set('stat-comprado', totalComprado.toFixed(2)+'€');
   set('stat-bandejas-compradas', bandejaCompradas+' bandejas');
-  var comprasSueloR = compras.filter(function(x){return !x.devolucion && x.precio>0 && (!x.tipo||x.tipo==='suelo');});
+  var comprasSueloR = compras.filter(function(x){return !x.devolucion && x.precio>0 && (!x.tipo||x.tipo==='suelo'||x.tipo==='granja');});
   var comprasCamperoR = compras.filter(function(x){return !x.devolucion && x.precio>0 && x.tipo==='campero';});
   var pmSuelo = comprasSueloR.length>0 ? comprasSueloR.reduce(function(s,x){return s+x.total;},0)/comprasSueloR.reduce(function(s,x){return s+x.bandejas;},0) : 0;
   var pmCampero = comprasCamperoR.length>0 ? comprasCamperoR.reduce(function(s,x){return s+x.total;},0)/comprasCamperoR.reduce(function(s,x){return s+x.bandejas;},0) : 0;
@@ -2257,9 +2257,9 @@ function updateStatsCompras() {
   set2('stat-perdidas-ban', bandejasPerdidas+' bandeja'+(bandejasPerdidas!==1?'s':''));
 
   // STOCK por tipo (compradas - vendidas)
-  var comprasSuelo = compras.filter(function(x){return !x.tipo||x.tipo==='suelo';});
+  var comprasSuelo = compras.filter(function(x){return !x.tipo||x.tipo==='suelo'||x.tipo==='granja';});
   var comprasCamp = compras.filter(function(x){return x.tipo==='campero';});
-  var pedidosSuelo = pedidos.filter(function(x){return !x.tipo||x.tipo==='suelo';});
+  var pedidosSuelo = pedidos.filter(function(x){return !x.tipo||x.tipo==='suelo'||x.tipo==='granja';});
   var pedidosCamp = pedidos.filter(function(x){return x.tipo==='campero';});
   var banCompSuelo = comprasSuelo.reduce(function(s,x){return s+x.bandejas;},0);
   var banCompCamp = comprasCamp.reduce(function(s,x){return s+x.bandejas;},0);
