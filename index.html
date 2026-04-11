@@ -2156,7 +2156,9 @@ function updateStatsCompras() {
 
   // Pedidos cobrados DESDE la última compra
   var pedidosDesdeCompra = pedidos.filter(function(p){
-    return new Date(p.fechaPedido||p.fecha) >= saldoFecha;
+    var fr = new Date(p.fechaEntrega||p.fechaPedido||p.fecha);
+    fr.setHours(0,0,0,0);
+    return fr >= saldoFecha;
   });
   var cobEf = pedidosDesdeCompra.filter(function(p){return p.pago==='efectivo'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
   var cobBz = pedidosDesdeCompra.filter(function(p){return p.pago==='bizum'&&p.estado==='pagado';}).reduce(function(s,p){return s+p.total;},0);
