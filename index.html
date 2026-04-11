@@ -1315,7 +1315,7 @@ function renderClientes(busca='') {
     const cobrado=total-pendiente;
     const ultFecha=ps.length?formatDate(ps.reduce((a,b)=>new Date(a.fechaPedido||a.fecha)>new Date(b.fechaPedido||b.fecha)?a:b).fechaPedido||ps[0].fecha):'—';
     const freq = calcFrecuencia(c.id);
-    return `<div class="client-card" onclick="abrirHistorial(${c.id})" style="cursor:pointer;">
+    return `<div class="client-card" onclick="abrirHistorial(${c.id})" style="cursor:pointer;${c.inactivo?'opacity:0.5;filter:grayscale(0.8);background:#F5F5F5;':''}">
       <div class="client-header">
         <div style="flex:1;min-width:0">
           <div class="client-name">${c.nombre}</div>
