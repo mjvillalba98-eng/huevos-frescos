@@ -2857,8 +2857,8 @@ function updateStats() {
   document.getElementById('stat-total').textContent = totalMostrar2;
   var elA = document.getElementById('stat-activos'); if(elA) elA.textContent = activosCount;
   var elI = document.getElementById('stat-inactivos'); if(elI) elI.textContent = inactivosCount;
-  document.getElementById('stat-cobrado').textContent = cobrado.toFixed(2)+'€';
-  document.getElementById('stat-pendiente').textContent = pendiente.toFixed(2)+'€';
+  var cobEl = document.getElementById('stat-cobrado'); if(cobEl) cobEl.textContent = cobrado.toFixed(2)+'€';
+  var pendEl = document.getElementById('stat-pendiente'); if(pendEl) pendEl.textContent = pendiente.toFixed(2)+'€';
   var nClientesDeben = (function(){
     var ids = {};
     (data.pedidos||[]).filter(function(p){return p.estado==='pendiente';}).forEach(function(p){ids[p.clienteId]=1;});
