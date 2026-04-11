@@ -2231,21 +2231,17 @@ function updateStatsCompras() {
   var set2 = function(id,val){var el=document.getElementById(id);if(el)el.textContent=val;};
   set2('stat-perdidas-ban', bandejasPerdidas+' bandeja'+(bandejasPerdidas!==1?'s':''));
 
-  // STOCK por tipo
+  // STOCK por tipo (compradas - vendidas)
   var comprasSuelo = compras.filter(function(x){return !x.tipo||x.tipo==='suelo';});
   var comprasCamp = compras.filter(function(x){return x.tipo==='campero';});
   var pedidosSuelo = pedidos.filter(function(x){return !x.tipo||x.tipo==='suelo';});
   var pedidosCamp = pedidos.filter(function(x){return x.tipo==='campero';});
-  var perdSuelo = perdidas.filter(function(x){return !x.tipo||x.tipo==='suelo';});
-  var perdCamp = perdidas.filter(function(x){return x.tipo==='campero';});
   var banCompSuelo = comprasSuelo.reduce(function(s,x){return s+x.bandejas;},0);
   var banCompCamp = comprasCamp.reduce(function(s,x){return s+x.bandejas;},0);
   var banVendSuelo = pedidosSuelo.reduce(function(s,x){return s+x.bandejas;},0);
   var banVendCamp = pedidosCamp.reduce(function(s,x){return s+x.bandejas;},0);
-  var banPerdSuelo = perdSuelo.reduce(function(s,x){return s+x.bandejas;},0);
-  var banPerdCamp = perdCamp.reduce(function(s,x){return s+x.bandejas;},0);
-  var stockSuelo = banCompSuelo - banVendSuelo - banPerdSuelo;
-  var stockCamp = banCompCamp - banVendCamp - banPerdCamp;
+  var stockSuelo = banCompSuelo - banVendSuelo;
+  var stockCamp = banCompCamp - banVendCamp;
   var sueloEl = document.getElementById('stat-stock-suelo');
   var campEl = document.getElementById('stat-stock-campero');
   if(sueloEl){ sueloEl.textContent=stockSuelo; sueloEl.style.color=stockSuelo<=0?'var(--red)':stockSuelo<=3?'var(--amber)':'var(--green)'; }
@@ -3087,6 +3083,37 @@ if(sessionStorage.getItem('hf-auth') === '1') {
 // RESUMEN MENSUAL
 var mesOffset = 0;
 var MESES_NOMBRES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function toggleSaldoInicial() {
+  var f = document.getElementById('saldo-inicial-form');
+  if(!f) return;
+  var showing = f.style.display !== 'none';
+  f.style.display = showing ? 'none' : 'block';
+  if(!showing) {
+    var si = data.saldoInicial||{};
+    var efEl = document.getElementById('saldo-ef-input');
+    var bzEl = document.getElementById('saldo-bz-input');
+    var feEl = document.getElementById('saldo-fecha-input');
+    if(efEl) efEl.value = si.efectivo||0;
+    if(bzEl) bzEl.value = si.bizum||0;
+    if(feEl) feEl.value = si.fecha||new Date().toISOString().split('T')[0];
+  }
+}
+
+async function guardarSaldoInicial() {
+  var ef = parseFloat(document.getElementById('saldo-ef-input').value)||0;
+  var bz = parseFloat(document.getElementById('saldo-bz-input').value)||0;
+  var fechaEl = document.getElementById('saldo-fecha-input');
+  var fecha = fechaEl && fechaEl.value ? fechaEl.value : new Date().toISOString().split('T')[0];
+  if(!data.saldoInicial) data.saldoInicial = {};
+  data.saldoInicial.efectivo = ef;
+  data.saldoInicial.bizum = bz;
+  data.saldoInicial.fecha = fecha;
+  await guardarDatos();
+  document.getElementById('saldo-inicial-form').style.display = 'none';
+  updateStatsCompras();
+  toast('Saldo inicial guardado ✓');
+}
 
 function navMes(dir) {
   mesOffset += dir;
