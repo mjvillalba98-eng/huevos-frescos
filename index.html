@@ -258,6 +258,11 @@
         <button onclick="agregarCliente()" style="background:var(--orange);color:white;border:none;border-radius:10px;padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;width:100%;margin-top:8px;" id="btn-guardar-cliente">Guardar cliente</button>
       </div>
     </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <button onclick="setFiltroClientes('activos')" id="fc-activos" style="flex:1;padding:7px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--brown);color:white;">Activos</button>
+      <button onclick="setFiltroClientes('inactivos')" id="fc-inactivos" style="flex:1;padding:7px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--light);color:var(--brown);">Inactivos</button>
+      <button onclick="setFiltroClientes('todos')" id="fc-todos" style="flex:1;padding:7px;border-radius:20px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--light);color:var(--brown);">Todos</button>
+    </div>
     <input class="search" placeholder="🔍 Buscar cliente..." oninput="renderClientes(this.value)" id="buscador">
     <div id="lista-clientes"><div class="empty"><div class="icon">🥚</div><p>Conectando...</p></div></div>
   </div>
@@ -1302,7 +1307,12 @@ function renderClientes(busca='') {
   updateStats();
   const lista = document.getElementById('lista-clientes');
   const clientes = data.clientes||[];
-  const filtro = clientes.filter(c=>
+  var filtrado = clientes.filter(function(cl){
+    if(filtroClientes==='activos') return !cl.inactivo;
+    if(filtroClientes==='inactivos') return !!cl.inactivo;
+    return true;
+  });
+  const filtro = filtrado.filter(c=>
     c.nombre.toLowerCase().includes((busca||'').toLowerCase())||(c.tel||'').includes(busca||''));
   if(!filtro.length) {
     lista.innerHTML='<div class="empty"><div class="icon">🥚</div><p>No hay clientes aún.<br>Pulsa "+ Nuevo" para añadir el primero.</p></div>';
@@ -1315,7 +1325,7 @@ function renderClientes(busca='') {
     const cobrado=total-pendiente;
     const ultFecha=ps.length?formatDate(ps.reduce((a,b)=>new Date(a.fechaPedido||a.fecha)>new Date(b.fechaPedido||b.fecha)?a:b).fechaPedido||ps[0].fecha):'—';
     const freq = calcFrecuencia(c.id);
-    return `<div class="client-card" onclick="abrirHistorial(${c.id})" style="cursor:pointer;${c.inactivo?'opacity:0.5;filter:grayscale(0.8);background:#F5F5F5;':''}">
+    return `<div class="client-card" onclick="abrirHistorial(${c.id})" style="cursor:pointer;">
       <div class="client-header">
         <div style="flex:1;min-width:0">
           <div class="client-name">${c.nombre}</div>
