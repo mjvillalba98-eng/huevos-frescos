@@ -725,7 +725,12 @@
       </div>
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;">Vista previa <span id="noticia-count" style="color:var(--orange);"></span></div>
       <div id="noticia-preview" style="background:var(--light);border-radius:10px;padding:12px;font-size:13px;color:var(--brown);white-space:pre-wrap;line-height:1.5;margin-bottom:10px;min-height:80px;"></div>
-      <button onclick="enviarCampana()" style="width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">Enviar campana</button>
+      <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <span>Seleccionar clientes</span>
+        <span onclick="toggleTodosNoticias()" style="color:var(--orange);cursor:pointer;font-size:11px;" id="btn-todos-noticias">Seleccionar todos</span>
+      </div>
+      <div id="lista-noticias-check" style="max-height:200px;overflow-y:auto;margin-bottom:10px;"></div>
+      <button onclick="enviarCampanaSeleccionados()" style="width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;" id="btn-enviar-campana">Enviar campana</button>
     </div>
   </div>
 
@@ -1270,10 +1275,9 @@ function badge(clienteId) {
   if(!ps.length) return '<span class="badge none">Sin pedidos</span>';
   const dias = Math.floor((Date.now()-Math.max(...ps.map(p=>new Date(p.fechaPedido||p.fecha).getTime())))/86400000);
   const freq = calcFrecuencia(clienteId);
-  if(freq && dias > freq) return '<span class="badge cold">⚠️ Toca recordar</span>';
-  if(dias<=7) return '<span class="badge active">Activo</span>';
-  if(dias<=14) return '<span class="badge warn">'+dias+'d sin pedir</span>';
-  return '<span class="badge cold">'+dias+'d sin pedir</span>';
+  var diasStr = dias > 0 ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;text-align:right;">'+dias+'d sin pedir</div>' : '';
+  if(freq && dias > freq) return '<div><span class="badge cold">⚠️ Recordar</span>'+diasStr+'</div>';
+  return '<div><span class="badge active">Activo</span>'+diasStr+'</div>';
 }
 
 function pagoBadge(pago, estado) {
@@ -3286,9 +3290,67 @@ function actualizarPreviewNoticia() {
   var countEl = document.getElementById('noticia-count');
   if(countEl) countEl.textContent = clientes.length+' clientes';
   if(preview) preview.textContent = getMensajeNoticia('[nombre]');
+  renderListaNoticiasCheck();
 }
 
-function renderNoticias() { actualizarPreviewNoticia(); }
+function renderNoticias() {
+  actualizarPreviewNoticia();
+  renderListaNoticiasCheck();
+}
+
+function renderListaNoticiasCheck() {
+  var lista = document.getElementById('lista-noticias-check');
+  if(!lista) return;
+  var clientes = getClientesNoticia();
+  if(!clientes.length) { lista.innerHTML='<div style="font-size:13px;color:var(--muted);text-align:center;padding:8px;">Sin clientes</div>'; return; }
+  lista.innerHTML = clientes.map(function(cl) {
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:var(--light);margin-bottom:6px;cursor:pointer;">'
+      + '<input type="checkbox" checked class="noticia-check" data-id="'+cl.id+'" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;"/>'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:13px;font-weight:600;color:var(--brown);">'+cl.nombre+'</div>'
+      + (cl.tel?'<div style="font-size:11px;color:var(--muted);">'+cl.tel+'</div>':'')
+      + '</div></label>';
+  }).join('');
+  actualizarContadorCampana();
+  lista.querySelectorAll('.noticia-check').forEach(function(cb){
+    cb.addEventListener('change', actualizarContadorCampana);
+  });
+}
+
+function actualizarContadorCampana() {
+  var checks = document.querySelectorAll('.noticia-check:checked');
+  var btn = document.getElementById('btn-enviar-campana');
+  if(btn) btn.textContent = 'Enviar a '+checks.length+' cliente'+(checks.length!==1?'s':'');
+}
+
+function toggleTodosNoticias() {
+  var checks = document.querySelectorAll('.noticia-check');
+  var todosChecked = Array.from(checks).every(function(c){return c.checked;});
+  checks.forEach(function(c){c.checked = !todosChecked;});
+  var btn = document.getElementById('btn-todos-noticias');
+  if(btn) btn.textContent = todosChecked ? 'Seleccionar todos' : 'Deseleccionar todos';
+  actualizarContadorCampana();
+}
+
+var campanaEnviandoSel = false;
+function enviarCampanaSeleccionados() {
+  if(campanaEnviandoSel) return;
+  var checks = document.querySelectorAll('.noticia-check:checked');
+  if(!checks.length){ toast('Selecciona al menos un cliente'); return; }
+  var ids = Array.from(checks).map(function(c){return parseInt(c.dataset.id);});
+  var clientes = (data.clientes||[]).filter(function(cl){return ids.indexOf(cl.id)>=0 && cl.tel;});
+  if(!clientes.length){ toast('Sin clientes con teléfono'); return; }
+  campanaEnviandoSel = true;
+  var i = 0; var enviados = 0;
+  function siguiente() {
+    if(i >= clientes.length){ campanaEnviandoSel=false; toast('Enviado a '+enviados+' clientes'); return; }
+    var cliente = clientes[i++];
+    var telLimpio = limpiarTelefono(cliente.tel);
+    if(telLimpio) { abrirWhatsApp(telLimpio, getMensajeNoticia(cliente.nombre)); enviados++; }
+    setTimeout(siguiente, 1800);
+  }
+  siguiente();
+}
 
 var noticiaHistorial = [];
 
