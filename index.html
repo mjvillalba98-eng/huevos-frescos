@@ -1273,7 +1273,7 @@ function badge(clienteId) {
   if(freq && dias > freq) return '<span class="badge cold">⚠️ Toca recordar</span>';
   if(dias<=7) return '<span class="badge active">Activo</span>';
   if(dias<=14) return '<span class="badge warn">'+dias+'d sin pedir</span>';
-  return '<span class="badge cold">Inactivo</span>';
+  return '<span class="badge cold">'+dias+'d sin pedir</span>';
 }
 
 function pagoBadge(pago, estado) {
