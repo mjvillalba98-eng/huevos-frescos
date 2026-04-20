@@ -2417,9 +2417,10 @@ function cancelarConfirmacion() {
 }
 
 function abrirWhatsApp(tel, mensaje) {
+  var telNum = tel.replace(/[^0-9]/g,'');
   var esMobil = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if(esMobil) {
-    var url = 'whatsapp://send?phone=' + tel + '&text=' + encodeURIComponent(mensaje);
+    var url = 'whatsapp://send?phone=' + telNum + '&text=' + encodeURIComponent(mensaje);
     var a = document.createElement('a');
     a.href = url;
     a.target = '_blank';
@@ -2428,7 +2429,7 @@ function abrirWhatsApp(tel, mensaje) {
     a.click();
     setTimeout(function(){ document.body.removeChild(a); }, 500);
   } else {
-    var url = 'https://web.whatsapp.com/send?phone=' + tel.replace('+','') + '&text=' + encodeURIComponent(mensaje);
+    var url = 'https://web.whatsapp.com/send?phone=' + telNum + '&text=' + encodeURIComponent(mensaje);
     window.open(url, 'whatsapp_huevos');
   }
 }
@@ -3354,21 +3355,7 @@ function enviarCampanaSeleccionados() {
 
 var noticiaHistorial = [];
 
-function abrirWhatsApp(tel, msg) {
-  var telLimpio = tel.replace(/[^0-9+]/g,'');
-  if(telLimpio.startsWith('+34')) { /* already has prefix */ }
-  else if(telLimpio.startsWith('34')) { telLimpio = '+'+telLimpio; }
-  else if(!telLimpio.startsWith('+')) { telLimpio = '+34'+telLimpio; }
-  var url;
-  var ua = navigator.userAgent.toLowerCase();
-  if(/android|iphone|ipad|ipod/.test(ua)) {
-    url = 'whatsapp://send?phone='+telLimpio+'&text='+encodeURIComponent(msg);
-    window.location.href = url;
-  } else {
-    url = 'https://web.whatsapp.com/send?phone='+telLimpio+'&text='+encodeURIComponent(msg);
-    window.open(url, 'whatsapp_huevos');
-  }
-}
+
 
 var campanaEnviando = false;
 function enviarCampana() {
