@@ -2199,7 +2199,7 @@ function updateStatsCompras() {
   if(elCajaBzDet) elCajaBzDet.textContent = 'Cobrado desde el '+fechaUltimaStr;
 
   // STOCK
-  var stock = bandejaCompradas - bandejasPedidas;
+  var stock = bandejaCompradas - bandejasPedidas - bandejasPerdidas;
   var posiblesBandejas = posibles.reduce(function(s,p){return s+p.bandejas;},0);
   var stockConPosibles = stock - posiblesBandejas;
 
