@@ -374,17 +374,13 @@
     <!-- COMPRADO -->
     <div class="card" style="margin-bottom:10px;">
       <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Comprado</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
         <div class="stat" style="margin:0;padding:10px;">
           <div class="num" id="stat-comprado" style="font-size:18px;">—</div>
           <div class="lbl">Total gastado</div>
           <div style="font-size:11px;color:var(--muted);" id="stat-bandejas-compradas">— bandejas</div>
         </div>
-        <div class="stat" style="margin:0;padding:10px;">
-          <div class="num" style="font-size:18px;" id="stat-precio-medio">—</div>
-          <div class="lbl">Precio medio</div>
-          <div style="font-size:11px;color:var(--muted);">por bandeja</div>
-        </div>
+
         <div class="stat red" style="margin:0;padding:10px;">
           <div class="num" id="stat-compras-pendiente" style="font-size:18px;">—</div>
           <div class="lbl">Pendiente pagar</div>
@@ -2263,13 +2259,15 @@ function updateStatsCompras() {
   var banVendSuelo = pedidosSuelo.reduce(function(s,x){return s+x.bandejas;},0);
   var banVendCamp = pedidosCamp.reduce(function(s,x){return s+x.bandejas;},0);
   var perdidas2 = data.perdidas||[];
-  var banPerdSuelo = perdidas2.reduce(function(s,x){return s+x.bandejas;},0);
+  var banPerdSuelo = perdidas2.filter(function(x){return !x.tipo||x.tipo==='suelo'||x.tipo==='granja';}).reduce(function(s,x){return s+x.bandejas;},0);
+  var banPerdCamp = perdidas2.filter(function(x){return x.tipo==='campero';}).reduce(function(s,x){return s+x.bandejas;},0);
   var stockSuelo = banCompSuelo - banVendSuelo - banPerdSuelo;
+  var stockCamp2 = banCompCamp - banVendCamp - banPerdCamp;
   var stockCamp = banCompCamp - banVendCamp;
   var sueloEl = document.getElementById('stat-stock-suelo');
   var campEl = document.getElementById('stat-stock-campero');
   if(sueloEl){ sueloEl.textContent=stockSuelo; sueloEl.style.color=stockSuelo<=0?'var(--red)':stockSuelo<=3?'var(--amber)':'var(--green)'; }
-  if(campEl){ campEl.textContent=stockCamp; campEl.style.color=stockCamp<=0?'var(--red)':stockCamp<=2?'var(--amber)':'var(--green)'; }
+  if(campEl){ campEl.textContent=stockCamp2; campEl.style.color=stockCamp2<=0?'var(--red)':stockCamp2<=2?'var(--amber)':'var(--green)'; }
   set('stat-ban-compradas', bandejaCompradas);
   set('stat-ban-vendidas', bandejasPedidas);
   var stockEl = document.getElementById('stat-stock');
