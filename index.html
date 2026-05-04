@@ -2262,7 +2262,9 @@ function updateStatsCompras() {
   var banCompCamp = comprasCamp.reduce(function(s,x){return s+x.bandejas;},0);
   var banVendSuelo = pedidosSuelo.reduce(function(s,x){return s+x.bandejas;},0);
   var banVendCamp = pedidosCamp.reduce(function(s,x){return s+x.bandejas;},0);
-  var stockSuelo = banCompSuelo - banVendSuelo;
+  var perdidas2 = data.perdidas||[];
+  var banPerdSuelo = perdidas2.reduce(function(s,x){return s+x.bandejas;},0);
+  var stockSuelo = banCompSuelo - banVendSuelo - banPerdSuelo;
   var stockCamp = banCompCamp - banVendCamp;
   var sueloEl = document.getElementById('stat-stock-suelo');
   var campEl = document.getElementById('stat-stock-campero');
